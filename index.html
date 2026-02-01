@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>eFootball Training Hub</title>
     
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9775131443425311"
@@ -13,11 +13,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --brand-blue: #3b82f6;
+            --bg-dark: #030508;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #030508;
+            background-color: var(--bg-dark);
             color: #e2e8f0;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
         h1, h2, h3, .brand-font {
             font-family: 'Teko', sans-serif;
@@ -25,14 +30,16 @@
         .card-bg {
             background: linear-gradient(180deg, #0f141e 0%, #030508 100%);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.2s ease, border-color 0.2s ease;
         }
-        .card-bg:hover {
-            border-color: #3b82f6;
-            transform: translateY(-4px);
+        @media (hover: hover) {
+            .card-bg:hover {
+                border-color: var(--brand-blue);
+                transform: translateY(-4px);
+            }
         }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #030508; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: var(--bg-dark); }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -44,86 +51,159 @@
             border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.1);
         }
+        
+        .filter-tab-active {
+            color: var(--brand-blue);
+            border-bottom: 2px solid var(--brand-blue);
+        }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 640px) {
+            .player-card-image {
+                height: 160px !important;
+                width: 160px !important;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen flex flex-col">
 
-    <nav class="bg-black/90 border-b border-white/5 sticky top-0 z-40 backdrop-blur-xl">
+    <!-- Navigation -->
+    <nav class="bg-black/95 border-b border-white/5 sticky top-0 z-40 backdrop-blur-xl">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
+            <div class="flex items-center justify-between h-16 sm:h-20">
                 <div 
-                    class="flex items-center gap-4 group cursor-pointer" 
+                    class="flex items-center gap-3 sm:gap-4 group cursor-pointer" 
                     onclick="goHome()"
                     ondblclick="toggleModal(true)" 
-                    title="Click for Home | Double-click for Admin"
                 >
-                    <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center font-bold text-white brand-font text-3xl shadow-[0_0_20px_rgba(37,99,235,0.4)] group-hover:scale-105 transition-transform">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-white brand-font text-2xl sm:text-3xl shadow-[0_0_20px_rgba(37,99,235,0.4)]">
                         EF
                     </div>
                     <div class="flex flex-col">
-                        <span class="text-2xl font-bold brand-font tracking-widest text-white leading-none">TRAINING</span>
-                        <span class="text-xs font-bold text-blue-500 tracking-[0.3em] uppercase opacity-80">Hub</span>
+                        <span class="text-xl sm:text-2xl font-bold brand-font tracking-widest text-white leading-none">TRAINING</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-blue-500 tracking-[0.2em] uppercase opacity-80">Hub</span>
+                            <span id="lastUpdated" class="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-slate-500 font-medium uppercase">UPDATED: FEB 2026</span>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Sort Dropdown -->
+                <select id="sortSelect" onchange="renderPlayers()" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white outline-none focus:ring-1 focus:ring-blue-500">
+                    <option value="newest">Newest First</option>
+                    <option value="rating">Highest OVR</option>
+                    <option value="name">Alphabetical</option>
+                </select>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div class="mb-10 space-y-6">
-            <div class="relative">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 flex-grow w-full">
+        
+        <!-- Search & Filter Area -->
+        <div class="mb-8 space-y-4">
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-500 group-focus-within:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
                 <input 
                     type="text" 
                     id="searchInput"
                     oninput="renderPlayers()"
-                    placeholder="Search name, position, or card version..." 
-                    class="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-5 px-8 text-white focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-600 text-lg shadow-inner"
+                    placeholder="Search player, position, version..." 
+                    class="w-full bg-slate-900/40 border border-white/10 rounded-2xl py-4 pl-14 pr-6 text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-600 text-sm sm:text-base"
                 />
             </div>
-            <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar" id="posFilterGroup"></div>
+
+            <div class="flex flex-col gap-3">
+                <div class="flex gap-6 border-b border-white/5 pb-1">
+                    <button onclick="toggleFilterMode('position')" id="mode-pos" class="text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all pb-2">By Position</button>
+                    <button onclick="toggleFilterMode('version')" id="mode-ver" class="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all pb-2">By Card Type</button>
+                </div>
+                <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="filterGroup"></div>
+            </div>
         </div>
 
-        <div id="playersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
-        <div id="emptyState" class="hidden text-center py-32 text-slate-600 italic"><p>No training builds found.</p></div>
+        <!-- Players Grid -->
+        <div id="playersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"></div>
+        
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-24 sm:py-32">
+            <div class="text-slate-700 mb-4 flex justify-center">
+                <svg class="w-16 h-16 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <p class="text-slate-500 font-medium italic">No matches found for your criteria.</p>
+        </div>
     </main>
 
-    <div id="genModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/98 backdrop-blur-md">
-        <div class="bg-slate-900 w-full max-w-4xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div class="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                <div class="flex gap-8">
-                    <button onclick="switchTab('add')" id="tab-add" class="text-3xl font-bold brand-font uppercase tracking-widest text-white border-b-2 border-blue-600 pb-1">Add Player</button>
-                    <button onclick="switchTab('manage')" id="tab-manage" class="text-3xl font-bold brand-font uppercase tracking-widest text-slate-500 hover:text-white pb-1 transition-colors">Manage All</button>
+    <!-- Footer Text Area -->
+    <footer class="mt-12 py-12 px-4 border-t border-white/5 bg-black/40">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-slate-400 text-sm sm:text-base leading-relaxed mb-4">
+                EF Training Hub is the ultimate eFootball 26 training website, created to help players master the game with the best training builds and strategies.
+            </p>
+            <p class="text-slate-500 text-xs sm:text-sm font-medium italic">
+                Player stats, training builds, position guides, manager setups, and more… all in one place.
+            </p>
+            <div class="mt-8 text-[10px] text-slate-700 font-black uppercase tracking-[0.4em]">
+                &copy; 2026 EF Training Hub
+            </div>
+        </div>
+    </footer>
+
+    <!-- Admin Modal -->
+    <div id="genModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-0 sm:p-4 bg-black/98 backdrop-blur-md">
+        <div class="bg-slate-900 w-full max-w-4xl sm:rounded-[2.5rem] border-white/10 shadow-2xl overflow-hidden h-full sm:h-auto sm:max-h-[90vh] flex flex-col border">
+            <div class="p-6 sm:p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                <div class="flex gap-6 sm:gap-8">
+                    <button onclick="switchTab('add')" id="tab-add" class="text-2xl sm:text-3xl font-bold brand-font uppercase tracking-widest text-white border-b-2 border-blue-600 pb-1">Add Player</button>
+                    <button onclick="switchTab('manage')" id="tab-manage" class="text-2xl sm:text-3xl font-bold brand-font uppercase tracking-widest text-slate-500 hover:text-white pb-1 transition-colors">Manage</button>
                 </div>
-                <button onclick="toggleModal(false)" class="text-slate-500 hover:text-white text-4xl leading-none">&times;</button>
+                <button onclick="toggleModal(false)" class="text-slate-500 hover:text-white text-3xl sm:text-4xl leading-none">&times;</button>
             </div>
             
-            <div class="p-8 overflow-y-auto custom-scrollbar flex-1" id="addTab">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <input id="inName" placeholder="Player Name" class="bg-black/50 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-blue-500" />
-                    <input id="inVersion" placeholder="Card Version" class="bg-black/50 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-blue-500" />
-                    <input id="inPos" placeholder="Position (e.g. CF)" class="bg-black/50 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-blue-500" />
-                    <input id="inRating" type="number" placeholder="Max OVR" class="bg-black/50 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-blue-500" />
-                    <input id="inPlaystyle" placeholder="Playstyle" class="bg-black/50 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-blue-500" />
-                    <input id="inImage" placeholder="Player Image URL" class="bg-black/50 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-blue-500" />
-                    <input id="inManager" placeholder="Manager Name" class="bg-black/50 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-blue-500" />
-                    <input id="inManagerImg" placeholder="Manager Square Image URL" class="bg-black/50 border border-white/10 p-4 rounded-2xl text-white outline-none focus:border-blue-500" />
+            <div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1" id="addTab">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+                    <input id="inName" placeholder="Player Name" class="bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-blue-500 text-sm" />
+                    <select id="inVersionType" class="bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-blue-500 text-sm">
+                        <option value="Normal">Normal</option>
+                        <option value="Legend">Legend</option>
+                        <option value="Epic">Epic</option>
+                        <option value="Trending">Trending</option>
+                        <option value="Featured">Featured</option>
+                        <option value="Highlight">Highlight</option>
+                        <option value="Big Time">Big Time</option>
+                        <option value="Show Time">Show Time</option>
+                    </select>
+                    <input id="inVersionLabel" placeholder="Display Version (e.g. Epic Booster)" class="bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-blue-500 text-sm" />
+                    <input id="inPos" placeholder="Position (e.g. CF)" class="bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-blue-500 text-sm" />
+                    <input id="inRating" type="number" placeholder="Max OVR" class="bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-blue-500 text-sm" />
+                    <input id="inPlaystyle" placeholder="Playstyle" class="bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-blue-500 text-sm" />
+                    <input id="inImage" placeholder="Player Image URL" class="bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-blue-500 text-sm" />
+                    <input id="inManager" placeholder="Manager Name" class="bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-blue-500 text-sm" />
+                    <input id="inManagerImg" placeholder="Manager Square Image URL" class="bg-black/50 border border-white/10 p-4 rounded-xl text-white outline-none focus:border-blue-500 text-sm" />
                 </div>
                 <div class="mb-10">
-                    <label class="text-[11px] text-blue-500 font-black uppercase tracking-widest mb-4 block">Stats Progression</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4" id="statsInputs"></div>
+                    <label class="text-[10px] text-blue-500 font-black uppercase tracking-widest mb-4 block">Stats Progression</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3" id="statsInputs"></div>
                 </div>
-                <button onclick="generateCode()" class="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase rounded-3xl brand-font text-3xl shadow-[0_10px_30px_rgba(37,99,235,0.3)]">Generate Player Data</button>
+                <button onclick="generateCode()" class="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase rounded-2xl brand-font text-2xl sm:text-3xl shadow-lg">Generate JSON Data</button>
             </div>
 
-            <div class="p-8 overflow-y-auto custom-scrollbar hidden flex-1" id="manageTab">
-                <div id="manageList" class="space-y-4"></div>
+            <div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar hidden flex-1" id="manageTab">
+                <div id="manageList" class="space-y-3"></div>
             </div>
 
-            <div id="codeResult" class="hidden p-8 bg-black/60 h-full flex flex-col">
-                <textarea id="outputArea" readonly class="w-full flex-1 bg-black text-blue-400 font-mono text-[11px] p-6 rounded-3xl border border-white/10 mb-6 outline-none"></textarea>
+            <div id="codeResult" class="hidden p-6 sm:p-8 bg-black/60 h-full flex flex-col">
+                <textarea id="outputArea" readonly class="w-full flex-1 bg-black text-blue-400 font-mono text-[10px] p-6 rounded-2xl border border-white/10 mb-6 outline-none"></textarea>
                 <div class="flex gap-4">
-                    <button onclick="copyOutput()" class="flex-1 py-5 bg-white text-black rounded-2xl font-black uppercase text-sm tracking-widest">Copy Code</button>
-                    <button onclick="resetModal()" class="py-5 px-10 bg-slate-800 text-white rounded-2xl">Back</button>
+                    <button onclick="copyOutput()" class="flex-1 py-4 bg-white text-black rounded-xl font-black uppercase text-xs tracking-widest">Copy to Clipboard</button>
+                    <button onclick="resetModal()" class="py-4 px-8 bg-slate-800 text-white rounded-xl text-xs uppercase font-bold">Back</button>
                 </div>
             </div>
         </div>
@@ -137,326 +217,291 @@
             {
                 "id": 1769894307092,
                 "name": "Pedri",
-                "version": "ShowTime",
+                "versionType": "Show Time",
+                "version": "Show Time",
                 "position": "CMF",
                 "rating": "104",
                 "playstyle": "Orchestrator",
                 "image": "https://pesdb.net/assets/img/card/f106765907789861.png",
                 "manager": "Gattuso",
                 "managerImg": "https://efootballhub.net/images/efootball24/coaches/17604802510874.webp",
-                "build": {
-                    "Passing": 9,
-                    "Dribbling": 8,
-                    "Dexterity": 7,
-                    "Lower Body": 11,
-                    "Defending": 5
-                },
+                "build": { "Passing": 9, "Dribbling": 8, "Dexterity": 7, "Lower Body": 11, "Defending": 5 },
             },
             {
                 "id": 1769894444887,
-                "name": "Bellingham ",
-                "version": "ShowTime",
+                "name": "Bellingham",
+                "versionType": "Show Time",
+                "version": "Show Time",
                 "position": "CMF",
                 "rating": "106",
                 "playstyle": "Box To Box",
                 "image": "https://pesdb.net/assets/img/card/f106765907789637.png",
-                "manager": "All 89 ",
+                "manager": "All 89",
                 "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
-                "build": {
-                    "Shooting": 0,
-                    "Passing": 11,
-                    "Dribbling": 9,
-                    "Dexterity": 4,
-                    "Lower Body": 10,
-                    "Defending": 7
-                }
-                
+                "build": { "Passing": 11, "Dribbling": 9, "Dexterity": 4, "Lower Body": 10, "Defending": 7 }
             },
             {
-    "id": 1769901403404,
-    "name": "Eze",
-    "version": "ShowTime",
-    "position": "AMF",
-    "rating": "105",
-    "playstyle": "Hole Player",
-    "image": "https://pesdb.net/assets/img/card/f106765907771610.png",
-    "manager": "All 89",
-    "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-        "Shooting": 6,
-        "Passing": 8,
-        "Dribbling": 10,
-        "Dexterity": 8,
-        "Lower Body": 8
-    },
+                "id": 1769901403404,
+                "name": "Eze",
+                "versionType": "Show Time",
+                "version": "Show Time",
+                "position": "AMF",
+                "rating": "105",
+                "playstyle": "Hole Player",
+                "image": "https://pesdb.net/assets/img/card/f106765907771610.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Shooting": 6, "Passing": 8, "Dribbling": 10, "Dexterity": 8, "Lower Body": 8 },
             },
             {
-    "id": 1,
-    "name": "Baresi",
-    "version": "Epic Booster",
-    "position": "CB",
-    "rating": "102",
-    "playstyle": "Build Up",
-    "image": 
-    "https://pesdb.net/assets/img/card/f88033407929841max.png",
-    "manager": "All 89",
-    "managerImg": 
-    "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-      "Passing": 0,
-      "Dribbling": 0,
-      "Dexterity": 3,
-      "Lower Body": 6,
-      "Aerial": 11,
-      "Defending": 12
-    }
-  },
-  {
-    "id": 2,
-    "name": "Cannavaro",
-    "version": "Epic Booster",
-    "position": "CB",
-    "rating": "100",
-    "playstyle": "Destroyer",
-    "image": 
-    "https://pesdb.net/assets/img/card/f88032334191333max.png",
-    "manager": "All 89",
-    "managerImg": 
-    "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-      "Passing": 0,
-      "Dribbling": 0,
-      "Dexterity": 4,
-      "Lower Body": 8,
-      "Aerial": 8,
-      "Defending": 12
-    }
-  },
-  {
-    "id": 3,
-    "name": "Ferrer",
-    "version": "Epic Booster",
-    "position": "RB",
-    "rating": "104",
-    "playstyle": "Destroyer",
-    "image": 
-    "https://pesdb.net/assets/img/card/f88033139494363max.png",
-    "manager": "All 89",
-    "managerImg": 
-    "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-      "Passing": 0,
-      "Dribbling": 0,
-      "Dexterity": 3,
-      "Lower Body": 4,
-      "Aerial": 12,
-      "Defending": 11
-        }
-    },
-    {
-    "id": 1769958916039,
-    "name": "Diouf",
-    "version": "Epic Booster",
-    "position": "CF",
-    "rating": "102",
-    "playstyle": "Goal Poacher",
-    "image": "https://pesdb.net/assets/img/card/f88039934308531max.png",
-    "manager": "All 89",
-    "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-        "Shooting": 10,
-        "Dribbling": 8,
-        "Dexterity": 10,
-        "Lower Body": 7,
-        "Aerial": 4
-    }
-},
-{
-    "id": 1769959255632,
-    "name": "Owen",
-    "version": "Epic Booster",
-    "position": "CF",
-    "rating": "106",
-    "playstyle": "Goal Poacher",
-    "image": "https://pesdb.net/assets/img/card/f88039581945366max.png",
-    "manager": "All 89",
-    "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-        "Shooting": 9,
-        "Dribbling": 7,
-        "Dexterity": 11,
-        "Lower Body": 8,
-        "Aerial": 4
-    }
-},
-{
-    "id": 1769959407456,
-    "name": "Makélélé",
-    "version": "Epic Booster",
-    "position": "DMF",
-    "rating": "107",
-    "playstyle": "Destroyer",
-    "image": "https://pesdb.net/assets/img/card/f88039581948642max.png",
-    "manager": "All 89",
-    "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-        "Passing": 8,
-        "Dribbling": 4,
-        "Dexterity": 5,
-        "Lower Body": 8,
-        "Aerial": 5,
-        "Defending": 12
-    }
-},
-{
-    "id": 1769959833152,
-    "name": "McManaman",
-    "version": "Epic Booster",
-    "position": "RMF",
-    "rating": "105",
-    "playstyle": "Creative Playmaker",
-    "image": "https://pesdb.net/assets/img/card/f88039850246968max.png",
-    "manager": "All 89",
-    "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-        "Shooting": 4,
-        "Passing": 7,
-        "Dribbling": 8,
-        "Dexterity": 8,
-        "Lower Body": 12
-    }
-},
-{
-    "id": 1769960010256,
-    "name": "Schmeichel",
-    "version": "Epic Booster",
-    "position": "GK",
-    "rating": "107",
-    "playstyle": "Defensive Goalkeeper",
-    "image": "https://pesdb.net/assets/img/card/f88039581948647max.png",
-    "manager": "All 89",
-    "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-        "Aerial": 2,
-        "GK 1": 10,
-        "GK 2": 9,
-        "GK 3": 13
-    }
-},
-{
-    "id": 1769960134904,
-    "name": "Best",
-    "version": "Epic Booster",
-    "position": "RWF",
-    "rating": "109",
-    "playstyle": "Prolific Winger",
-    "image": "https://pesdb.net/assets/img/card/f89136677522134max.png",
-    "manager": "All 89",
-    "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-        "Shooting": 6,
-        "Passing": 4,
-        "Dribbling": 10,
-        "Dexterity": 10,
-        "Lower Body": 10
-    }
-},
-{
-    "id": 1769960297992,
-    "name": "Robson",
-    "version": "Epic Booster",
-    "position": "CMF",
-    "rating": "105",
-    "playstyle": "Box To Box",
-    "image": "https://pesdb.net/assets/img/card/f88039581945332max.png",
-    "manager": "All 89",
-    "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
-    "build": {
-        "Passing": 10,
-        "Dribbling": 8,
-        "Dexterity": 6,
-        "Lower Body": 10,
-        "Defending": 8
-    }
-},
+                "id": 1,
+                "name": "Baresi",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "CB",
+                "rating": "102",
+                "playstyle": "Build Up",
+                "image": "https://pesdb.net/assets/img/card/f88033407929841max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Dexterity": 3, "Lower Body": 6, "Aerial": 11, "Defending": 12 }
+            },
+            {
+                "id": 2,
+                "name": "Cannavaro",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "CB",
+                "rating": "100",
+                "playstyle": "Destroyer",
+                "image": "https://pesdb.net/assets/img/card/f88032334191333max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Dexterity": 4, "Lower Body": 8, "Aerial": 8, "Defending": 12 }
+            },
+            {
+                "id": 3,
+                "name": "Ferrer",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "RB",
+                "rating": "104",
+                "playstyle": "Destroyer",
+                "image": "https://pesdb.net/assets/img/card/f88033139494363max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Dexterity": 3, "Lower Body": 4, "Aerial": 12, "Defending": 11 }
+            },
+            {
+                "id": 1769958916039,
+                "name": "Diouf",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "CF",
+                "rating": "102",
+                "playstyle": "Goal Poacher",
+                "image": "https://pesdb.net/assets/img/card/f88039934308531max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Shooting": 10, "Dribbling": 8, "Dexterity": 10, "Lower Body": 7, "Aerial": 4 }
+            },
+            {
+                "id": 1769959255632,
+                "name": "Owen",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "CF",
+                "rating": "106",
+                "playstyle": "Goal Poacher",
+                "image": "https://pesdb.net/assets/img/card/f88039581945366max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Shooting": 9, "Dribbling": 7, "Dexterity": 11, "Lower Body": 8, "Aerial": 4 }
+            },
+            {
+                "id": 1769959407456,
+                "name": "Makélélé",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "DMF",
+                "rating": "107",
+                "playstyle": "Destroyer",
+                "image": "https://pesdb.net/assets/img/card/f88039581948642max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Passing": 8, "Dribbling": 4, "Dexterity": 5, "Lower Body": 8, "Aerial": 5, "Defending": 12 }
+            },
+            {
+                "id": 1769959833152,
+                "name": "McManaman",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "RMF",
+                "rating": "105",
+                "playstyle": "Creative Playmaker",
+                "image": "https://pesdb.net/assets/img/card/f88039850246968max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Shooting": 4, "Passing": 7, "Dribbling": 8, "Dexterity": 8, "Lower Body": 12 }
+            },
+            {
+                "id": 1769960010256,
+                "name": "Schmeichel",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "GK",
+                "rating": "107",
+                "playstyle": "Defensive Goalkeeper",
+                "image": "https://pesdb.net/assets/img/card/f88039581948647max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Aerial": 2, "GK 1": 10, "GK 2": 9, "GK 3": 13 }
+            },
+            {
+                "id": 1769960134904,
+                "name": "Best",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "RWF",
+                "rating": "109",
+                "playstyle": "Prolific Winger",
+                "image": "https://pesdb.net/assets/img/card/f89136677522134max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Shooting": 6, "Passing": 4, "Dribbling": 10, "Dexterity": 10, "Lower Body": 10 }
+            },
+            {
+                "id": 1769960297992,
+                "name": "Robson",
+                "versionType": "Epic",
+                "version": "Epic Booster",
+                "position": "CMF",
+                "rating": "105",
+                "playstyle": "Box To Box",
+                "image": "https://pesdb.net/assets/img/card/f88039581945332max.png",
+                "manager": "All 89",
+                "managerImg": "https://efootballhub.net/images/efootball24/coaches/0.webp",
+                "build": { "Passing": 10, "Dribbling": 8, "Dexterity": 6, "Lower Body": 10, "Defending": 8 }
+            }
         ];
 
         const statsList = ["Shooting", "Passing", "Dribbling", "Dexterity", "Lower Body", "Aerial", "Defending", "GK 1", "GK 2", "GK 3"];
+        const versionTypes = ["Normal", "Legend", "Epic", "Trending", "Featured", "Highlight", "Big Time", "Show Time"];
+        
         let currentFilter = 'All';
+        let filterMode = 'position';
 
         // --- NAVIGATION LOGIC ---
         function goHome() {
             currentFilter = 'All';
+            filterMode = 'position';
             document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'newest';
+            updateFilterTabs();
             renderFilters();
             renderPlayers();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        function toggleFilterMode(mode) {
+            filterMode = mode;
+            currentFilter = 'All';
+            updateFilterTabs();
+            renderFilters();
+            renderPlayers();
+        }
+
+        function updateFilterTabs() {
+            const posBtn = document.getElementById('mode-pos');
+            const verBtn = document.getElementById('mode-ver');
+            if(filterMode === 'position') {
+                posBtn.className = "text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all pb-2";
+                verBtn.className = "text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all pb-2";
+            } else {
+                verBtn.className = "text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all pb-2";
+                posBtn.className = "text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all pb-2";
+            }
+        }
+
         function renderFilters() {
-            const container = document.getElementById('posFilterGroup');
-            const positions = ['All', 'CF', 'SS', 'LWF', 'RWF', 'AMF', 'CMF', 'DMF', 'CB', 'LB', 'RB', 'GK'];
-            container.innerHTML = positions.map(pos => `
-                <button onclick="setFilter('${pos}')" class="px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border ${currentFilter === pos ? 'bg-blue-600 border-blue-500 text-white shadow-lg' : 'bg-slate-900 border-white/5 text-slate-500 hover:text-slate-300'}">
-                    ${pos}
+            const container = document.getElementById('filterGroup');
+            let items = [];
+            if(filterMode === 'position') {
+                items = ['All', 'CF', 'SS', 'LWF', 'RWF', 'AMF', 'CMF', 'DMF', 'RMF', 'LMF', 'CB', 'LB', 'RB', 'GK'];
+            } else {
+                items = ['All', ...versionTypes];
+            }
+
+            container.innerHTML = items.map(item => `
+                <button onclick="setFilter('${item}')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${currentFilter === item ? 'bg-blue-600 border-blue-500 text-white shadow-lg' : 'bg-slate-900 border-white/5 text-slate-500 hover:text-slate-300'} whitespace-nowrap">
+                    ${item}
                 </button>
             `).join('');
         }
 
-        function setFilter(pos) { 
-            event.stopPropagation();
-            currentFilter = pos; 
-            renderFilters(); 
-            renderPlayers(); 
-        }
+        function setFilter(val) { currentFilter = val; renderFilters(); renderPlayers(); }
 
         function renderPlayers() {
             const grid = document.getElementById('playersGrid');
             const empty = document.getElementById('emptyState');
-            const search = document.getElementById('searchInput').value.toLowerCase();
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const sortVal = document.getElementById('sortSelect').value;
 
-            const filtered = PLAYERS.filter(p => {
-                const matchesSearch = p.name.toLowerCase().includes(search) || p.version.toLowerCase().includes(search);
-                const matchesPos = currentFilter === 'All' || p.position === currentFilter;
-                return matchesSearch && matchesPos;
+            let filtered = PLAYERS.filter(p => {
+                const searchStr = `${p.name} ${p.position} ${p.version} ${p.playstyle} ${p.versionType}`.toLowerCase();
+                const matchesSearch = query === "" || query.split(' ').every(term => searchStr.includes(term));
+                
+                let matchesFilter = currentFilter === 'All';
+                if(!matchesFilter) {
+                    matchesFilter = filterMode === 'position' ? p.position === currentFilter : p.versionType === currentFilter;
+                }
+                return matchesSearch && matchesFilter;
             });
+
+            if (sortVal === 'rating') {
+                filtered.sort((a, b) => parseInt(b.rating) - parseInt(a.rating));
+            } else if (sortVal === 'name') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else {
+                filtered.sort((a, b) => b.id - a.id);
+            }
 
             if (filtered.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
 
             empty.classList.add('hidden');
             grid.innerHTML = filtered.map(p => `
-                <div class="card-bg rounded-[2.5rem] overflow-hidden">
-                    <div class="relative h-48">
-                        <img src="${p.image}" class="absolute right-0 bottom-0 h-52 w-52 object-cover object-top" style="mask-image: linear-gradient(to left, black 50%, transparent 100%); -webkit-mask-image: linear-gradient(to left, black 50%, transparent 100%);">
-                        <div class="absolute top-8 left-8">
-                            <div class="text-blue-500 text-[10px] font-black tracking-[0.3em] uppercase mb-1">${p.position}</div>
-                            <h3 class="text-4xl font-bold brand-font text-white leading-none">${p.name}</h3>
-                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">${p.version}</p>
+                <div class="card-bg rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden">
+                    <div class="relative h-40 sm:h-48">
+                        <img src="${p.image}" class="player-card-image absolute right-0 bottom-0 h-44 w-44 sm:h-52 sm:w-52 object-cover object-top pointer-events-none" style="mask-image: linear-gradient(to left, black 50%, transparent 100%); -webkit-mask-image: linear-gradient(to left, black 50%, transparent 100%);">
+                        <div class="absolute top-6 left-6 sm:top-8 sm:left-8">
+                            <div class="text-blue-500 text-[9px] sm:text-[10px] font-black tracking-[0.3em] uppercase mb-1">${p.position}</div>
+                            <h3 class="text-3xl sm:text-4xl font-bold brand-font text-white leading-none">${p.name}</h3>
+                            <p class="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">${p.version}</p>
                         </div>
-                        <div class="absolute top-8 right-8 bg-black/40 backdrop-blur rounded-2xl p-3 text-center min-w-[55px] border border-white/5">
-                            <div class="text-[9px] text-slate-500 font-bold mb-1">OVR</div>
-                            <div class="text-3xl font-bold brand-font text-white leading-none">${p.rating}</div>
+                        <div class="absolute top-6 right-6 sm:top-8 sm:right-8 bg-black/40 backdrop-blur rounded-xl sm:rounded-2xl p-2 sm:p-3 text-center min-w-[50px] sm:min-w-[55px] border border-white/5">
+                            <div class="text-[8px] sm:text-[9px] text-slate-500 font-bold">OVR</div>
+                            <div class="text-2xl sm:text-3xl font-bold brand-font text-white leading-none">${p.rating}</div>
                         </div>
                     </div>
-                    <div class="p-8 border-t border-white/5 bg-white/[0.01]">
-                        <div class="flex justify-between items-center mb-6">
-                            <span class="text-[9px] text-slate-600 font-black uppercase tracking-widest italic">Training Build</span>
-                            <span class="text-[10px] text-blue-400 font-bold border border-blue-500/20 px-3 py-1.5 rounded-xl bg-blue-500/5 uppercase">${p.playstyle}</span>
+                    <div class="p-6 sm:p-8 border-t border-white/5 bg-white/[0.01]">
+                        <div class="flex justify-between items-center mb-4 sm:mb-6">
+                            <span class="text-[8px] sm:text-[9px] text-slate-600 font-black uppercase tracking-widest italic">Training Build</span>
+                            <span class="text-[9px] sm:text-[10px] text-blue-400 font-bold border border-blue-500/20 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-blue-500/5 uppercase">${p.playstyle}</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-3 mb-8">
+                        <div class="grid grid-cols-2 gap-2 sm:gap-3 mb-6 sm:mb-8">
                             ${Object.entries(p.build).map(([stat, val]) => `
-                                <div class="bg-black/50 p-4 rounded-2xl border border-white/5 flex justify-between items-center">
-                                    <span class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">${stat}</span>
-                                    <span class="text-white font-bold brand-font text-2xl leading-none">${val}</span>
+                                <div class="bg-black/40 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/5 flex justify-between items-center">
+                                    <span class="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-tighter">${stat}</span>
+                                    <span class="text-white font-bold brand-font text-xl sm:text-2xl leading-none">${val}</span>
                                 </div>
                             `).join('')}
                         </div>
                         ${p.manager ? `
-                        <div class="mt-4 pt-6 border-t border-white/5 flex items-center gap-4">
-                            <img src="${p.managerImg || 'https://via.placeholder.com/100'}" class="w-14 h-14 manager-img">
+                        <div class="mt-4 pt-4 sm:pt-6 border-t border-white/5 flex items-center gap-3 sm:gap-4">
+                            <img src="${p.managerImg || 'https://via.placeholder.com/100'}" class="w-10 h-10 sm:w-14 sm:h-14 manager-img">
                             <div>
-                                <div class="text-[9px] text-slate-600 font-black uppercase tracking-widest mb-1">Manager</div>
-                                <div class="text-xl font-bold brand-font text-white leading-none">${p.manager}</div>
+                                <div class="text-[8px] sm:text-[9px] text-slate-600 font-black uppercase tracking-widest mb-0.5 sm:mb-1">Manager</div>
+                                <div class="text-lg sm:text-xl font-bold brand-font text-white leading-none">${p.manager}</div>
                             </div>
                         </div>
                         ` : ''}
@@ -465,23 +510,24 @@
             `).join('');
         }
 
-        // --- ADMIN LOGIC ---
+        // --- ADMIN / UTILS ---
+        function updateDateTag() {
+            document.getElementById('lastUpdated').innerText = `UPDATED: FEB 2026`;
+        }
+
         function switchTab(tab) {
             const add = document.getElementById('addTab');
             const manage = document.getElementById('manageTab');
             const tabAdd = document.getElementById('tab-add');
             const tabManage = document.getElementById('tab-manage');
-            
             if (tab === 'add') {
-                add.classList.remove('hidden');
-                manage.classList.add('hidden');
-                tabAdd.className = "text-3xl font-bold brand-font uppercase tracking-widest text-white border-b-2 border-blue-600 pb-1";
-                tabManage.className = "text-3xl font-bold brand-font uppercase tracking-widest text-slate-500 hover:text-white pb-1 transition-colors";
+                add.classList.remove('hidden'); manage.classList.add('hidden');
+                tabAdd.className = "text-2xl sm:text-3xl font-bold brand-font uppercase tracking-widest text-white border-b-2 border-blue-600 pb-1";
+                tabManage.className = "text-2xl sm:text-3xl font-bold brand-font uppercase tracking-widest text-slate-500 hover:text-white pb-1 transition-colors";
             } else {
-                add.classList.add('hidden');
-                manage.classList.remove('hidden');
-                tabManage.className = "text-3xl font-bold brand-font uppercase tracking-widest text-white border-b-2 border-blue-600 pb-1";
-                tabAdd.className = "text-3xl font-bold brand-font uppercase tracking-widest text-slate-500 hover:text-white pb-1 transition-colors";
+                add.classList.add('hidden'); manage.classList.remove('hidden');
+                tabManage.className = "text-2xl sm:text-3xl font-bold brand-font uppercase tracking-widest text-white border-b-2 border-blue-600 pb-1";
+                tabAdd.className = "text-2xl sm:text-3xl font-bold brand-font uppercase tracking-widest text-slate-500 hover:text-white pb-1 transition-colors";
                 renderManageList();
             }
         }
@@ -489,15 +535,15 @@
         function renderManageList() {
             const list = document.getElementById('manageList');
             list.innerHTML = PLAYERS.map(p => `
-                <div class="bg-black/40 p-4 rounded-2xl flex justify-between items-center border border-white/5">
+                <div class="bg-black/40 p-4 rounded-xl flex justify-between items-center border border-white/5">
                     <div class="flex items-center gap-4">
-                        <img src="${p.image}" class="w-12 h-12 rounded-lg object-cover">
+                        <img src="${p.image}" class="w-10 h-10 rounded-lg object-cover">
                         <div>
-                            <div class="text-white font-bold">${p.name}</div>
-                            <div class="text-[10px] text-slate-500 uppercase">${p.version}</div>
+                            <div class="text-white font-bold text-sm">${p.name}</div>
+                            <div class="text-[9px] text-slate-500 uppercase">${p.version}</div>
                         </div>
                     </div>
-                    <button onclick="deletePlayer(${p.id})" class="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all">Remove</button>
+                    <button onclick="deletePlayer(${p.id})" class="bg-red-500/10 text-red-500 px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all">Del</button>
                 </div>
             `).join('');
         }
@@ -511,15 +557,15 @@
         function initStatsInputs() {
             const container = document.getElementById('statsInputs');
             container.innerHTML = statsList.map(s => `
-                <div class="bg-black/40 p-4 rounded-2xl border border-white/5">
-                    <label class="text-[9px] text-slate-600 uppercase font-black block mb-2 text-center">${s}</label>
-                    <input type="number" id="stat-${s.replace(' ', '')}" value="0" min="0" class="w-full bg-transparent text-2xl font-bold text-blue-500 text-center focus:outline-none">
+                <div class="bg-black/40 p-3 rounded-xl border border-white/5">
+                    <label class="text-[8px] text-slate-600 uppercase font-black block mb-1 text-center">${s}</label>
+                    <input type="number" id="stat-${s.replace(' ', '')}" value="0" min="0" class="w-full bg-transparent text-xl font-bold text-blue-500 text-center focus:outline-none">
                 </div>
             `).join('');
         }
 
         function toggleModal(show) { 
-            if (show) event.stopPropagation();
+            if (show) { event.stopPropagation(); }
             document.getElementById('genModal').classList.toggle('hidden', !show); 
             if(show) resetModal(); 
         }
@@ -531,16 +577,35 @@
                 const val = parseInt(document.getElementById(`stat-${id}`).value);
                 if(val > 0) build[s] = val;
             });
-            const player = { id: Date.now(), name: document.getElementById('inName').value, version: document.getElementById('inVersion').value, position: document.getElementById('inPos').value, rating: document.getElementById('inRating').value, playstyle: document.getElementById('inPlaystyle').value, image: document.getElementById('inImage').value, manager: document.getElementById('inManager').value, managerImg: document.getElementById('inManagerImg').value, build };
+            const player = { 
+                id: Date.now(), 
+                name: document.getElementById('inName').value, 
+                versionType: document.getElementById('inVersionType').value,
+                version: document.getElementById('inVersionLabel').value || document.getElementById('inVersionType').value, 
+                position: document.getElementById('inPos').value, 
+                rating: document.getElementById('inRating').value, 
+                playstyle: document.getElementById('inPlaystyle').value, 
+                image: document.getElementById('inImage').value, 
+                manager: document.getElementById('inManager').value, 
+                managerImg: document.getElementById('inManagerImg').value, 
+                build 
+            };
             document.getElementById('outputArea').value = JSON.stringify(player, null, 4) + ',';
             document.getElementById('addTab').classList.add('hidden');
             document.getElementById('codeResult').classList.remove('hidden');
         }
 
         function resetModal() { document.getElementById('addTab').classList.remove('hidden'); document.getElementById('codeResult').classList.add('hidden'); switchTab('add'); }
-        function copyOutput() { const a = document.getElementById('outputArea'); a.select(); document.execCommand('copy'); }
+        function copyOutput() { 
+            const a = document.getElementById('outputArea'); a.select(); 
+            document.execCommand('copy'); 
+            const btn = document.querySelector('#codeResult button');
+            const originalText = btn.innerText;
+            btn.innerText = "COPIED!";
+            setTimeout(() => btn.innerText = originalText, 2000);
+        }
 
-        window.onload = () => { renderFilters(); renderPlayers(); initStatsInputs(); };
+        window.onload = () => { updateDateTag(); renderFilters(); renderPlayers(); initStatsInputs(); };
     </script>
 </body>
 </html>
