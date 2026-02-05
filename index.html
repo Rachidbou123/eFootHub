@@ -138,7 +138,9 @@
             </div>
         </div>
 
-        <div id="playersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"></div>
+        <!-- This container will now hold the dynamic sections -->
+        <div id="contentArea"></div>
+        
     </main>
 
     <footer class="mt-12 border-t border-white/5 bg-black/40 pt-12 pb-8 px-4 sm:px-6">
@@ -251,23 +253,8 @@
 
         function setFilter(v) { currentFilter = v; renderFilters(); renderPlayers(); }
 
-        function renderPlayers() {
-            const grid = document.getElementById('playersGrid');
-            const q = document.getElementById('searchInput').value.toLowerCase();
-            const sort = document.getElementById('sortSelect').value;
-
-            let filtered = PLAYERS.filter(p => {
-                const searchString = `${p.name} ${p.position} ${p.version}`.toLowerCase();
-                const matchesSearch = q === "" || searchString.includes(q);
-                let matchesFilter = currentFilter === 'All' || (filterMode === 'position' ? p.position === currentFilter : p.version.includes(currentFilter));
-                return matchesSearch && matchesFilter;
-            });
-
-            if (sort === 'rating') filtered.sort((a, b) => parseInt(b.rating) - parseInt(a.rating));
-            else if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
-            else filtered.sort((a,b) => b.id - a.id);
-
-            grid.innerHTML = filtered.map(p => `
+        function createCard(p) {
+             return `
                 <div onclick="location.href='player.html?id=${p.id}'" class="card-bg rounded-[2.5rem] overflow-hidden cursor-pointer hover:scale-[1.02] transition-all group p-6">
                     <div class="relative h-48">
                         <img src="${p.image}" class="absolute right-0 bottom-0 h-44 w-auto object-contain">
@@ -282,7 +269,81 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+        }
+
+        function renderPlayers() {
+            const contentArea = document.getElementById('contentArea');
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const sort = document.getElementById('sortSelect').value;
+            
+            // Basic filtering first
+            let filtered = PLAYERS.filter(p => {
+                const searchString = `${p.name} ${p.position} ${p.version}`.toLowerCase();
+                const matchesSearch = q === "" || searchString.includes(q);
+                let matchesFilter = currentFilter === 'All' || (filterMode === 'position' ? p.position === currentFilter : p.version.includes(currentFilter));
+                return matchesSearch && matchesFilter;
+            });
+
+            // Sorting
+            if (sort === 'rating') filtered.sort((a, b) => parseInt(b.rating) - parseInt(a.rating));
+            else if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
+            else filtered.sort((a,b) => b.id - a.id);
+
+            // RENDER LOGIC:
+            // If searching or filtering is active, show flat grid (Standard View).
+            // If default view (no search, no filter), show CATEGORIZED Sections.
+            
+            const isDefaultView = q === "" && currentFilter === 'All' && sort === 'newest';
+
+            if (!isDefaultView) {
+                // Flat Grid
+                contentArea.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">${filtered.map(p => createCard(p)).join('')}</div>`;
+            } else {
+                // Categorized View (The "Hub" look)
+                // Define Groups
+                const group1 = filtered.filter(p => ["Bellingham", "Pedri", "Eze"].includes(p.name));
+                const group2 = filtered.filter(p => ["Neymar"].includes(p.name));
+                // Everyone else goes into 'Others'
+                const others = filtered.filter(p => !["Bellingham", "Pedri", "Eze", "Neymar"].includes(p.name));
+
+                let html = '';
+
+                // Section 1: Magnetic Feet
+                if (group1.length > 0) {
+                    html += `
+                    <div class="mb-10">
+                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Magnetic Feet 29 Jan '26</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                            ${group1.map(p => createCard(p)).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                // Section 2: Worldwide
+                if (group2.length > 0) {
+                    html += `
+                    <div class="mb-10">
+                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Worldwide</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                            ${group2.map(p => createCard(p)).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                // Section 3: Others (Epics)
+                if (others.length > 0) {
+                    html += `
+                    <div class="mb-10">
+                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Season 3: Epics & Highlights</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                            ${others.map(p => createCard(p)).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                contentArea.innerHTML = html;
+            }
         }
 
         // --- JSON MAKER LOGIC ---
