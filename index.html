@@ -1,286 +1,572 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <!-- Google Tag Manager -->
+
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+
     })(window,document,'script','dataLayer','GTM-5T4NRNTV');</script>
+
     <!-- End Google Tag Manager -->
 
+
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>eFootball Training Hub | Best Player Builds & Stats 2026</title>
+
     <meta name="description" content="Get the best training builds for eFootball 26. Explore progression points for Epic, Show Time, and Big Time players to maximize your team's OVR rating.">
+
     
+
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9775131443425311"
+
      crossorigin="anonymous"></script>
+
     
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     
+
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
+
+
     <style>
+
         :root {
+
             --brand-blue: #3b82f6;
+
             --bg-dark: #030508;
+
         }
+
         body {
+
             font-family: 'Inter', sans-serif;
+
             background-color: var(--bg-dark);
+
             color: #e2e8f0;
+
             overflow-x: hidden;
+
             -webkit-tap-highlight-color: transparent;
+
         }
+
         h1, h2, h3, .brand-font {
+
             font-family: 'Teko', sans-serif;
+
         }
+
         .card-bg {
+
             background: linear-gradient(180deg, #0f141e 0%, #030508 100%);
+
             border: 1px solid rgba(255, 255, 255, 0.05);
+
             transition: transform 0.2s ease, border-color 0.2s ease;
+
         }
+
         @media (hover: hover) {
+
             .card-bg:hover {
+
                 border-color: var(--brand-blue);
+
                 transform: translateY(-4px);
+
             }
+
         }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
+
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
         
+
         .filter-tab-active {
+
             color: var(--brand-blue);
+
             border-bottom: 2px solid var(--brand-blue);
+
         }
+
+
 
         .modal-blur {
+
             backdrop-filter: blur(20px);
+
             background: rgba(0,0,0,0.8);
+
         }
+
         
+
         .blog-banner {
+
             background: linear-gradient(90deg, #1e293b 0%, #030508 100%);
+
             border: 1px solid rgba(59, 130, 246, 0.2);
+
         }
+
     </style>
+
 </head>
+
 <body class="min-h-screen flex flex-col">
+
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5T4NRNTV"
+
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
+
+
     <!-- Navigation -->
+
     <nav class="bg-black/95 border-b border-white/5 sticky top-0 z-40 backdrop-blur-xl">
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
             <div class="flex items-center justify-between h-16 sm:h-20">
+
                 <div 
+
                     class="flex items-center gap-3 sm:gap-4 group cursor-pointer select-none" 
+
                     onclick="goHome()"
+
                     ondblclick="toggleModal(true)" 
+
                 >
+
                     <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-white brand-font text-2xl sm:text-3xl shadow-[0_0_20px_rgba(37,99,235,0.4)]">
+
                         EF
+
                     </div>
+
                     <div class="flex flex-col text-left">
+
                         <span class="text-xl sm:text-2xl font-bold brand-font tracking-widest text-white leading-none">TRAINING</span>
+
                         <div class="flex items-center gap-2">
+
                             <span class="text-[10px] font-bold text-blue-500 tracking-[0.2em] uppercase opacity-80">Hub</span>
+
                             <span class="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-slate-500 font-medium uppercase tracking-normal">Updated 2026</span>
+
                         </div>
+
                     </div>
+
                 </div>
+
                 
+
                 <select id="sortSelect" onchange="renderPlayers()" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white outline-none focus:ring-1 focus:ring-blue-500">
+
                     <option value="newest">Newest First</option>
+
                     <option value="rating">Highest OVR</option>
+
                     <option value="name">Alphabetical</option>
+
                 </select>
+
             </div>
+
         </div>
+
     </nav>
 
+
+
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 flex-grow w-full">
+
         <!-- New Blog Link Banner -->
+
         <div onclick="location.href='playstyles.html'" class="blog-banner rounded-3xl p-6 mb-8 cursor-pointer group relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4 transition-all hover:border-blue-500/50">
+
             <div class="flex items-center gap-6 relative z-10">
+
                 <div class="hidden sm:flex w-14 h-14 bg-blue-600/20 rounded-2xl items-center justify-center text-blue-500">
+
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+
                     </svg>
+
                 </div>
+
                 <div>
+
                     <h2 class="brand-font text-3xl text-white leading-none uppercase italic">Master the Meta: Playing Styles Guide</h2>
+
                     <p class="text-xs text-slate-400 uppercase tracking-widest mt-1">Goal Poachers, Hole Players & more explained</p>
+
                 </div>
+
             </div>
+
             <div class="bg-blue-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-white group-hover:bg-blue-500 transition-colors z-10">
+
                 Read Guide
+
             </div>
+
             <!-- Decorative element -->
+
             <div class="absolute right-[-20px] top-[-20px] w-40 h-40 bg-blue-600/10 blur-[50px] rounded-full pointer-events-none"></div>
+
         </div>
+
+
 
         <div class="mb-8 space-y-4">
+
             <div class="relative group">
+
                 <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+
                     <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+
                 </div>
+
                 <input type="text" id="searchInput" oninput="renderPlayers()" placeholder="Search players..." class="w-full bg-slate-900/40 border border-white/10 rounded-2xl py-4 pl-14 pr-6 text-white outline-none">
+
             </div>
+
+
 
             <div class="flex flex-col gap-3">
+
                 <div class="flex gap-6 border-b border-white/5 pb-1">
+
                     <button onclick="toggleFilterMode('position')" id="mode-pos" class="text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all pb-2">By Position</button>
+
                     <button onclick="toggleFilterMode('version')" id="mode-ver" class="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all pb-2">By Card Type</button>
+
                 </div>
+
                 <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="filterGroup"></div>
+
             </div>
+
         </div>
+
+
 
         <!-- This container will now hold the dynamic sections -->
+
         <div id="contentArea"></div>
+
         
+
     </main>
 
+
+
     <footer class="mt-12 border-t border-white/5 bg-black/40 pt-12 pb-8 px-4 sm:px-6">
+
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+
             <div>
+
                 <h4 class="brand-font text-2xl font-bold text-white uppercase tracking-wider mb-4">About the Hub</h4>
+
                 <p class="text-slate-400 text-sm leading-relaxed">Dedicated to providing the eFootball community with the most efficient training points and manager combinations to reach maximum ratings.</p>
+
             </div>
+
             <div>
+
                 <h4 class="brand-font text-2xl font-bold text-white uppercase tracking-wider mb-4">Tactical Resources</h4>
+
                 <p class="text-slate-400 text-sm leading-relaxed">Check out our <a href="playstyles.html" class="text-blue-500 hover:underline">Playing Styles Guide</a> to understand how different player roles affect AI behavior on the pitch.</p>
+
             </div>
+
             <div>
+
                 <h4 class="brand-font text-2xl font-bold text-white uppercase tracking-wider mb-4">Quick Links</h4>
+
                 <ul class="space-y-2 text-sm text-slate-400">
+
                     <li><button onclick="showLegal('privacy')" class="hover:text-blue-500 transition-colors">Privacy Policy</button></li>
+
                     <li><button onclick="showLegal('terms')" class="hover:text-blue-500 transition-colors">Terms of Service</button></li>
+
                 </ul>
+
             </div>
+
         </div>
+
+
 
         <div class="max-w-7xl mx-auto text-center border-t border-white/5 pt-8">
+
             <p class="text-slate-600 text-[10px] uppercase tracking-[0.2em] mb-4">© 2026 EF TRAINING HUB • ALL RIGHTS RESERVED</p>
+
             <p class="text-slate-500 text-[9px] max-w-2xl mx-auto leading-relaxed italic">
+
                 Disclaimer: This is a fan-made website. eFootball and all related assets are trademarks of Konami Digital Entertainment. We are not officially affiliated with Konami.
+
             </p>
+
         </div>
+
     </footer>
 
+
+
     <!-- Secret Player Maker Modal -->
+
     <div id="addModal" class="fixed inset-0 z-[100] hidden modal-blur p-4 overflow-y-auto">
+
         <div class="max-w-2xl mx-auto bg-slate-900 rounded-[2.5rem] border border-white/10 shadow-2xl p-8 my-8 relative">
+
             <button onclick="toggleModal(false)" class="absolute top-6 right-6 text-slate-500 hover:text-white text-2xl">&times;</button>
+
             <h2 class="brand-font text-4xl text-white mb-6 uppercase">Player JSON Maker</h2>
+
             
+
             <div id="addTab" class="grid grid-cols-2 gap-4">
+
                 <input id="inName" placeholder="Name" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
                 <input id="inVersion" placeholder="Version (e.g. ShowTime)" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
                 <input id="inPos" placeholder="Position (e.g. CMF)" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
                 <input id="inRating" placeholder="Max Rating" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
                 <input id="inPlaystyle" placeholder="Playstyle" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
                 <input id="inImage" placeholder="Card Image URL" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
                 <input id="inManager" placeholder="Manager Name" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
                 <input id="inManagerImg" placeholder="Manager Image URL" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
                 
+
                 <div class="col-span-2 border-t border-white/5 pt-4 mt-2">
+
                     <p class="text-[10px] text-slate-500 uppercase mb-3 font-bold tracking-widest">Training Build</p>
+
                     <div id="statsInputs" class="grid grid-cols-3 gap-2"></div>
+
                 </div>
+
+
 
                 <button onclick="generateCode()" class="col-span-2 bg-blue-600 text-white font-bold py-4 rounded-2xl mt-4 uppercase brand-font text-2xl hover:bg-blue-500 transition-colors">Generate Player JSON</button>
+
             </div>
+
+
 
             <div id="codeResult" class="hidden">
+
                 <textarea id="outputArea" class="w-full h-64 bg-black border border-white/10 rounded-2xl p-4 text-xs font-mono text-blue-400 mb-4 outline-none" readonly></textarea>
+
                 <div class="flex gap-2">
+
                     <button onclick="copyOutput()" class="flex-grow bg-blue-600 text-white py-3 rounded-xl font-bold uppercase brand-font text-xl">Copy to Clipboard</button>
+
                     <button onclick="resetModal()" class="px-6 bg-slate-800 text-white rounded-xl font-bold uppercase text-xs">Back</button>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
+
 
     <!-- Legal Modal -->
+
     <div id="legalModal" class="fixed inset-0 z-[100] hidden modal-blur p-4 flex items-center justify-center">
+
         <div class="max-w-lg w-full bg-slate-900 rounded-[2rem] border border-white/10 p-8 relative">
+
             <button onclick="closeLegal()" class="absolute top-6 right-6 text-slate-500 hover:text-white font-bold">CLOSE</button>
+
             <h2 id="legalTitle" class="brand-font text-3xl text-white mb-4 uppercase"></h2>
+
             <div id="legalBody" class="text-slate-400 text-sm leading-relaxed space-y-4"></div>
+
         </div>
+
     </div>
 
+
+
     <script>
+
         let PLAYERS = [
+        { "id": 1770332641995, "name": "M. Salah", "version": "ShowTime", "position": "RWF", "rating": "106", "image": "https://pesdb.net/assets/img/card/f106768055197475.png" },
+        { "id": 1770331926204, "name": "Neymar Jr", "version": "Big Time", "position": "LWF", "rating": "107", "image": "https://pesdb.net/assets/img/card/f89133993205152max.png" },
+        { "id": 1770331038248, "name": "Messi", "version": "Big Time", "position": "RWF", "rating": "108", "image": "https://pesdb.net/assets/img/card/f89133456301399max.png" },
+
             { "id": 1770304909506, "name": "Neymar", "version": "ShowTime", "position": "AMF", "rating": "103", "image": "https://pesdb.net/assets/img/card/f106770471099808authentic.png" },
+
             { "id": 1769894307092, "name": "Pedri", "version": "ShowTime", "position": "CMF", "rating": "104", "image": "https://pesdb.net/assets/img/card/f106765907789861.png" },
+
             { "id": 1769894444887, "name": "Bellingham", "version": "ShowTime", "position": "CMF", "rating": "106", "image": "https://pesdb.net/assets/img/card/f106765907789637.png" },
+
             { "id": 1769901403404, "name": "Eze", "version": "ShowTime", "position": "AMF", "rating": "105", "image": "https://pesdb.net/assets/img/card/f106765907771610.png" },
+
             { "id": 1, "name": "Baresi", "version": "Epic Booster", "position": "CB", "rating": "102", "image": "https://pesdb.net/assets/img/card/f88033407929841max.png" },
+
             { "id": 2, "name": "Cannavaro", "version": "Epic Booster", "position": "CB", "rating": "100", "image": "https://pesdb.net/assets/img/card/f88032334191333max.png" },
+
             { "id": 3, "name": "Ferrer", "version": "Epic Booster", "position": "RB", "rating": "104", "image": "https://pesdb.net/assets/img/card/f88033139494363max.png" },
+
             { "id": 1769958916039, "name": "Diouf", "version": "Epic Booster", "position": "CF", "rating": "102", "image": "https://pesdb.net/assets/img/card/f88039934308531max.png" },
+
             { "id": 1769959255632, "name": "Owen", "version": "Epic Booster", "position": "CF", "rating": "106", "image": "https://pesdb.net/assets/img/card/f88039581945366max.png" },
+
             { "id": 1769959407456, "name": "Makélélé", "version": "Epic Booster", "position": "DMF", "rating": "107", "image": "https://pesdb.net/assets/img/card/f88039581948642max.png" },
+
             { "id": 1769959833152, "name": "McManaman", "version": "Epic Booster", "position": "RMF", "rating": "105", "image": "https://pesdb.net/assets/img/card/f88039850246968max.png" },
+
             { "id": 1769960010256, "name": "Schmeichel", "version": "Epic Booster", "position": "GK", "rating": "107", "image": "https://pesdb.net/assets/img/card/f88039581948647max.png" },
+
             { "id": 1769960134904, "name": "Best", "version": "Epic Booster", "position": "RWF", "rating": "109", "image": "https://pesdb.net/assets/img/card/f89136677522134max.png" },
+
             { "id": 1769960297992, "name": "Robson", "version": "Epic Booster", "position": "CMF", "rating": "105", "image": "https://pesdb.net/assets/img/card/f88039581945332max.png" }
+
         ];
 
+
+
         let currentFilter = 'All';
+
         let filterMode = 'position';
+
+
 
         function goHome() { window.location.href = 'index.html'; }
 
+
+
         function toggleFilterMode(mode) {
+
             filterMode = mode;
+
             currentFilter = 'All';
+
             renderFilters();
+
             renderPlayers();
+
             document.getElementById('mode-pos').className = mode === 'position' ? "text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all pb-2" : "text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all pb-2";
+
             document.getElementById('mode-ver').className = mode === 'version' ? "text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all pb-2" : "text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all pb-2";
+
         }
 
+
+
         function renderFilters() {
+
             const container = document.getElementById('filterGroup');
+
             let items = filterMode === 'position' ? ['All', 'CF', 'LWF', 'RWF', 'AMF', 'CMF', 'DMF', 'CB', 'LB', 'RB', 'GK'] : ['All', 'Epic Booster', 'ShowTime', 'Big Time', 'Legend', 'Highlight'];
+
             container.innerHTML = items.map(i => `<button onclick="setFilter('${i}')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase border ${currentFilter === i ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-white/5 text-slate-500'} whitespace-nowrap">${i}</button>`).join('');
+
         }
+
+
 
         function setFilter(v) { currentFilter = v; renderFilters(); renderPlayers(); }
 
+
+
         function createCard(p) {
+
              return `
+
                 <div onclick="location.href='player.html?id=${p.id}'" class="card-bg rounded-[2.5rem] overflow-hidden cursor-pointer hover:scale-[1.02] transition-all group p-6">
+
                     <div class="relative h-48">
+
                         <img src="${p.image}" class="absolute right-0 bottom-0 h-44 w-auto object-contain">
+
                         <div class="absolute top-4 left-4">
+
                             <div class="text-blue-500 text-[10px] font-black uppercase mb-1">${p.position}</div>
+
                             <h3 class="text-3xl font-bold brand-font text-white leading-none">${p.name}</h3>
+
                             <p class="text-[10px] text-slate-500 font-bold uppercase mt-1">${p.version}</p>
+
                         </div>
+
                         <div class="absolute top-4 right-4 bg-black/40 backdrop-blur rounded-2xl p-3 text-center border border-white/5">
+
                             <div class="text-[9px] text-slate-500 font-bold">OVR</div>
+
                             <div class="text-2xl font-bold brand-font text-white">${p.rating}</div>
+
                         </div>
+
                     </div>
+
                 </div>
+
             `;
+
         }
 
+
+
         function renderPlayers() {
+
             const contentArea = document.getElementById('contentArea');
+
             const q = document.getElementById('searchInput').value.toLowerCase();
+
             const sort = document.getElementById('sortSelect').value;
+
             
+
             // Basic filtering first
+
             let filtered = PLAYERS.filter(p => {
+
                 const searchString = `${p.name} ${p.position} ${p.version}`.toLowerCase();
+
                 const matchesSearch = q === "" || searchString.includes(q);
+
                 let matchesFilter = currentFilter === 'All' || (filterMode === 'position' ? p.position === currentFilter : p.version.includes(currentFilter));
                 return matchesSearch && matchesFilter;
             });
@@ -305,6 +591,8 @@
                 const group1 = filtered.filter(p => ["Bellingham", "Pedri", "Eze"].includes(p.name));
                 const group3 = filtered.filter(p => ["Best", "Robson", "Schmeichel"].includes(p.name));
                 const group2 = filtered.filter(p => ["Neymar"].includes(p.name));
+                const group5 = filtered.filter(p => ["Messi", "Neymar Jr"].includes(p.name));
+                const group6 = filtered.filter(p => ["M. Salah"].includes(p.name));
                 const group4 = filtered.filter(p => ["Makélélé", "Owen", "McManaman"].includes(p.name));
                 // Everyone else goes into 'Others'
                 const others = filtered.filter(p => !["Bellingham", "Pedri", "Eze", "Neymar", "Best", "Robson", "Schmeichel", "McManaman", "Makélélé", "Owen"].includes(p.name));
@@ -321,7 +609,16 @@
                         </div>
                     </div>`;
                 }
-
+// Section 2: MSN
+                if (group2.length > 0) {
+                    html += `
+                    <div class="mb-10">
+                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">MSN</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                            ${group5.map(p => createCard(p)).join('')}
+                        </div>
+                    </div>`;
+                }
                 // Section 2: Worldwide
                 if (group2.length > 0) {
                     html += `
@@ -329,6 +626,16 @@
                         <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Worldwide</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
                             ${group2.map(p => createCard(p)).join('')}
+                        </div>
+                    </div>`;
+                }
+                // Section 2: Over-the-Top Pass C
+                if (group2.length > 0) {
+                    html += `
+                    <div class="mb-10">
+                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Over-the-Top Pass C</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                            ${group6.map(p => createCard(p)).join('')}
                         </div>
                     </div>`;
                 }
