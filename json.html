@@ -3,131 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EF Hub | Player JSON Generator</title>
+    <title>EF JSON Maker | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #030508;
-            color: #e2e8f0;
-        }
+        body { background: #030508; color: #e2e8f0; font-family: 'Inter', sans-serif; }
         .brand-font { font-family: 'Teko', sans-serif; }
-        input, select, textarea {
-            background-color: #0f172a !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            transition: all 0.2s;
-        }
-        input:focus, select:focus {
-            border-color: #3b82f6 !important;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
+        input, select { background: #0f172a; border: 1px solid #1e293b; color: white; padding: 10px; border-radius: 8px; width: 100%; outline: none; }
+        input:focus { border-color: #3b82f6; }
+        .code-box { background: #000; border: 1px solid #334155; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; color: #10b981; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-5xl mx-auto">
-        <!-- Header -->
+<body class="p-4 sm:p-8">
+    <div class="max-w-4xl mx-auto">
         <div class="flex items-center gap-4 mb-8">
-            <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center font-bold text-white brand-font text-3xl shadow-lg shadow-blue-600/20">EF</div>
-            <div>
-                <h1 class="brand-font text-3xl leading-none uppercase tracking-wider">JSON Player Maker</h1>
-                <p class="text-blue-500 text-xs font-bold uppercase tracking-widest">v2.1 - Custom Position Input</p>
-            </div>
+            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center font-bold text-white brand-font text-3xl">EF</div>
+            <h1 class="text-3xl font-bold brand-font tracking-widest uppercase">Player JSON Maker</h1>
         </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Form Section -->
-            <div class="bg-slate-900/50 border border-white/5 rounded-[2.5rem] p-6 md:p-8">
-                <h2 class="brand-font text-2xl text-white mb-6 uppercase tracking-wide">Player Details</h2>
-                
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Left Side: Form -->
+            <div class="space-y-4 bg-slate-900/50 p-6 rounded-3xl border border-white/5">
+                <h2 class="text-xl font-bold text-blue-500 mb-4 uppercase text-sm tracking-widest">Player Info</h2>
+                <input type="text" id="name" placeholder="Player Name (e.g. Neymar)" oninput="generateJSON()">
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Full Name</label>
-                        <input type="text" id="name" placeholder="e.g. Lionel Messi" class="w-full p-3 rounded-xl text-white">
-                    </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Card Type</label>
-                        <select id="version" class="w-full p-3 rounded-xl text-white">
-                            <option value="NORMAL">NORMAL</option>
-                            <option value="LEGEND">LEGEND</option>
-                            <option value="EPIC">EPIC</option>
-                            <option value="TRENDING">TRENDING</option>
-                            <option value="FEATURED">FEATURED</option>
-                            <option value="HIGHLIGHT">HIGHLIGHT</option>
-                            <option value="BIG TIME">BIG TIME</option>
-                            <option value="SHOW TIME">SHOW TIME</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Position</label>
-                        <input type="text" id="position" list="pos-suggestions" placeholder="e.g. CMF" class="w-full p-3 rounded-xl text-white">
-                        <datalist id="pos-suggestions">
-                            <option value="CF">
-                            <option value="SS">
-                            <option value="LWF">
-                            <option value="RWF">
-                            <option value="AMF">
-                            <option value="CMF">
-                            <option value="DMF">
-                            <option value="LB">
-                            <option value="RB">
-                            <option value="CB">
-                            <option value="GK">
-                        </datalist>
-                    </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Max OVR</label>
-                        <input type="number" id="rating" placeholder="105" class="w-full p-3 rounded-xl text-white">
-                    </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Playstyle</label>
-                        <input type="text" id="playstyle" placeholder="Goal Poacher" class="w-full p-3 rounded-xl text-white">
-                    </div>
-
-                    <div class="col-span-2">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Card Image URL</label>
-                        <input type="text" id="image" placeholder="https://..." class="w-full p-3 rounded-xl text-white">
-                    </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Manager Name</label>
-                        <input type="text" id="manager" placeholder="X. Alonso" class="w-full p-3 rounded-xl text-white">
-                    </div>
-
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Manager Image URL</label>
-                        <input type="text" id="managerImg" placeholder="https://..." class="w-full p-3 rounded-xl text-white">
-                    </div>
+                    <select id="version" onchange="generateJSON()">
+                        <option value="Epic Booster">Epic Booster</option>
+                        <option value="ShowTime">ShowTime</option>
+                        <option value="Big Time">Big Time</option>
+                        <option value="Highlight">Highlight</option>
+                    </select>
+                    <input type="text" id="position" placeholder="Pos (LWF)" oninput="generateJSON()">
                 </div>
-
-                <div class="mt-8 border-t border-white/5 pt-6">
-                    <h3 class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-4">Training Progression</h3>
-                    <div id="statsInputs" class="grid grid-cols-3 sm:grid-cols-5 gap-3"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="number" id="rating" placeholder="Rating (105)" oninput="generateJSON()">
+                    <input type="text" id="playstyle" placeholder="Playstyle (Hole Player)" oninput="generateJSON()">
                 </div>
-
-                <button onclick="generateJSON()" class="w-full bg-blue-600 hover:bg-blue-500 text-white brand-font text-2xl py-4 rounded-2xl mt-8 transition-colors uppercase">
-                    Generate Code
-                </button>
+                <input type="text" id="image" placeholder="Card Image URL" oninput="generateJSON()">
+                
+                <h2 class="text-xl font-bold text-blue-500 mt-6 mb-4 uppercase text-sm tracking-widest">Manager & Build</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="manager" placeholder="Manager Name" oninput="generateJSON()">
+                    <input type="text" id="managerImg" placeholder="Manager Image URL" oninput="generateJSON()">
+                </div>
+                
+                <div class="grid grid-cols-3 gap-2">
+                    <div><label class="text-[10px] uppercase text-slate-500">Shooting</label><input type="number" id="b_shoot" value="0" oninput="generateJSON()"></div>
+                    <div><label class="text-[10px] uppercase text-slate-500">Passing</label><input type="number" id="b_pass" value="0" oninput="generateJSON()"></div>
+                    <div><label class="text-[10px] uppercase text-slate-500">Dribbling</label><input type="number" id="b_drib" value="0" oninput="generateJSON()"></div>
+                    <div><label class="text-[10px] uppercase text-slate-500">Dexterity</label><input type="number" id="b_dex" value="0" oninput="generateJSON()"></div>
+                    <div><label class="text-[10px] uppercase text-slate-500">Lower Body</label><input type="number" id="b_low" value="0" oninput="generateJSON()"></div>
+                    <div><label class="text-[10px] uppercase text-slate-500">Defending</label><input type="number" id="b_def" value="0" oninput="generateJSON()"></div>
+                </div>
             </div>
 
-            <!-- Result Section -->
-            <div class="flex flex-col gap-6">
-                <div class="bg-black border border-white/10 rounded-[2.5rem] p-6 flex-grow flex flex-col min-h-[400px]">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="brand-font text-2xl text-white uppercase tracking-wide">Resulting JSON</h2>
-                        <button onclick="copyToClipboard()" id="copyBtn" class="text-[10px] font-bold text-blue-500 uppercase hover:text-white transition-colors">Copy Code</button>
+            <!-- Right Side: Output -->
+            <div class="space-y-6">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400">1. For index.html (PLAYERS array)</label>
+                        <button onclick="copyCode('indexOutput')" class="text-[10px] bg-blue-600 px-2 py-1 rounded font-bold hover:bg-blue-500">COPY</button>
                     </div>
-                    <textarea id="output" class="w-full flex-grow bg-slate-900/50 border border-white/5 rounded-2xl p-4 text-xs font-mono text-blue-400 outline-none resize-none" readonly placeholder="Your generated code will appear here..."></textarea>
+                    <div id="indexOutput" class="code-box">Enter player info to generate...</div>
                 </div>
 
-                <div class="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-4">
-                    <p class="text-[10px] text-blue-400 leading-relaxed">
-                        <span class="font-bold">UPDATE:</span> The position field is now typeable. You can use standard positions or enter your own custom labels.
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-slate-400">2. For player.html (PLAYERS_DETAIL array)</label>
+                        <button onclick="copyCode('detailOutput')" class="text-[10px] bg-blue-600 px-2 py-1 rounded font-bold hover:bg-blue-500">COPY</button>
+                    </div>
+                    <div id="detailOutput" class="code-box">Enter player info to generate...</div>
+                </div>
+
+                <div class="bg-blue-900/20 border border-blue-500/20 p-4 rounded-xl">
+                    <h3 class="text-blue-400 font-bold text-xs uppercase mb-1">Instructions:</h3>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">
+                        Copy Block 1 and paste it into the <b>PLAYERS</b> list in <b>index.html</b>.<br><br>
+                        Copy Block 2 and paste it into the <b>PLAYERS_DETAIL</b> list in <b>player.html</b>.
                     </p>
                 </div>
             </div>
@@ -135,56 +87,58 @@
     </div>
 
     <script>
-        const stats = ["Shooting", "Passing", "Dribbling", "Dexterity", "Lower Body", "Aerial", "Defending", "GK 1", "GK 2", "GK 3"];
-        
-        function initStats() {
-            const container = document.getElementById('statsInputs');
-            container.innerHTML = stats.map(s => `
-                <div class="flex flex-col">
-                    <label class="text-[9px] text-slate-500 mb-1 uppercase text-center truncate">${s}</label>
-                    <input type="number" id="stat-${s.replace(' ', '')}" value="0" class="w-full p-2 bg-black border border-white/10 rounded-lg text-white text-center text-sm outline-none">
-                </div>
-            `).join('');
-        }
-
         function generateJSON() {
-            const build = {};
-            stats.forEach(s => {
-                const id = s.replace(' ', '');
-                const val = parseInt(document.getElementById(`stat-${id}`).value);
-                if (val > 0) build[s] = val;
-            });
+            const id = Date.now();
+            const name = document.getElementById('name').value || "Name";
+            const version = document.getElementById('version').value;
+            const position = document.getElementById('position').value.toUpperCase() || "POS";
+            const rating = document.getElementById('rating').value || "100";
+            const playstyle = document.getElementById('playstyle').value || "Playstyle";
+            const image = document.getElementById('image').value || "IMAGE_URL";
+            const manager = document.getElementById('manager').value || "Manager Name";
+            const managerImg = document.getElementById('managerImg').value || "MANAGER_URL";
 
-            const playerData = {
-                id: Date.now(),
-                name: document.getElementById('name').value || "Unnamed Player",
-                version: document.getElementById('version').value,
-                position: document.getElementById('position').value.toUpperCase() || "N/A",
-                rating: document.getElementById('rating').value || "0",
-                playstyle: document.getElementById('playstyle').value || "None",
-                image: document.getElementById('image').value || "",
-                manager: document.getElementById('manager').value || "Standard",
-                managerImg: document.getElementById('managerImg').value || "",
-                build: build
-            };
-
-            const result = JSON.stringify(playerData, null, 4) + ",";
-            document.getElementById('output').value = result;
-        }
-
-        function copyToClipboard() {
-            const output = document.getElementById('output');
-            if (!output.value) return;
-            output.select();
-            document.execCommand('copy');
+            // Build stats
+            const buildArr = [];
+            if(parseInt(document.getElementById('b_shoot').value) > 0) buildArr.push(`"Shooting": ${document.getElementById('b_shoot').value}`);
+            if(parseInt(document.getElementById('b_pass').value) > 0) buildArr.push(`"Passing": ${document.getElementById('b_pass').value}`);
+            if(parseInt(document.getElementById('b_drib').value) > 0) buildArr.push(`"Dribbling": ${document.getElementById('b_drib').value}`);
+            if(parseInt(document.getElementById('b_dex').value) > 0) buildArr.push(`"Dexterity": ${document.getElementById('b_dex').value}`);
+            if(parseInt(document.getElementById('b_low').value) > 0) buildArr.push(`"Lower Body": ${document.getElementById('b_low').value}`);
+            if(parseInt(document.getElementById('b_def').value) > 0) buildArr.push(`"Defending": ${document.getElementById('b_def').value}`);
             
-            const btn = document.getElementById('copyBtn');
-            btn.innerText = "COPIED!";
-            setTimeout(() => btn.innerText = "COPY CODE", 2000);
+            const buildString = `{ ${buildArr.join(', ')} }`;
+
+            // Block 1 (Index)
+            const indexJSON = `{ "id": ${id}, "name": "${name}", "version": "${version}", "position": "${position}", "rating": "${rating}", "image": "${image}" },`;
+            document.getElementById('indexOutput').innerText = indexJSON;
+
+            // Block 2 (Detail)
+            const detailJSON = `{ "id": ${id}, "name": "${name}", "version": "${version}", "position": "${position}", "rating": "${rating}", "playstyle": "${playstyle}", "image": "${image}", "manager": "${manager}", "managerImg": "${managerImg}", "build": ${buildString} },`;
+            document.getElementById('detailOutput').innerText = detailJSON;
         }
 
-        window.onload = initStats;
+        function copyCode(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = "COPIED!";
+            btn.classList.replace('bg-blue-600', 'bg-green-600');
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.replace('bg-green-600', 'bg-blue-600');
+            }, 2000);
+        }
+
+        // Initialize
+        generateJSON();
     </script>
 </body>
 </html>
-
