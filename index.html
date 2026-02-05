@@ -303,9 +303,11 @@
                 // Categorized View (The "Hub" look)
                 // Define Groups
                 const group1 = filtered.filter(p => ["Bellingham", "Pedri", "Eze"].includes(p.name));
+                const group3 = filtered.filter(p => ["Best", "Robson", "Schmeichel"].includes(p.name));
                 const group2 = filtered.filter(p => ["Neymar"].includes(p.name));
+                const group4 = filtered.filter(p => ["Makélélé", "Owen", "McManaman"].includes(p.name));
                 // Everyone else goes into 'Others'
-                const others = filtered.filter(p => !["Bellingham", "Pedri", "Eze", "Neymar"].includes(p.name));
+                const others = filtered.filter(p => !["Bellingham", "Pedri", "Eze", "Neymar", "Best", "Robson", "Schmeichel", "McManaman", "Makélélé", "Owen"].includes(p.name));
 
                 let html = '';
 
@@ -330,6 +332,28 @@
                         </div>
                     </div>`;
                 }
+                // Section 3: Manchester United 26'
+                if (group1.length > 0) {
+                    html += `
+                    <div class="mb-10">
+                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Manchester United 26'</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                            ${group3.map(p => createCard(p)).join('')}
+                        </div>
+                    </div>`;
+                }
+                // Section 4: Madrid Chamartin B
+                if (others.length > 0) {
+                    html += `
+                    <div class="mb-10">
+                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Madrid Chamartin B</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                            ${group4.map(p => createCard(p)).join('')}
+                        </div>
+                    </div>`;
+
+                contentArea.innerHTML = html;
+            }
 
                 // Section 3: Others (Epics)
                 if (others.length > 0) {
@@ -343,7 +367,7 @@
                 }
 
                 contentArea.innerHTML = html;
-            }
+            }                                
         }
 
         // --- JSON MAKER LOGIC ---
