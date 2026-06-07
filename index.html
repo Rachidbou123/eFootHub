@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="en">
 
@@ -59,22 +59,35 @@
 
             --brand-blue: #3b82f6;
 
-            --bg-dark: #030508;
+            --bg-dark: #02040a;
 
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-
             font-family: 'Inter', sans-serif;
-
-            background-color: var(--bg-dark);
-
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 32%),
+                radial-gradient(circle at top right, rgba(14, 165, 233, 0.09), transparent 26%),
+                linear-gradient(180deg, #050816 0%, var(--bg-dark) 56%, #010205 100%);
             color: #e2e8f0;
-
             overflow-x: hidden;
-
             -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
 
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 28%),
+                linear-gradient(315deg, rgba(255, 255, 255, 0.015), transparent 22%);
+            pointer-events: none;
+            z-index: -1;
         }
 
         h1, h2, h3, .brand-font {
@@ -84,13 +97,13 @@
         }
 
         .card-bg {
-
-            background: linear-gradient(180deg, #0f141e 0%, #030508 100%);
-
-            border: 1px solid rgba(255, 255, 255, 0.05);
-
-            transition: transform 0.2s ease, border-color 0.2s ease;
-
+            background: linear-gradient(180deg, rgba(14, 20, 33, 0.95) 0%, rgba(4, 7, 13, 0.98) 100%);
+            border: 1px solid rgba(148, 163, 184, 0.08);
+            box-shadow: 0 14px 50px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            content-visibility: auto;
+            contain-intrinsic-size: 320px 280px;
+            will-change: transform;
         }
 
         @media (hover: hover) {
@@ -99,7 +112,8 @@
 
                 border-color: var(--brand-blue);
 
-                transform: translateY(-4px);
+                transform: translateY(-6px);
+                box-shadow: 0 18px 64px rgba(0, 0, 0, 0.36);
 
             }
 
@@ -117,6 +131,30 @@
 
             border-bottom: 2px solid var(--brand-blue);
 
+        }
+
+        .hero-panel,
+        .surface-card,
+        .search-panel {
+            background: rgba(8, 12, 22, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 18px 64px rgba(0, 0, 0, 0.22);
+            backdrop-filter: blur(20px);
+        }
+
+        .surface-card {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .soft-focus {
+            background:
+                linear-gradient(135deg, rgba(59, 130, 246, 0.12), transparent 36%),
+                linear-gradient(315deg, rgba(14, 165, 233, 0.08), transparent 38%);
+        }
+
+        .muted-chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
 
@@ -193,15 +231,7 @@
 
                 
 
-                <select id="sortSelect" onchange="renderPlayers()" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white outline-none focus:ring-1 focus:ring-blue-500">
-
-                    <option value="newest">Newest First</option>
-
-                    <option value="rating">Highest OVR</option>
-
-                    <option value="name">Alphabetical</option>
-
-                </select>
+                <button onclick="enterBrowseMode()" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white transition hover:bg-white/10">Browse</button>
 
             </div>
 
@@ -213,77 +243,84 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 flex-grow w-full">
 
-        <!-- New Blog Link Banner -->
-
-        <div onclick="location.href='playstyles.html'" class="blog-banner rounded-3xl p-6 mb-8 cursor-pointer group relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4 transition-all hover:border-blue-500/50">
-
-            <div class="flex items-center gap-6 relative z-10">
-
-                <div class="hidden sm:flex w-14 h-14 bg-blue-600/20 rounded-2xl items-center justify-center text-blue-500">
-
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-
-                    </svg>
-
-                </div>
-
-                <div>
-
-                    <h2 class="brand-font text-3xl text-white leading-none uppercase italic">Master the Meta: Playing Styles Guide</h2>
-
-                    <p class="text-xs text-slate-400 uppercase tracking-widest mt-1">Goal Poachers, Hole Players & more explained</p>
-
-                </div>
-
+        <section class="hero-panel soft-focus relative mb-8 overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
+            <div class="absolute inset-0 pointer-events-none">
+                <div class="absolute -right-10 top-0 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl"></div>
+                <div class="absolute left-0 bottom-0 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl"></div>
             </div>
 
-            <div class="bg-blue-600 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-white group-hover:bg-blue-500 transition-colors z-10">
-
-                Read Guide
-
-            </div>
-
-            <!-- Decorative element -->
-
-            <div class="absolute right-[-20px] top-[-20px] w-40 h-40 bg-blue-600/10 blur-[50px] rounded-full pointer-events-none"></div>
-
-        </div>
-
-
-
-        <div class="mb-8 space-y-4">
-
-            <div class="relative group">
-
-                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-
-                    <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-
+            <div class="relative z-10 grid gap-8 lg:grid-cols-[1.4fr_0.9fr] items-center">
+                <div class="space-y-5">
+                    <span class="inline-flex items-center gap-2 rounded-full muted-chip px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">Fast browsing / clean UI / lazy images</span>
+                    <h1 class="text-5xl sm:text-6xl lg:text-7xl leading-none uppercase text-white tracking-tight">Find the right card fast.</h1>
+                    <p class="max-w-2xl text-sm sm:text-base leading-relaxed text-slate-300">Search Epic, ShowTime, and Big Time players without the clutter. The homepage stays curated while the full database opens in smooth paginated browse mode.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="enterBrowseMode()" class="rounded-2xl bg-blue-600 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white transition hover:bg-blue-500">Browse all players</button>
+                        <button onclick="showFeaturedView()" class="rounded-2xl bg-white/5 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white transition hover:bg-white/10">Featured view</button>
+                        <a href="playstyles.html" class="rounded-2xl border border-white/10 bg-black/20 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-slate-200 transition hover:border-blue-500/50 hover:text-white">Playing styles</a>
+                    </div>
                 </div>
 
-                <input type="text" id="searchInput" oninput="renderPlayers()" placeholder="Search players..." class="w-full bg-slate-900/40 border border-white/10 rounded-2xl py-4 pl-14 pr-6 text-white outline-none">
-
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="surface-card rounded-[1.5rem] p-4">
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Total players</div>
+                        <div id="heroTotalPlayers" class="mt-2 text-4xl font-bold brand-font text-white">0</div>
+                    </div>
+                    <div class="surface-card rounded-[1.5rem] p-4">
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Card types</div>
+                        <div id="heroTypeCount" class="mt-2 text-4xl font-bold brand-font text-white">0</div>
+                    </div>
+                    <div class="surface-card rounded-[1.5rem] p-4">
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Browse speed</div>
+                        <div class="mt-2 text-4xl font-bold brand-font text-white">24</div>
+                        <div class="text-[10px] uppercase tracking-[0.25em] text-blue-400">per page</div>
+                    </div>
+                    <div class="surface-card rounded-[1.5rem] p-4">
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Images</div>
+                        <div class="mt-2 text-4xl font-bold brand-font text-white">Lazy</div>
+                        <div class="text-[10px] uppercase tracking-[0.25em] text-blue-400">loading</div>
+                    </div>
+                </div>
             </div>
+        </section>
 
-
-
-            <div class="flex flex-col gap-3">
-
-                <div class="flex gap-6 border-b border-white/5 pb-1">
-
-                    <button onclick="toggleFilterMode('position')" id="mode-pos" class="text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all pb-2">By Position</button>
-
-                    <button onclick="toggleFilterMode('version')" id="mode-ver" class="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all pb-2">By Card Type</button>
-
+        <section class="search-panel mb-8 rounded-[1.75rem] p-4 sm:p-5">
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="space-y-1">
+                        <h2 class="brand-font text-4xl text-white uppercase leading-none">Browse the database</h2>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Search, filter, and load players without lag.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span id="resultsCount" class="muted-chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">Featured view</span>
+                        <button onclick="showFeaturedView()" class="rounded-full bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white transition hover:bg-white/10">Featured</button>
+                    </div>
                 </div>
 
-                <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="filterGroup"></div>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                    <input type="text" id="searchInput" oninput="scheduleRender()" placeholder="Search players, positions, or card types..." class="w-full rounded-2xl border border-white/10 bg-slate-950/70 py-4 pl-14 pr-6 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                </div>
 
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-col gap-3 border-b border-white/5 pb-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="flex gap-6">
+                            <button onclick="toggleFilterMode('position')" id="mode-pos" class="pb-2 text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all">By Position</button>
+                            <button onclick="toggleFilterMode('version')" id="mode-ver" class="pb-2 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:text-white">By Card Type</button>
+                        </div>
+                        <select id="sortSelect" onchange="scheduleRender()" class="rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                            <option value="newest">Newest First</option>
+                            <option value="rating">Highest OVR</option>
+                            <option value="name">Alphabetical</option>
+                        </select>
+                    </div>
+
+                    <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="filterGroup"></div>
+                </div>
             </div>
-
-        </div>
+        </section>
 
 
 
@@ -340,7 +377,7 @@
 
         <div class="max-w-7xl mx-auto text-center border-t border-white/5 pt-8">
 
-            <p class="text-slate-600 text-[10px] uppercase tracking-[0.2em] mb-4">© 2026 EF TRAINING HUB • ALL RIGHTS RESERVED</p>
+            <p class="text-slate-600 text-[10px] uppercase tracking-[0.2em] mb-4">Copyright 2026 EF Training Hub. All rights reserved.</p>
 
             <p class="text-slate-500 text-[9px] max-w-2xl mx-auto leading-relaxed italic">
 
@@ -448,6 +485,8 @@
         const ITEMS_PER_PAGE = 24;
         let TOTAL_PAGES = 1;
         let LAST_FILTERED_PLAYERS = [];
+        let browseMode = true;
+        let renderTimer = null;
 
         function getPlayerVersion(player) {
             const type = Number(player.playerType);
@@ -455,6 +494,40 @@
             if (type === 8) return 'ShowTime';
             if (type === 5) return 'Big Time';
             return player.version || 'Highlight';
+        }
+
+        function scheduleRender() {
+            CURRENT_PAGE = 1;
+            window.clearTimeout(renderTimer);
+            renderTimer = window.setTimeout(renderPlayers, 120);
+        }
+
+        function enterBrowseMode() {
+            browseMode = true;
+            CURRENT_PAGE = 1;
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.focus();
+            renderPlayers();
+        }
+
+        function showFeaturedView() {
+            browseMode = false;
+            currentFilter = 'All';
+            filterMode = 'position';
+            CURRENT_PAGE = 1;
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'newest';
+            renderFilters();
+            renderPlayers();
+        }
+
+        function updateHeroStats() {
+            const totalPlayers = PLAYERS.length;
+            const totalTypes = new Set(PLAYERS.map(player => player.version)).size;
+            const totalPlayersEl = document.getElementById('heroTotalPlayers');
+            const totalTypeEl = document.getElementById('heroTypeCount');
+            if (totalPlayersEl) totalPlayersEl.textContent = totalPlayers.toLocaleString();
+            if (totalTypeEl) totalTypeEl.textContent = totalTypes.toString();
         }
 
         // Load players from players.json
@@ -465,16 +538,20 @@
                 // Transform to display format
                 PLAYERS = PLAYERS_RAW.map(p => ({
                     id: p.id,
+                    sortId: Number(p.id) || 0,
                     name: p.name,
                     version: getPlayerVersion(p),
                     position: p.position,
                     rating: p.overallRating.toString(),
+                    ratingValue: Number(p.overallRating) || 0,
                     image: p.imageUrl,
                     playstyle: p.playingStyle,
                     team: p.team || 'International',
-                    build: p.build || {}
+                    build: p.build || {},
+                    searchKey: `${p.name} ${p.position} ${getPlayerVersion(p)} ${p.team || ''} ${p.playingStyle || ''}`.toLowerCase()
                 }));
                 renderFilters();
+                updateHeroStats();
                 renderPlayers();
             } catch (e) {
                 console.error('Error loading players.json:', e);
@@ -499,6 +576,8 @@
             filterMode = mode;
 
             currentFilter = 'All';
+            browseMode = true;
+            CURRENT_PAGE = 1;
 
             renderFilters();
 
@@ -524,44 +603,38 @@
 
 
 
-        function setFilter(v) { currentFilter = v; renderFilters(); renderPlayers(); }
+        function setFilter(v) { currentFilter = v; browseMode = true; CURRENT_PAGE = 1; renderFilters(); renderPlayers(); }
 
 
 
         function createCard(p) {
-
-             return `
-
-                <div onclick="location.href='player.html?id=${p.id}'" class="card-bg rounded-[2.5rem] overflow-hidden cursor-pointer hover:scale-[1.02] transition-all group p-6">
-
-                    <div class="relative h-48">
-
-                        <img src="${p.image}" class="absolute right-0 bottom-0 h-44 w-auto object-contain">
-
-                        <div class="absolute top-4 left-4">
-
-                            <div class="text-blue-500 text-[10px] font-black uppercase mb-1">${p.position}</div>
-
-                            <h3 class="text-3xl font-bold brand-font text-white leading-none">${p.name}</h3>
-
-                            <p class="text-[10px] text-slate-500 font-bold uppercase mt-1">${p.version}</p>
-
+            return `
+                <div onclick="location.href='player.html?id=${p.id}'" class="card-bg group cursor-pointer rounded-[2rem] p-5 sm:p-6 transition-all hover:scale-[1.015]">
+                    <div class="flex h-full min-h-[20rem] flex-col">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="mb-2 inline-flex rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">${p.position}</div>
+                                <h3 class="truncate text-3xl font-bold leading-none text-white sm:text-4xl">${p.name}</h3>
+                                <p class="mt-1 truncate text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">${p.version}</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-center backdrop-blur">
+                                <div class="text-[9px] font-bold text-slate-500">OVR</div>
+                                <div class="brand-font text-3xl font-bold leading-none text-white">${p.rating}</div>
+                            </div>
                         </div>
 
-                        <div class="absolute top-4 right-4 bg-black/40 backdrop-blur rounded-2xl p-3 text-center border border-white/5">
-
-                            <div class="text-[9px] text-slate-500 font-bold">OVR</div>
-
-                            <div class="text-2xl font-bold brand-font text-white">${p.rating}</div>
-
+                        <div class="relative mt-5 flex-1 overflow-hidden rounded-[1.5rem] bg-black/20">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-cyan-500/10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                            <img src="${p.image}" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="absolute bottom-0 right-0 h-44 w-auto object-contain drop-shadow-2xl transition-transform duration-300 group-hover:scale-[1.03]">
                         </div>
 
+                        <div class="mt-4 flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">
+                            <span class="truncate">${p.playstyle || p.team || 'Player card'}</span>
+                            <span class="text-blue-400">Open</span>
+                        </div>
                     </div>
-
                 </div>
-
             `;
-
         }
 
 
@@ -577,7 +650,7 @@
                 <div class="flex items-center justify-center gap-3 flex-wrap">
                     <button onclick="changePage(-1)" class="px-5 py-3 rounded-xl bg-slate-900 border border-white/10 text-white font-bold uppercase text-[10px] tracking-widest ${CURRENT_PAGE <= 1 ? 'opacity-40 pointer-events-none' : ''}">Previous</button>
                     <span class="text-xs text-slate-400 font-medium uppercase tracking-[0.2em]">Page ${CURRENT_PAGE} of ${totalPages}</span>
-                    <button onclick="changePage(1)" class="px-5 py-3 rounded-xl bg-blue-600 border border-blue-500 text-white font-bold uppercase text-[10px] tracking-widest ${CURRENT_PAGE >= totalPages ? 'opacity-40 pointer-events-none' : ''}">Load More</button>
+                    <button onclick="changePage(1)" class="px-5 py-3 rounded-xl bg-blue-600 border border-blue-500 text-white font-bold uppercase text-[10px] tracking-widest ${CURRENT_PAGE >= totalPages ? 'opacity-40 pointer-events-none' : ''}">${CURRENT_PAGE >= totalPages ? 'End of Results' : 'Load More'}</button>
                 </div>
             `;
         }
@@ -593,61 +666,65 @@
         function renderPlayers() {
             const contentArea = document.getElementById('contentArea');
             const paginationArea = document.getElementById('paginationArea');
-            const q = document.getElementById('searchInput').value.toLowerCase();
+            const resultsCount = document.getElementById('resultsCount');
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
             const sort = document.getElementById('sortSelect').value;
 
             const filtered = PLAYERS.filter(player => {
-                const searchString = `${player.name} ${player.position} ${player.version}`.toLowerCase();
-                const matchesSearch = q === '' || searchString.includes(q);
+                const matchesSearch = q === '' || player.searchKey.includes(q);
                 const matchesFilter = currentFilter === 'All' || (filterMode === 'position' ? player.position === currentFilter : player.version === currentFilter);
                 return matchesSearch && matchesFilter;
             });
 
             LAST_FILTERED_PLAYERS = filtered;
 
-            if (sort === 'rating') filtered.sort((a, b) => parseInt(b.rating, 10) - parseInt(a.rating, 10));
-            else if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
-            else filtered.sort((a, b) => b.id - a.id);
+            if (sort === 'rating') filtered.sort((a, b) => b.ratingValue - a.ratingValue || b.sortId - a.sortId);
+            else if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name) || b.sortId - a.sortId);
+            else filtered.sort((a, b) => b.sortId - a.sortId);
 
-            const isDefaultView = q === '' && currentFilter === 'All' && sort === 'newest';
-            if (isDefaultView) {
+            const isFeaturedView = !browseMode && q === '' && currentFilter === 'All' && sort === 'newest';
+            if (resultsCount) {
+                resultsCount.textContent = isFeaturedView ? 'Curated view' : `${filtered.length.toLocaleString()} players`;
+            }
+
+            if (isFeaturedView) {
                 paginationArea.innerHTML = '';
                 const sectionGroups = [
-                    { title: "Magnetic Feet 29 Jan '26", names: ['Bellingham', 'Pedri', 'Eze'] },
+                    { title: 'Magnetic Feet', names: ['Bellingham', 'Pedri', 'Eze'] },
                     { title: 'MSN', names: ['Messi', 'Neymar Jr'] },
                     { title: 'Worldwide', names: ['Neymar'] },
-                    { title: 'Over-the-Top Pass C', names: ['M. Salah'] },
-                    { title: "Manchester United 26'", names: ['Best', 'Robson', 'Schmeichel'] },
-                    { title: 'Madrid Chamartin B', names: ['Makélélé', 'Owen', 'McManaman'] }
+                    { title: 'Over-the-Top Pass', names: ['M. Salah'] },
+                    { title: 'Manchester United', names: ['Best', 'Robson', 'Schmeichel'] },
+                    { title: 'Madrid Chamartin B', names: ['MakÃ©lÃ©lÃ©', 'Owen', 'McManaman'] }
                 ];
 
-                const usedNames = new Set(sectionGroups.flatMap(section => section.names));
                 let html = '';
 
                 sectionGroups.forEach(section => {
-                    const sectionPlayers = filtered.filter(player => section.names.includes(player.name));
+                    const sectionPlayers = filtered.filter(player => section.names.includes(player.name)).slice(0, 4);
                     if (!sectionPlayers.length) return;
                     html += `
                         <div class="mb-10">
-                            <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">${section.title}</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                            <div class="mb-4 flex items-end justify-between gap-4">
+                                <h3 class="brand-font text-3xl text-white uppercase tracking-wide">${section.title}</h3>
+                                <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Featured</span>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6 lg:gap-8">
                                 ${sectionPlayers.map(player => createCard(player)).join('')}
                             </div>
                         </div>`;
                 });
 
-                const others = filtered.filter(player => !usedNames.has(player.name));
-                if (others.length) {
-                    html += `
-                        <div class="mb-10">
-                            <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Season 3: Epics & Highlights</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                                ${others.map(player => createCard(player)).join('')}
-                            </div>
-                        </div>`;
-                }
+                html += `
+                    <div class="mb-10 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="brand-font text-3xl text-white uppercase tracking-wide">Browse the full catalog</h3>
+                            <p class="mt-1 text-sm text-slate-400">Switch into fast pagination for the entire player list.</p>
+                        </div>
+                        <button onclick="enterBrowseMode()" class="rounded-2xl bg-blue-600 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white transition hover:bg-blue-500">Browse all players</button>
+                    </div>`;
 
-                contentArea.innerHTML = html || '<div class="text-center text-slate-500 py-16">No players found.</div>';
+                contentArea.innerHTML = html || '<div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-10 text-center text-slate-500">No featured players found.</div>';
                 return;
             }
 
@@ -656,7 +733,9 @@
             const startIndex = (CURRENT_PAGE - 1) * ITEMS_PER_PAGE;
             const paginatedPlayers = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-            contentArea.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">${paginatedPlayers.map(player => createCard(player)).join('')}</div>`;
+            contentArea.innerHTML = paginatedPlayers.length
+                ? `<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6 lg:gap-8">${paginatedPlayers.map(player => createCard(player)).join('')}</div>`
+                : '<div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-10 text-center text-slate-500">No players found.</div>';
             renderPaginationControls(TOTAL_PAGES);
         }
         // --- JSON MAKER LOGIC ---
@@ -723,5 +802,7 @@
 </body>
 
 </html>
+
+
 
 
