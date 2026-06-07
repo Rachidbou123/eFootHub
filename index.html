@@ -1,337 +1,824 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>eFootball Training Hub | Player Builds</title>
-  <meta name="description" content="Browse eFootball player builds with a fast, clean, and mobile-friendly interface.">
-  <meta name="theme-color" content="#0b1220">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9775131443425311" crossorigin="anonymous"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --bg: #050816; --panel: rgba(12, 18, 32, 0.78); --line: rgba(148,163,184,.12); --blue: #3b82f6; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0; font-family: Inter, sans-serif; color: #e2e8f0;
-      background:
-        radial-gradient(circle at top left, rgba(59,130,246,.16), transparent 30%),
-        radial-gradient(circle at top right, rgba(14,165,233,.10), transparent 24%),
-        linear-gradient(180deg, #050816 0%, #02040a 55%, #010205 100%);
-    }
-    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: linear-gradient(135deg, rgba(255,255,255,.02), transparent 28%); }
-    .brand { font-family: Teko, sans-serif; letter-spacing: .08em; }
-    .glass { background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(18px); box-shadow: 0 18px 64px rgba(0,0,0,.22); }
-    .card {
-      background: linear-gradient(180deg, rgba(15,21,36,.96), rgba(4,7,13,.98));
-      border: 1px solid rgba(148,163,184,.08); box-shadow: 0 14px 42px rgba(0,0,0,.24);
-      content-visibility: auto; contain-intrinsic-size: 320px 280px;
-    }
-    .chip { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); }
-    .chip-active { background: rgba(59,130,246,.16); border-color: rgba(59,130,246,.45); color: #bfdbfe; }
-    .img-safe { aspect-ratio: 1 / 1; object-fit: contain; }
-    .soft-shadow { box-shadow: 0 0 0 1px rgba(255,255,255,.03), 0 20px 70px rgba(0,0,0,.24); }
-    @media (hover:hover) { .card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,.35); } }
-  </style>
-</head>
-<body class="min-h-screen">
-  <nav class="sticky top-0 z-40 border-b border-white/5 bg-black/80 backdrop-blur-xl">
-    <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-      <a href="index.html" class="flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-2xl font-bold text-white brand">EF</div>
-        <div class="leading-none">
-          <div class="brand text-xl text-white sm:text-2xl">TRAINING HUB</div>
-          <div class="text-[10px] uppercase tracking-[0.25em] text-slate-500">Fast player browsing</div>
-        </div>
-      </a>
-      <button onclick="goAdmin()" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white transition hover:bg-white/10">Admin</button>
-    </div>
-  </nav>
 
-  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-    <section class="glass soft-shadow relative mb-6 overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
-      <div class="grid gap-6 lg:grid-cols-[1.35fr_.85fr] lg:items-center">
-        <div>
-          <span class="chip inline-flex rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">Fast / clean / mobile-friendly</span>
-          <h1 class="brand mt-4 text-5xl leading-none text-white sm:text-6xl lg:text-7xl">Find player builds fast.</h1>
-          <p class="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">Search the full eFootball database, filter by position or card type, and move through the catalog without lag. Cards load lazily and only the current page renders.</p>
-          <div class="mt-5 flex flex-wrap gap-3">
-            <button onclick="setBrowseMode(true)" class="rounded-2xl bg-blue-600 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white transition hover:bg-blue-500">Browse all players</button>
-            <button onclick="setBrowseMode(false)" class="rounded-2xl bg-white/5 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white transition hover:bg-white/10">Compact mode</button>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div class="glass rounded-[1.5rem] p-4">
-            <div class="text-[10px] uppercase tracking-[0.25em] text-slate-500">Players</div>
-            <div id="totalPlayers" class="brand mt-2 text-4xl text-white">0</div>
-          </div>
-          <div class="glass rounded-[1.5rem] p-4">
-            <div class="text-[10px] uppercase tracking-[0.25em] text-slate-500">Filtered</div>
-            <div id="filteredPlayers" class="brand mt-2 text-4xl text-white">0</div>
-          </div>
-          <div class="glass rounded-[1.5rem] p-4">
-            <div class="text-[10px] uppercase tracking-[0.25em] text-slate-500">Per page</div>
-            <div class="brand mt-2 text-4xl text-white">24</div>
-          </div>
-          <div class="glass rounded-[1.5rem] p-4">
-            <div class="text-[10px] uppercase tracking-[0.25em] text-slate-500">Loading</div>
-            <div class="brand mt-2 text-4xl text-white">Lazy</div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- Google Tag Manager -->
 
-    <section class="glass rounded-[1.75rem] p-4 sm:p-5">
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <h2 class="brand text-4xl leading-none text-white">Browse the database</h2>
-            <p id="status" class="mt-1 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Loading players...</p>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <span id="resultsBadge" class="chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">All players</span>
-            <button onclick="resetFilters()" class="rounded-full bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white transition hover:bg-white/10">Reset</button>
-          </div>
-        </div>
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 
-        <div class="relative">
-          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5 text-slate-500">
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          </div>
-          <input id="searchInput" oninput="scheduleRender()" placeholder="Search name, position, team, style..." class="w-full rounded-2xl border border-white/10 bg-slate-950/75 py-4 pl-14 pr-6 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
-        </div>
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 
-        <div class="flex flex-col gap-3 border-b border-white/5 pb-3 lg:flex-row lg:items-center lg:justify-between">
-          <div class="flex flex-wrap gap-2">
-            <button onclick="setFilterMode('position')" id="mode-position" class="filter-btn chip-active rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] transition">By Position</button>
-            <button onclick="setFilterMode('version')" id="mode-version" class="filter-btn chip rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 transition hover:text-white">By Card Type</button>
-          </div>
-          <select id="sortSelect" onchange="scheduleRender()" class="rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
-            <option value="newest">Newest First</option>
-            <option value="rating">Highest OVR</option>
-            <option value="name">Alphabetical</option>
-          </select>
-        </div>
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
-        <div id="filterGroup" class="flex gap-2 overflow-x-auto pb-2"></div>
-      </div>
-    </section>
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 
-    <section id="contentArea" class="mt-6"></section>
-    <div id="paginationArea" class="mt-10 mb-4 text-center"></div>
-  </main>
+    })(window,document,'script','dataLayer','GTM-5T4NRNTV');</script>
 
-  <footer class="mt-12 border-t border-white/5 bg-black/40 px-4 py-8 sm:px-6">
-    <div class="mx-auto max-w-7xl text-center">
-      <p class="text-[10px] uppercase tracking-[0.2em] text-slate-600">Copyright 2026 EF Training Hub. All rights reserved.</p>
-      <p class="mx-auto mt-3 max-w-2xl text-[9px] leading-relaxed italic text-slate-500">Disclaimer: fan-made project. eFootball and related assets are trademarks of Konami Digital Entertainment.</p>
-    </div>
-  </footer>
+    <!-- End Google Tag Manager -->
 
-  <script>
-    const STORAGE_KEY = 'efh_players_data_v1';
-    const ITEMS_PER_PAGE = 24;
-    let PLAYERS = [];
-    let filteredPlayers = [];
-    let currentPage = 1;
-    let currentFilter = 'All';
-    let filterMode = 'position';
-    let searchTerm = '';
-    let sortMode = 'newest';
-    let browseMode = true;
-    let renderTimer = null;
 
-    function goAdmin() { location.href = 'admin.html'; }
-    function scheduleRender() { currentPage = 1; clearTimeout(renderTimer); renderTimer = setTimeout(renderPlayers, 120); }
-    function setBrowseMode(value) { browseMode = value; renderPlayers(); }
-    function setFilterMode(mode) { filterMode = mode; currentFilter = 'All'; updateModeButtons(); renderFilters(); renderPlayers(); }
-    function setFilter(value) { currentFilter = value; renderFilters(); renderPlayers(); }
-    function resetFilters() { searchTerm = ''; currentFilter = 'All'; filterMode = 'position'; sortMode = 'newest'; browseMode = true; currentPage = 1; document.getElementById('searchInput').value = ''; document.getElementById('sortSelect').value = 'newest'; updateModeButtons(); renderFilters(); renderPlayers(); }
-    function updateModeButtons() {
-      document.getElementById('mode-position').className = filterMode === 'position' ? 'filter-btn chip-active rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] transition' : 'filter-btn chip rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 transition hover:text-white';
-      document.getElementById('mode-version').className = filterMode === 'version' ? 'filter-btn chip-active rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] transition' : 'filter-btn chip rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 transition hover:text-white';
-    }
 
-    function safeLoadSavedPlayers() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (error) {
-        localStorage.removeItem(STORAGE_KEY);
-        return [];
-      }
-    }
+    <meta charset="UTF-8">
 
-    function getVersion(player) {
-      const type = Number(player.playerType);
-      if (type === 7) return 'Epic Booster';
-      if (type === 8) return 'ShowTime';
-      if (type === 5) return 'Big Time';
-      return player.version || player.cardType || 'Highlight';
-    }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    function normalizePlayer(player) {
-      const version = getVersion(player);
-      return {
-        id: String(player.id),
-        sortId: Number(player.id) || 0,
-        name: player.name || 'Unknown',
-        position: player.position || '',
-        version,
-        rating: String(player.overallRating ?? player.rating ?? 0),
-        ratingValue: Number(player.overallRating ?? player.rating ?? 0) || 0,
-        image: player.imageUrl || player.image || '',
-        playstyle: player.playingStyle || player.playstyle || '',
-        team: player.team || 'International',
-        build: player.build || {},
-        searchKey: `${player.name || ''} ${player.position || ''} ${version} ${player.team || ''} ${player.playingStyle || ''}`.toLowerCase()
-      };
-    }
+    <title>eFootball Training Hub | Best Player Builds & Stats 2026</title>
 
-    async function loadPlayers() {
-      const status = document.getElementById('status');
-      try {
-        const response = await fetch('players.json', { cache: 'no-store' });
-        if (!response.ok) throw new Error(`players.json returned ${response.status}`);
-        const basePlayers = await response.json();
-        const savedPlayers = safeLoadSavedPlayers();
-        const savedMap = new Map(savedPlayers.filter(p => p && p.id != null).map(p => [String(p.id), p]));
-        const merged = basePlayers.map(player => savedMap.get(String(player.id)) || player);
-        for (const player of savedPlayers) {
-          if (player && player.id != null && !basePlayers.some(base => String(base.id) === String(player.id))) {
-            merged.push(player);
-          }
+    <meta name="description" content="Get the best training builds for eFootball 26. Explore progression points for Epic, Show Time, and Big Time players to maximize your team's OVR rating.">
+
+    <meta name="keywords" content="eFootball, eFootball 2026, player builds, training points, progression, stats, OVR, showtime, epic">
+    <meta name="author" content="EF Training Hub">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta property="og:title" content="eFootball Training Hub | Best Player Builds & Stats 2026">
+    <meta property="og:description" content="Discover optimal training builds and progression paths for all eFootball players.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#3b82f6">
+
+    
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9775131443425311"
+
+     crossorigin="anonymous"></script>
+
+    
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    
+
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+
+
+    <style>
+
+        :root {
+
+            --brand-blue: #3b82f6;
+
+            --bg-dark: #02040a;
+
         }
-        PLAYERS = merged.map(normalizePlayer);
-        status.textContent = `${PLAYERS.length.toLocaleString()} players loaded`;
-        renderFilters();
-        renderHeroStats();
-        renderPlayers();
-      } catch (error) {
-        console.error(error);
-        const savedPlayers = safeLoadSavedPlayers();
-        PLAYERS = savedPlayers.map(normalizePlayer);
-        status.textContent = PLAYERS.length ? 'Loaded saved browser data' : 'Unable to load players.json';
-        renderFilters();
-        renderHeroStats();
-        renderPlayers();
-      }
-    }
 
-    function renderHeroStats() {
-      document.getElementById('totalPlayers').textContent = PLAYERS.length.toLocaleString();
-      document.getElementById('filteredPlayers').textContent = PLAYERS.length.toLocaleString();
-    }
+        html {
+            scroll-behavior: smooth;
+        }
 
-    function renderFilters() {
-      const container = document.getElementById('filterGroup');
-      const items = filterMode === 'position'
-        ? ['All', 'CF', 'SS', 'LWF', 'RWF', 'AMF', 'CMF', 'DMF', 'CB', 'LB', 'RB', 'GK']
-        : ['All', 'Epic Booster', 'ShowTime', 'Big Time', 'Highlight'];
-      container.innerHTML = items.map(item => `
-        <button onclick="setFilter('${item}')" class="whitespace-nowrap rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] ${currentFilter === item ? 'chip-active' : 'chip text-slate-400'} transition hover:text-white">${item}</button>
-      `).join('');
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 32%),
+                radial-gradient(circle at top right, rgba(14, 165, 233, 0.09), transparent 26%),
+                linear-gradient(180deg, #050816 0%, var(--bg-dark) 56%, #010205 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
 
-    function sortList(list) {
-      const copy = [...list];
-      if (sortMode === 'rating') copy.sort((a, b) => b.ratingValue - a.ratingValue || b.sortId - a.sortId);
-      else if (sortMode === 'name') copy.sort((a, b) => a.name.localeCompare(b.name) || b.sortId - a.sortId);
-      else copy.sort((a, b) => b.sortId - a.sortId);
-      return copy;
-    }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 28%),
+                linear-gradient(315deg, rgba(255, 255, 255, 0.015), transparent 22%);
+            pointer-events: none;
+            z-index: -1;
+        }
 
-    function renderCard(player) {
-      const safeImage = player.image || 'https://via.placeholder.com/512x512?text=No+Image';
-      return `
-        <article class="card rounded-[2rem] p-5 sm:p-6 transition-transform duration-200 hover:scale-[1.015]">
-          <div class="flex h-full min-h-[20rem] flex-col">
-            <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <div class="mb-2 inline-flex rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-blue-300">${player.position}</div>
-                <h3 class="truncate text-3xl font-bold leading-none text-white sm:text-4xl">${player.name}</h3>
-                <p class="mt-1 truncate text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">${player.version}</p>
-              </div>
-              <div class="rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-center backdrop-blur">
-                <div class="text-[9px] font-bold text-slate-500">OVR</div>
-                <div class="brand text-3xl font-bold leading-none text-white">${player.rating}</div>
-              </div>
+        h1, h2, h3, .brand-font {
+
+            font-family: 'Teko', sans-serif;
+
+        }
+
+        .card-bg {
+            background: linear-gradient(180deg, rgba(14, 20, 33, 0.95) 0%, rgba(4, 7, 13, 0.98) 100%);
+            border: 1px solid rgba(148, 163, 184, 0.08);
+            box-shadow: 0 14px 50px rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            content-visibility: auto;
+            contain-intrinsic-size: 320px 280px;
+            will-change: transform;
+        }
+
+        @media (hover: hover) {
+
+            .card-bg:hover {
+
+                border-color: var(--brand-blue);
+
+                transform: translateY(-6px);
+                box-shadow: 0 18px 64px rgba(0, 0, 0, 0.36);
+
+            }
+
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        
+
+        .filter-tab-active {
+
+            color: var(--brand-blue);
+
+            border-bottom: 2px solid var(--brand-blue);
+
+        }
+
+        .hero-panel,
+        .surface-card,
+        .search-panel {
+            background: rgba(8, 12, 22, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 18px 64px rgba(0, 0, 0, 0.22);
+            backdrop-filter: blur(20px);
+        }
+
+        .surface-card {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .soft-focus {
+            background:
+                linear-gradient(135deg, rgba(59, 130, 246, 0.12), transparent 36%),
+                linear-gradient(315deg, rgba(14, 165, 233, 0.08), transparent 38%);
+        }
+
+        .muted-chip {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+
+
+        .modal-blur {
+
+            backdrop-filter: blur(20px);
+
+            background: rgba(0,0,0,0.8);
+
+        }
+
+        
+
+        .blog-banner {
+
+            background: linear-gradient(90deg, #1e293b 0%, #030508 100%);
+
+            border: 1px solid rgba(59, 130, 246, 0.2);
+
+        }
+
+    </style>
+
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5T4NRNTV"
+
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+
+
+    <!-- Navigation -->
+
+    <nav class="bg-black/95 border-b border-white/5 sticky top-0 z-40 backdrop-blur-xl">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="flex items-center justify-between h-16 sm:h-20">
+
+                <div 
+
+                    class="flex items-center gap-3 sm:gap-4 group cursor-pointer select-none" 
+
+                    onclick="goHome()"
+
+                    ondblclick="toggleModal(true)" 
+
+                >
+
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-white brand-font text-2xl sm:text-3xl shadow-[0_0_20px_rgba(37,99,235,0.4)]">
+
+                        EF
+
+                    </div>
+
+                    <div class="flex flex-col text-left">
+
+                        <span class="text-xl sm:text-2xl font-bold brand-font tracking-widest text-white leading-none">TRAINING</span>
+
+                        <div class="flex items-center gap-2">
+
+                            <span class="text-[10px] font-bold text-blue-500 tracking-[0.2em] uppercase opacity-80">Hub</span>
+
+                            <span class="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-slate-500 font-medium uppercase tracking-normal">Updated 2026</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <a href="blog.html" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white transition hover:bg-white/10">Blog</a>
+                    <button onclick="enterBrowseMode()" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white transition hover:bg-white/10">Browse</button>
+                </div>
+
             </div>
-            <div class="relative mt-5 flex-1 overflow-hidden rounded-[1.5rem] bg-black/20">
-              <img src="${safeImage}" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="img-safe absolute inset-0 h-full w-full p-2 transition-transform duration-300 hover:scale-[1.02]">
-            </div>
-            <div class="mt-4 flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">
-              <span class="truncate">${player.playstyle || player.team || 'Player card'}</span>
-              <a href="player.html?id=${player.id}" class="text-blue-400">Open</a>
-            </div>
-          </div>
-        </article>
-      `;
-    }
 
-    function renderPagination() {
-      const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / ITEMS_PER_PAGE));
-      const container = document.getElementById('paginationArea');
-      if (totalPages <= 1) {
-        container.innerHTML = '';
-        return;
-      }
-      container.innerHTML = `
-        <div class="flex flex-wrap items-center justify-center gap-3">
-          <button onclick="changePage(-1)" class="rounded-xl bg-slate-900 border border-white/10 px-5 py-3 text-[10px] font-black uppercase tracking-[0.25em] text-white ${currentPage <= 1 ? 'opacity-40 pointer-events-none' : ''}">Previous</button>
-          <span class="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Page ${currentPage} of ${totalPages}</span>
-          <button onclick="changePage(1)" class="rounded-xl bg-blue-600 border border-blue-500 px-5 py-3 text-[10px] font-black uppercase tracking-[0.25em] text-white ${currentPage >= totalPages ? 'opacity-40 pointer-events-none' : ''}">${currentPage >= totalPages ? 'End of Results' : 'Load More'}</button>
         </div>
-      `;
-    }
 
-    function renderPlayers() {
-      const content = document.getElementById('contentArea');
-      const badge = document.getElementById('resultsBadge');
-      const filtered = PLAYERS.filter(player => {
-        const matchesSearch = !searchTerm || player.searchKey.includes(searchTerm);
-        const matchesFilter = currentFilter === 'All' || (filterMode === 'position' ? player.position === currentFilter : player.version === currentFilter);
-        return matchesSearch && matchesFilter;
-      });
-      filteredPlayers = sortList(filtered);
-      document.getElementById('filteredPlayers').textContent = filteredPlayers.length.toLocaleString();
-      badge.textContent = `${filteredPlayers.length.toLocaleString()} results`;
+    </nav>
 
-      const start = (currentPage - 1) * ITEMS_PER_PAGE;
-      const pageItems = filteredPlayers.slice(start, start + ITEMS_PER_PAGE);
-      content.innerHTML = pageItems.length
-        ? `<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6 lg:gap-8">${pageItems.map(renderCard).join('')}</div>`
-        : '<div class="glass rounded-[2rem] p-10 text-center text-slate-400">No players found.</div>';
-      renderPagination();
-    }
 
-    function changePage(delta) {
-      const totalPages = Math.max(1, Math.ceil(filteredPlayers.length / ITEMS_PER_PAGE));
-      currentPage = Math.min(totalPages, Math.max(1, currentPage + delta));
-      renderPlayers();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
 
-    function setSort(value) { sortMode = value; currentPage = 1; renderPlayers(); }
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 flex-grow w-full">
 
-    function scheduleRender() {
-      searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-      currentPage = 1;
-      clearTimeout(renderTimer);
-      renderTimer = setTimeout(renderPlayers, 120);
-    }
+        <section class="hero-panel soft-focus relative mb-8 overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
+            <div class="absolute inset-0 pointer-events-none">
+                <div class="absolute -right-10 top-0 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl"></div>
+                <div class="absolute left-0 bottom-0 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl"></div>
+            </div>
 
-    function setModeButtonStyles() {
-      document.getElementById('mode-position').className = filterMode === 'position' ? 'filter-btn chip-active rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] transition' : 'filter-btn chip rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 transition hover:text-white';
-      document.getElementById('mode-version').className = filterMode === 'version' ? 'filter-btn chip-active rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] transition' : 'filter-btn chip rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 transition hover:text-white';
-    }
+            <div class="relative z-10 grid gap-8 lg:grid-cols-[1.4fr_0.9fr] items-center">
+                <div class="space-y-5">
+                    <span class="inline-flex items-center gap-2 rounded-full muted-chip px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">Fast browsing / clean UI / lazy images</span>
+                    <h1 class="text-5xl sm:text-6xl lg:text-7xl leading-none uppercase text-white tracking-tight">Find the right card fast.</h1>
+                    <p class="max-w-2xl text-sm sm:text-base leading-relaxed text-slate-300">Search Epic, ShowTime, and Big Time players without the clutter. The homepage stays curated while the full database opens in smooth paginated browse mode.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="enterBrowseMode()" class="rounded-2xl bg-blue-600 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white transition hover:bg-blue-500">Browse all players</button>
+                        <button onclick="showFeaturedView()" class="rounded-2xl bg-white/5 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white transition hover:bg-white/10">Featured view</button>
+                        <a href="blog.html" class="rounded-2xl border border-white/10 bg-black/20 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-slate-200 transition hover:border-blue-500/50 hover:text-white">Blog</a>
+                        <a href="playstyles.html" class="rounded-2xl border border-white/10 bg-black/20 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-slate-200 transition hover:border-blue-500/50 hover:text-white">Playing styles</a>
+                    </div>
+                </div>
 
-    document.getElementById('sortSelect').addEventListener('change', (event) => { sortMode = event.target.value; currentPage = 1; renderPlayers(); });
-    document.addEventListener('keydown', (event) => { if (event.ctrlKey && event.shiftKey && event.code === 'KeyA') location.href = 'admin.html'; });
-    window.addEventListener('storage', (event) => { if (event.key === STORAGE_KEY) loadPlayers(); });
-    window.addEventListener('load', loadPlayers);
-  </script>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="surface-card rounded-[1.5rem] p-4">
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Total players</div>
+                        <div id="heroTotalPlayers" class="mt-2 text-4xl font-bold brand-font text-white">0</div>
+                    </div>
+                    <div class="surface-card rounded-[1.5rem] p-4">
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Card types</div>
+                        <div id="heroTypeCount" class="mt-2 text-4xl font-bold brand-font text-white">0</div>
+                    </div>
+                    <div class="surface-card rounded-[1.5rem] p-4">
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Browse speed</div>
+                        <div class="mt-2 text-4xl font-bold brand-font text-white">5</div>
+                        <div class="text-[10px] uppercase tracking-[0.25em] text-blue-400">per page</div>
+                    </div>
+                    <div class="surface-card rounded-[1.5rem] p-4">
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Images</div>
+                        <div class="mt-2 text-4xl font-bold brand-font text-white">Lazy</div>
+                        <div class="text-[10px] uppercase tracking-[0.25em] text-blue-400">loading</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="search-panel mb-8 rounded-[1.75rem] p-4 sm:p-5">
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="space-y-1">
+                        <h2 class="brand-font text-4xl text-white uppercase leading-none">Browse the database</h2>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Search, filter, and load players without lag.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span id="resultsCount" class="muted-chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">Featured view</span>
+                        <button onclick="showFeaturedView()" class="rounded-full bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white transition hover:bg-white/10">Featured</button>
+                    </div>
+                </div>
+
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                    <input type="text" id="searchInput" oninput="scheduleRender()" placeholder="Search players, positions, or card types..." class="w-full rounded-2xl border border-white/10 bg-slate-950/70 py-4 pl-14 pr-6 text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-col gap-3 border-b border-white/5 pb-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="flex gap-6">
+                            <button onclick="toggleFilterMode('position')" id="mode-pos" class="pb-2 text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all">By Position</button>
+                            <button onclick="toggleFilterMode('version')" id="mode-ver" class="pb-2 text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:text-white">By Card Type</button>
+                        </div>
+                        <select id="sortSelect" onchange="scheduleRender()" class="rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15">
+                            <option value="newest">Newest First</option>
+                            <option value="rating">Highest OVR</option>
+                            <option value="name">Alphabetical</option>
+                        </select>
+                    </div>
+
+                    <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="filterGroup"></div>
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- This container will now hold the dynamic sections -->
+
+        <div id="contentArea"></div>
+
+        <!-- Pagination Controls -->
+        <div id="paginationArea" class="text-center mt-12 mb-8"></div>
+
+        
+
+    </main>
+
+
+
+    <footer class="mt-12 border-t border-white/5 bg-black/40 pt-12 pb-8 px-4 sm:px-6">
+
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+
+            <div>
+
+                <h4 class="brand-font text-2xl font-bold text-white uppercase tracking-wider mb-4">About the Hub</h4>
+
+                <p class="text-slate-400 text-sm leading-relaxed">Dedicated to providing the eFootball community with the most efficient training points and manager combinations to reach maximum ratings.</p>
+
+            </div>
+
+            <div>
+
+                <h4 class="brand-font text-2xl font-bold text-white uppercase tracking-wider mb-4">Tactical Resources</h4>
+
+                <p class="text-slate-400 text-sm leading-relaxed">Check out our <a href="playstyles.html" class="text-blue-500 hover:underline">Playing Styles Guide</a> to understand how different player roles affect AI behavior on the pitch.</p>
+
+            </div>
+
+            <div>
+
+                <h4 class="brand-font text-2xl font-bold text-white uppercase tracking-wider mb-4">Quick Links</h4>
+
+                <ul class="space-y-2 text-sm text-slate-400">
+
+                    <li><button onclick="showLegal('privacy')" class="hover:text-blue-500 transition-colors">Privacy Policy</button></li>
+
+                    <li><button onclick="showLegal('terms')" class="hover:text-blue-500 transition-colors">Terms of Service</button></li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="max-w-7xl mx-auto text-center border-t border-white/5 pt-8">
+
+            <p class="text-slate-600 text-[10px] uppercase tracking-[0.2em] mb-4">Copyright 2026 EF Training Hub. All rights reserved.</p>
+
+            <p class="text-slate-500 text-[9px] max-w-2xl mx-auto leading-relaxed italic">
+
+                Disclaimer: This is a fan-made website. eFootball and all related assets are trademarks of Konami Digital Entertainment. We are not officially affiliated with Konami.
+
+            </p>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- Secret Player Maker Modal -->
+
+    <div id="addModal" class="fixed inset-0 z-[100] hidden modal-blur p-4 overflow-y-auto">
+
+        <div class="max-w-2xl mx-auto bg-slate-900 rounded-[2.5rem] border border-white/10 shadow-2xl p-8 my-8 relative">
+
+            <button onclick="toggleModal(false)" class="absolute top-6 right-6 text-slate-500 hover:text-white text-2xl">&times;</button>
+
+            <h2 class="brand-font text-4xl text-white mb-6 uppercase">Player JSON Maker</h2>
+
+            
+
+            <div id="addTab" class="grid grid-cols-2 gap-4">
+
+                <input id="inName" placeholder="Name" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
+                <input id="inVersion" placeholder="Version (e.g. ShowTime)" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
+                <input id="inPos" placeholder="Position (e.g. CMF)" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
+                <input id="inRating" placeholder="Max Rating" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
+                <input id="inPlaystyle" placeholder="Playstyle" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
+                <input id="inImage" placeholder="Card Image URL" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
+                <input id="inManager" placeholder="Manager Name" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
+                <input id="inManagerImg" placeholder="Manager Image URL" class="bg-black border border-white/10 p-3 rounded-xl text-white outline-none">
+
+                
+
+                <div class="col-span-2 border-t border-white/5 pt-4 mt-2">
+
+                    <p class="text-[10px] text-slate-500 uppercase mb-3 font-bold tracking-widest">Training Build</p>
+
+                    <div id="statsInputs" class="grid grid-cols-3 gap-2"></div>
+
+                </div>
+
+
+
+                <button onclick="generateCode()" class="col-span-2 bg-blue-600 text-white font-bold py-4 rounded-2xl mt-4 uppercase brand-font text-2xl hover:bg-blue-500 transition-colors">Generate Player JSON</button>
+
+            </div>
+
+
+
+            <div id="codeResult" class="hidden">
+
+                <textarea id="outputArea" class="w-full h-64 bg-black border border-white/10 rounded-2xl p-4 text-xs font-mono text-blue-400 mb-4 outline-none" readonly></textarea>
+
+                <div class="flex gap-2">
+
+                    <button onclick="copyOutput()" class="flex-grow bg-blue-600 text-white py-3 rounded-xl font-bold uppercase brand-font text-xl">Copy to Clipboard</button>
+
+                    <button onclick="resetModal()" class="px-6 bg-slate-800 text-white rounded-xl font-bold uppercase text-xs">Back</button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Legal Modal -->
+
+    <div id="legalModal" class="fixed inset-0 z-[100] hidden modal-blur p-4 flex items-center justify-center">
+
+        <div class="max-w-lg w-full bg-slate-900 rounded-[2rem] border border-white/10 p-8 relative">
+
+            <button onclick="closeLegal()" class="absolute top-6 right-6 text-slate-500 hover:text-white font-bold">CLOSE</button>
+
+            <h2 id="legalTitle" class="brand-font text-3xl text-white mb-4 uppercase"></h2>
+
+            <div id="legalBody" class="text-slate-400 text-sm leading-relaxed space-y-4"></div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        let PLAYERS = [];
+        let PLAYERS_RAW = [];
+        let CURRENT_PAGE = 1;
+        const ITEMS_PER_PAGE = 5;
+        let TOTAL_PAGES = 1;
+        let LAST_FILTERED_PLAYERS = [];
+        let browseMode = true;
+        let renderTimer = null;
+        const STORAGE_KEY = 'efh_players_data_v1';
+
+        function getPlayerVersion(player) {
+            const type = Number(player.playerType);
+            if (type === 7) return 'Epic Booster';
+            if (type === 8) return 'ShowTime';
+            if (type === 5) return 'Big Time';
+            return player.version || 'Highlight';
+        }
+
+        function scheduleRender() {
+            CURRENT_PAGE = 1;
+            window.clearTimeout(renderTimer);
+            renderTimer = window.setTimeout(renderPlayers, 120);
+        }
+
+        function enterBrowseMode() {
+            browseMode = true;
+            CURRENT_PAGE = 1;
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.focus();
+            renderPlayers();
+        }
+
+        function showFeaturedView() {
+            browseMode = false;
+            currentFilter = 'All';
+            filterMode = 'position';
+            CURRENT_PAGE = 1;
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'newest';
+            renderFilters();
+            renderPlayers();
+        }
+
+        function updateHeroStats() {
+            const totalPlayers = PLAYERS.length;
+            const totalTypes = new Set(PLAYERS.map(player => player.version)).size;
+            const totalPlayersEl = document.getElementById('heroTotalPlayers');
+            const totalTypeEl = document.getElementById('heroTypeCount');
+            if (totalPlayersEl) totalPlayersEl.textContent = totalPlayers.toLocaleString();
+            if (totalTypeEl) totalTypeEl.textContent = totalTypes.toString();
+        }
+
+        // Load players from players.json
+        async function loadPlayersFromJSON() {
+            try {
+                const response = await fetch('players.json');
+                const basePlayers = await response.json();
+                const savedPlayers = localStorage.getItem(STORAGE_KEY);
+                if (savedPlayers) {
+                    const savedById = new Map(JSON.parse(savedPlayers).map(player => [player.id, player]));
+                    PLAYERS_RAW = basePlayers.map(player => savedById.get(player.id) || player);
+                    savedById.forEach((player, id) => {
+                        if (!basePlayers.some(basePlayer => basePlayer.id === id)) {
+                            PLAYERS_RAW.push(player);
+                        }
+                    });
+                } else {
+                    PLAYERS_RAW = basePlayers;
+                }
+                // Transform to display format
+                PLAYERS = PLAYERS_RAW.map(p => ({
+                    id: p.id,
+                    sortId: Number(p.id) || 0,
+                    name: p.name,
+                    version: getPlayerVersion(p),
+                    position: p.position,
+                    rating: p.overallRating.toString(),
+                    ratingValue: Number(p.overallRating) || 0,
+                    image: p.imageUrl,
+                    playstyle: p.playingStyle,
+                    team: p.team || 'International',
+                    build: p.build || {},
+                    searchKey: `${p.name} ${p.position} ${getPlayerVersion(p)} ${p.team || ''} ${p.playingStyle || ''}`.toLowerCase()
+                }));
+                renderFilters();
+                updateHeroStats();
+                renderPlayers();
+            } catch (e) {
+                console.error('Error loading players.json:', e);
+                console.log('Using fallback data');
+            }
+        }
+
+
+
+        let currentFilter = 'All';
+
+        let filterMode = 'position';
+
+
+
+        function goHome() { window.location.href = 'index.html'; }
+
+
+
+        function toggleFilterMode(mode) {
+
+            filterMode = mode;
+
+            currentFilter = 'All';
+            browseMode = true;
+            CURRENT_PAGE = 1;
+
+            renderFilters();
+
+            renderPlayers();
+
+            document.getElementById('mode-pos').className = mode === 'position' ? "text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all pb-2" : "text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all pb-2";
+
+            document.getElementById('mode-ver').className = mode === 'version' ? "text-[10px] font-black uppercase tracking-widest filter-tab-active transition-all pb-2" : "text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-white transition-all pb-2";
+
+        }
+
+
+
+        function renderFilters() {
+
+            const container = document.getElementById('filterGroup');
+
+            let items = filterMode === 'position' ? ['All', 'CF', 'LWF', 'RWF', 'AMF', 'CMF', 'DMF', 'CB', 'LB', 'RB', 'GK'] : ['All', 'Epic Booster', 'ShowTime', 'Big Time', 'Highlight'];
+
+            container.innerHTML = items.map(i => `<button onclick="setFilter('${i}')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase border ${currentFilter === i ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-white/5 text-slate-500'} whitespace-nowrap">${i}</button>`).join('');
+
+        }
+
+
+
+        function setFilter(v) { currentFilter = v; browseMode = true; CURRENT_PAGE = 1; renderFilters(); renderPlayers(); }
+
+
+
+        function createCard(p) {
+            return `
+                <div onclick="location.href='player.html?id=${p.id}'" class="card-bg group cursor-pointer rounded-[2rem] p-5 sm:p-6 transition-all hover:scale-[1.015]">
+                    <div class="flex h-full min-h-[20rem] flex-col">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="mb-2 inline-flex rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">${p.position}</div>
+                                <h3 class="truncate text-3xl font-bold leading-none text-white sm:text-4xl">${p.name}</h3>
+                                <p class="mt-1 truncate text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">${p.version}</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-center backdrop-blur">
+                                <div class="text-[9px] font-bold text-slate-500">OVR</div>
+                                <div class="brand-font text-3xl font-bold leading-none text-white">${p.rating}</div>
+                            </div>
+                        </div>
+
+                        <div class="relative mt-5 flex-1 overflow-hidden rounded-[1.5rem] bg-black/20">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-cyan-500/10 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                            <img src="${p.image}" loading="lazy" decoding="async" referrerpolicy="no-referrer" class="absolute bottom-0 right-0 h-44 w-auto object-contain drop-shadow-2xl transition-transform duration-300 group-hover:scale-[1.03]">
+                        </div>
+
+                        <div class="mt-4 flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">
+                            <span class="truncate">${p.playstyle || p.team || 'Player card'}</span>
+                            <span class="text-blue-400">Open</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+
+
+        function renderPaginationControls(totalPages) {
+            const paginationArea = document.getElementById('paginationArea');
+            if (totalPages <= 1) {
+                paginationArea.innerHTML = '';
+                return;
+            }
+
+            paginationArea.innerHTML = `
+                <div class="flex items-center justify-center gap-3 flex-wrap">
+                    <button onclick="changePage(-1)" class="px-5 py-3 rounded-xl bg-slate-900 border border-white/10 text-white font-bold uppercase text-[10px] tracking-widest ${CURRENT_PAGE <= 1 ? 'opacity-40 pointer-events-none' : ''}">Previous</button>
+                    <span class="text-xs text-slate-400 font-medium uppercase tracking-[0.2em]">Page ${CURRENT_PAGE} of ${totalPages}</span>
+                    <button onclick="changePage(1)" class="px-5 py-3 rounded-xl bg-blue-600 border border-blue-500 text-white font-bold uppercase text-[10px] tracking-widest ${CURRENT_PAGE >= totalPages ? 'opacity-40 pointer-events-none' : ''}">${CURRENT_PAGE >= totalPages ? 'End of Results' : 'Load More'}</button>
+                </div>
+            `;
+        }
+
+        function changePage(direction) {
+            const targetPage = CURRENT_PAGE + direction;
+            if (targetPage < 1 || targetPage > TOTAL_PAGES) return;
+            CURRENT_PAGE = targetPage;
+            renderPlayers();
+            document.getElementById('contentArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderPlayers() {
+            const contentArea = document.getElementById('contentArea');
+            const paginationArea = document.getElementById('paginationArea');
+            const resultsCount = document.getElementById('resultsCount');
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
+            const sort = document.getElementById('sortSelect').value;
+
+            const filtered = PLAYERS.filter(player => {
+                const matchesSearch = q === '' || player.searchKey.includes(q);
+                const matchesFilter = currentFilter === 'All' || (filterMode === 'position' ? player.position === currentFilter : player.version === currentFilter);
+                return matchesSearch && matchesFilter;
+            });
+
+            LAST_FILTERED_PLAYERS = filtered;
+
+            if (sort === 'rating') filtered.sort((a, b) => b.ratingValue - a.ratingValue || b.sortId - a.sortId);
+            else if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name) || b.sortId - a.sortId);
+            else filtered.sort((a, b) => b.sortId - a.sortId);
+
+            const isFeaturedView = !browseMode && q === '' && currentFilter === 'All' && sort === 'newest';
+            if (resultsCount) {
+                resultsCount.textContent = isFeaturedView ? 'Curated view' : `${filtered.length.toLocaleString()} players`;
+            }
+
+            if (isFeaturedView) {
+                paginationArea.innerHTML = '';
+                const sectionGroups = [
+                    { title: 'Magnetic Feet', names: ['Bellingham', 'Pedri', 'Eze'] },
+                    { title: 'MSN', names: ['Messi', 'Neymar Jr'] },
+                    { title: 'Worldwide', names: ['Neymar'] },
+                    { title: 'Over-the-Top Pass', names: ['M. Salah'] },
+                    { title: 'Manchester United', names: ['Best', 'Robson', 'Schmeichel'] },
+                    { title: 'Madrid Chamartin B', names: ['MakÃ©lÃ©lÃ©', 'Owen', 'McManaman'] }
+                ];
+
+                let html = '';
+
+                sectionGroups.forEach(section => {
+                    const sectionPlayers = filtered.filter(player => section.names.includes(player.name)).slice(0, 4);
+                    if (!sectionPlayers.length) return;
+                    html += `
+                        <div class="mb-10">
+                            <div class="mb-4 flex items-end justify-between gap-4">
+                                <h3 class="brand-font text-3xl text-white uppercase tracking-wide">${section.title}</h3>
+                                <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Featured</span>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6 lg:gap-8">
+                                ${sectionPlayers.map(player => createCard(player)).join('')}
+                            </div>
+                        </div>`;
+                });
+
+                html += `
+                    <div class="mb-10 rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 sm:p-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="brand-font text-3xl text-white uppercase tracking-wide">Browse the full catalog</h3>
+                            <p class="mt-1 text-sm text-slate-400">Switch into fast pagination for the entire player list.</p>
+                        </div>
+                        <button onclick="enterBrowseMode()" class="rounded-2xl bg-blue-600 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white transition hover:bg-blue-500">Browse all players</button>
+                    </div>`;
+
+                contentArea.innerHTML = html || '<div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-10 text-center text-slate-500">No featured players found.</div>';
+                return;
+            }
+
+            TOTAL_PAGES = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+            CURRENT_PAGE = Math.min(CURRENT_PAGE, TOTAL_PAGES);
+            const startIndex = (CURRENT_PAGE - 1) * ITEMS_PER_PAGE;
+            const paginatedPlayers = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+            contentArea.innerHTML = paginatedPlayers.length
+                ? `<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6 lg:gap-8">${paginatedPlayers.map(player => createCard(player)).join('')}</div>`
+                : '<div class="rounded-[2rem] border border-white/10 bg-white/[0.03] p-10 text-center text-slate-500">No players found.</div>';
+            renderPaginationControls(TOTAL_PAGES);
+        }
+        // --- JSON MAKER LOGIC ---
+        const statsList = ["Shooting", "Passing", "Dribbling", "Dexterity", "Lower Body", "Aerial", "Defending", "GK 1", "GK 2", "GK 3"];
+        
+        function initStatsInputs() {
+            const container = document.getElementById('statsInputs');
+            container.innerHTML = statsList.map(s => `
+                <div class="flex flex-col">
+                    <label class="text-[9px] text-slate-500 mb-1 uppercase font-bold">${s}</label>
+                    <input type="number" id="stat-${s.replace(' ','')}" value="0" class="bg-black border border-white/10 p-2 rounded-lg text-white text-center outline-none focus:border-blue-500">
+                </div>
+            `).join('');
+        }
+
+        function toggleModal(show) { 
+            const m = document.getElementById('addModal');
+            m.classList.toggle('hidden', !show); 
+            if(show) resetModal(); 
+        }
+
+        function generateCode() {
+            const build = {};
+            statsList.forEach(s => {
+                const id = s.replace(' ', '');
+                const val = parseInt(document.getElementById(`stat-${id}`).value);
+                if(val > 0) build[s] = val;
+            });
+            const player = { id: Date.now(), name: document.getElementById('inName').value, version: document.getElementById('inVersion').value, position: document.getElementById('inPos').value, rating: document.getElementById('inRating').value, playstyle: document.getElementById('inPlaystyle').value, image: document.getElementById('inImage').value, manager: document.getElementById('inManager').value, managerImg: document.getElementById('inManagerImg').value, build };
+            document.getElementById('outputArea').value = JSON.stringify(player, null, 4) + ',';
+            document.getElementById('addTab').classList.add('hidden');
+            document.getElementById('codeResult').classList.remove('hidden');
+        }
+
+        function resetModal() { document.getElementById('addTab').classList.remove('hidden'); document.getElementById('codeResult').classList.add('hidden'); }
+        function copyOutput() { const a = document.getElementById('outputArea'); a.select(); document.execCommand('copy'); }
+
+        // --- LEGAL LOGIC ---
+        function showLegal(type) {
+            const modal = document.getElementById('legalModal');
+            const title = document.getElementById('legalTitle');
+            const body = document.getElementById('legalBody');
+            modal.classList.remove('hidden');
+
+            if(type === 'privacy') {
+                title.innerText = "Privacy Policy";
+                body.innerHTML = `<p>We use Google AdSense to serve advertisements on this website. Google uses cookies to serve ads based on your visit to this and other websites on the Internet.</p><p>Users may opt out of personalized advertising by visiting Google's Ads Settings. We do not collect or store any personal data from our visitors.</p>`;
+            } else {
+                title.innerText = "Terms of Service";
+                body.innerHTML = `<p>EF Training Hub is a free resource for eFootball players. The player stats and progression points are for informational purposes only. We are not responsible for in-game currency spent based on our builds.</p><p>By using this site, you agree to use the data for personal enjoyment only. All content is protected by fan-usage guidelines.</p>`;
+            }
+        }
+        function closeLegal() { document.getElementById('legalModal').classList.add('hidden'); }
+
+        window.onload = () => { initStatsInputs(); loadPlayersFromJSON(); };
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === STORAGE_KEY) {
+                loadPlayersFromJSON();
+            }
+        });
+    </script>
 </body>
+
 </html>
+
+
+
+
