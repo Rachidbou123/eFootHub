@@ -28,6 +28,15 @@
 
     <meta name="description" content="Get the best training builds for eFootball 26. Explore progression points for Epic, Show Time, and Big Time players to maximize your team's OVR rating.">
 
+    <meta name="keywords" content="eFootball, eFootball 2026, player builds, training points, progression, stats, OVR, showtime, epic">
+    <meta name="author" content="EF Training Hub">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta property="og:title" content="eFootball Training Hub | Best Player Builds & Stats 2026">
+    <meta property="og:description" content="Discover optimal training builds and progression paths for all eFootball players.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#3b82f6">
+
     
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9775131443425311"
@@ -282,6 +291,9 @@
 
         <div id="contentArea"></div>
 
+        <!-- Pagination Controls -->
+        <div id="paginationArea" class="text-center mt-12 mb-8"></div>
+
         
 
     </main>
@@ -430,40 +442,45 @@
 
     <script>
 
-        let PLAYERS = [
-        { "id": 1770332641995, "name": "M. Salah", "version": "ShowTime", "position": "RWF", "rating": "106", "image": "https://pesdb.net/assets/img/card/f106768055197475.png" },
-        { "id": 1770331926204, "name": "Neymar Jr", "version": "Big Time", "position": "LWF", "rating": "107", "image": "https://pesdb.net/assets/img/card/f89133993205152max.png" },
-        { "id": 1770331038248, "name": "Messi", "version": "Big Time", "position": "RWF", "rating": "108", "image": "https://pesdb.net/assets/img/card/f89133456301399max.png" },
+        let PLAYERS = [];
+        let PLAYERS_RAW = [];
+        let CURRENT_PAGE = 1;
+        const ITEMS_PER_PAGE = 24;
+        let TOTAL_PAGES = 1;
+        let LAST_FILTERED_PLAYERS = [];
 
-            { "id": 1770304909506, "name": "Neymar", "version": "ShowTime", "position": "AMF", "rating": "103", "image": "https://pesdb.net/assets/img/card/f106770471099808authentic.png" },
+        function getPlayerVersion(player) {
+            const type = Number(player.playerType);
+            if (type === 7) return 'Epic Booster';
+            if (type === 8) return 'ShowTime';
+            if (type === 5) return 'Big Time';
+            return player.version || 'Highlight';
+        }
 
-            { "id": 1769894307092, "name": "Pedri", "version": "ShowTime", "position": "CMF", "rating": "104", "image": "https://pesdb.net/assets/img/card/f106765907789861.png" },
-
-            { "id": 1769894444887, "name": "Bellingham", "version": "ShowTime", "position": "CMF", "rating": "106", "image": "https://pesdb.net/assets/img/card/f106765907789637.png" },
-
-            { "id": 1769901403404, "name": "Eze", "version": "ShowTime", "position": "AMF", "rating": "105", "image": "https://pesdb.net/assets/img/card/f106765907771610.png" },
-
-            { "id": 1, "name": "Baresi", "version": "Epic Booster", "position": "CB", "rating": "102", "image": "https://pesdb.net/assets/img/card/f88033407929841max.png" },
-
-            { "id": 2, "name": "Cannavaro", "version": "Epic Booster", "position": "CB", "rating": "100", "image": "https://pesdb.net/assets/img/card/f88032334191333max.png" },
-
-            { "id": 3, "name": "Ferrer", "version": "Epic Booster", "position": "RB", "rating": "104", "image": "https://pesdb.net/assets/img/card/f88033139494363max.png" },
-
-            { "id": 1769958916039, "name": "Diouf", "version": "Epic Booster", "position": "CF", "rating": "102", "image": "https://pesdb.net/assets/img/card/f88039934308531max.png" },
-
-            { "id": 1769959255632, "name": "Owen", "version": "Epic Booster", "position": "CF", "rating": "106", "image": "https://pesdb.net/assets/img/card/f88039581945366max.png" },
-
-            { "id": 1769959407456, "name": "Makélélé", "version": "Epic Booster", "position": "DMF", "rating": "107", "image": "https://pesdb.net/assets/img/card/f88039581948642max.png" },
-
-            { "id": 1769959833152, "name": "McManaman", "version": "Epic Booster", "position": "RMF", "rating": "105", "image": "https://pesdb.net/assets/img/card/f88039850246968max.png" },
-
-            { "id": 1769960010256, "name": "Schmeichel", "version": "Epic Booster", "position": "GK", "rating": "107", "image": "https://pesdb.net/assets/img/card/f88039581948647max.png" },
-
-            { "id": 1769960134904, "name": "Best", "version": "Epic Booster", "position": "RWF", "rating": "109", "image": "https://pesdb.net/assets/img/card/f89136677522134max.png" },
-
-            { "id": 1769960297992, "name": "Robson", "version": "Epic Booster", "position": "CMF", "rating": "105", "image": "https://pesdb.net/assets/img/card/f88039581945332max.png" }
-
-        ];
+        // Load players from players.json
+        async function loadPlayersFromJSON() {
+            try {
+                const response = await fetch('players.json');
+                PLAYERS_RAW = await response.json();
+                // Transform to display format
+                PLAYERS = PLAYERS_RAW.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    version: getPlayerVersion(p),
+                    position: p.position,
+                    rating: p.overallRating.toString(),
+                    image: p.imageUrl,
+                    playstyle: p.playingStyle,
+                    team: p.team || 'International',
+                    build: p.build || {}
+                }));
+                renderFilters();
+                renderPlayers();
+            } catch (e) {
+                console.error('Error loading players.json:', e);
+                console.log('Using fallback data');
+            }
+        }
 
 
 
@@ -499,7 +516,7 @@
 
             const container = document.getElementById('filterGroup');
 
-            let items = filterMode === 'position' ? ['All', 'CF', 'LWF', 'RWF', 'AMF', 'CMF', 'DMF', 'CB', 'LB', 'RB', 'GK'] : ['All', 'Epic Booster', 'ShowTime', 'Big Time', 'Legend', 'Highlight'];
+            let items = filterMode === 'position' ? ['All', 'CF', 'LWF', 'RWF', 'AMF', 'CMF', 'DMF', 'CB', 'LB', 'RB', 'GK'] : ['All', 'Epic Booster', 'ShowTime', 'Big Time', 'Highlight'];
 
             container.innerHTML = items.map(i => `<button onclick="setFilter('${i}')" class="px-5 py-2.5 rounded-xl text-[10px] font-black uppercase border ${currentFilter === i ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-900 border-white/5 text-slate-500'} whitespace-nowrap">${i}</button>`).join('');
 
@@ -549,134 +566,99 @@
 
 
 
+        function renderPaginationControls(totalPages) {
+            const paginationArea = document.getElementById('paginationArea');
+            if (totalPages <= 1) {
+                paginationArea.innerHTML = '';
+                return;
+            }
+
+            paginationArea.innerHTML = `
+                <div class="flex items-center justify-center gap-3 flex-wrap">
+                    <button onclick="changePage(-1)" class="px-5 py-3 rounded-xl bg-slate-900 border border-white/10 text-white font-bold uppercase text-[10px] tracking-widest ${CURRENT_PAGE <= 1 ? 'opacity-40 pointer-events-none' : ''}">Previous</button>
+                    <span class="text-xs text-slate-400 font-medium uppercase tracking-[0.2em]">Page ${CURRENT_PAGE} of ${totalPages}</span>
+                    <button onclick="changePage(1)" class="px-5 py-3 rounded-xl bg-blue-600 border border-blue-500 text-white font-bold uppercase text-[10px] tracking-widest ${CURRENT_PAGE >= totalPages ? 'opacity-40 pointer-events-none' : ''}">Load More</button>
+                </div>
+            `;
+        }
+
+        function changePage(direction) {
+            const targetPage = CURRENT_PAGE + direction;
+            if (targetPage < 1 || targetPage > TOTAL_PAGES) return;
+            CURRENT_PAGE = targetPage;
+            renderPlayers();
+            document.getElementById('contentArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function renderPlayers() {
-
             const contentArea = document.getElementById('contentArea');
-
+            const paginationArea = document.getElementById('paginationArea');
             const q = document.getElementById('searchInput').value.toLowerCase();
-
             const sort = document.getElementById('sortSelect').value;
 
-            
-
-            // Basic filtering first
-
-            let filtered = PLAYERS.filter(p => {
-
-                const searchString = `${p.name} ${p.position} ${p.version}`.toLowerCase();
-
-                const matchesSearch = q === "" || searchString.includes(q);
-
-                let matchesFilter = currentFilter === 'All' || (filterMode === 'position' ? p.position === currentFilter : p.version.includes(currentFilter));
+            const filtered = PLAYERS.filter(player => {
+                const searchString = `${player.name} ${player.position} ${player.version}`.toLowerCase();
+                const matchesSearch = q === '' || searchString.includes(q);
+                const matchesFilter = currentFilter === 'All' || (filterMode === 'position' ? player.position === currentFilter : player.version === currentFilter);
                 return matchesSearch && matchesFilter;
             });
 
-            // Sorting
-            if (sort === 'rating') filtered.sort((a, b) => parseInt(b.rating) - parseInt(a.rating));
+            LAST_FILTERED_PLAYERS = filtered;
+
+            if (sort === 'rating') filtered.sort((a, b) => parseInt(b.rating, 10) - parseInt(a.rating, 10));
             else if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
-            else filtered.sort((a,b) => b.id - a.id);
+            else filtered.sort((a, b) => b.id - a.id);
 
-            // RENDER LOGIC:
-            // If searching or filtering is active, show flat grid (Standard View).
-            // If default view (no search, no filter), show CATEGORIZED Sections.
-            
-            const isDefaultView = q === "" && currentFilter === 'All' && sort === 'newest';
+            const isDefaultView = q === '' && currentFilter === 'All' && sort === 'newest';
+            if (isDefaultView) {
+                paginationArea.innerHTML = '';
+                const sectionGroups = [
+                    { title: "Magnetic Feet 29 Jan '26", names: ['Bellingham', 'Pedri', 'Eze'] },
+                    { title: 'MSN', names: ['Messi', 'Neymar Jr'] },
+                    { title: 'Worldwide', names: ['Neymar'] },
+                    { title: 'Over-the-Top Pass C', names: ['M. Salah'] },
+                    { title: "Manchester United 26'", names: ['Best', 'Robson', 'Schmeichel'] },
+                    { title: 'Madrid Chamartin B', names: ['Makélélé', 'Owen', 'McManaman'] }
+                ];
 
-            if (!isDefaultView) {
-                // Flat Grid
-                contentArea.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">${filtered.map(p => createCard(p)).join('')}</div>`;
-            } else {
-                // Categorized View (The "Hub" look)
-                // Define Groups
-                const group1 = filtered.filter(p => ["Bellingham", "Pedri", "Eze"].includes(p.name));
-                const group3 = filtered.filter(p => ["Best", "Robson", "Schmeichel"].includes(p.name));
-                const group2 = filtered.filter(p => ["Neymar"].includes(p.name));
-                const group5 = filtered.filter(p => ["Messi", "Neymar Jr"].includes(p.name));
-                const group6 = filtered.filter(p => ["M. Salah"].includes(p.name));
-                const group4 = filtered.filter(p => ["Makélélé", "Owen", "McManaman"].includes(p.name));
-                // Everyone else goes into 'Others'
-                const others = filtered.filter(p => !["Bellingham", "Pedri", "Eze", "Neymar", "Best", "Robson", "Schmeichel", "McManaman", "Makélélé", "Owen"].includes(p.name));
-
+                const usedNames = new Set(sectionGroups.flatMap(section => section.names));
                 let html = '';
 
-                // Section 1: Magnetic Feet
-                if (group1.length > 0) {
+                sectionGroups.forEach(section => {
+                    const sectionPlayers = filtered.filter(player => section.names.includes(player.name));
+                    if (!sectionPlayers.length) return;
                     html += `
-                    <div class="mb-10">
-                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Magnetic Feet 29 Jan '26</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                            ${group1.map(p => createCard(p)).join('')}
-                        </div>
-                    </div>`;
-                }
-// Section 2: MSN
-                if (group2.length > 0) {
-                    html += `
-                    <div class="mb-10">
-                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">MSN</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                            ${group5.map(p => createCard(p)).join('')}
-                        </div>
-                    </div>`;
-                }
-                // Section 2: Worldwide
-                if (group2.length > 0) {
-                    html += `
-                    <div class="mb-10">
-                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Worldwide</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                            ${group2.map(p => createCard(p)).join('')}
-                        </div>
-                    </div>`;
-                }
-                // Section 2: Over-the-Top Pass C
-                if (group2.length > 0) {
-                    html += `
-                    <div class="mb-10">
-                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Over-the-Top Pass C</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                            ${group6.map(p => createCard(p)).join('')}
-                        </div>
-                    </div>`;
-                }
-                // Section 3: Manchester United 26'
-                if (group1.length > 0) {
-                    html += `
-                    <div class="mb-10">
-                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Manchester United 26'</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                            ${group3.map(p => createCard(p)).join('')}
-                        </div>
-                    </div>`;
-                }
-                // Section 4: Madrid Chamartin B
-                if (others.length > 0) {
-                    html += `
-                    <div class="mb-10">
-                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Madrid Chamartin B</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                            ${group4.map(p => createCard(p)).join('')}
-                        </div>
-                    </div>`;
+                        <div class="mb-10">
+                            <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">${section.title}</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                                ${sectionPlayers.map(player => createCard(player)).join('')}
+                            </div>
+                        </div>`;
+                });
 
-                contentArea.innerHTML = html;
+                const others = filtered.filter(player => !usedNames.has(player.name));
+                if (others.length) {
+                    html += `
+                        <div class="mb-10">
+                            <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Season 3: Epics & Highlights</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                                ${others.map(player => createCard(player)).join('')}
+                            </div>
+                        </div>`;
+                }
+
+                contentArea.innerHTML = html || '<div class="text-center text-slate-500 py-16">No players found.</div>';
+                return;
             }
 
-                // Section 3: Others (Epics)
-                if (others.length > 0) {
-                    html += `
-                    <div class="mb-10">
-                        <h3 class="brand-font text-3xl text-white mb-5 pl-1 uppercase tracking-wide">Season 3: Epics & Highlights</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                            ${others.map(p => createCard(p)).join('')}
-                        </div>
-                    </div>`;
-                }
+            TOTAL_PAGES = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+            CURRENT_PAGE = Math.min(CURRENT_PAGE, TOTAL_PAGES);
+            const startIndex = (CURRENT_PAGE - 1) * ITEMS_PER_PAGE;
+            const paginatedPlayers = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-                contentArea.innerHTML = html;
-            }                                
+            contentArea.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">${paginatedPlayers.map(player => createCard(player)).join('')}</div>`;
+            renderPaginationControls(TOTAL_PAGES);
         }
-
         // --- JSON MAKER LOGIC ---
         const statsList = ["Shooting", "Passing", "Dribbling", "Dexterity", "Lower Body", "Aerial", "Defending", "GK 1", "GK 2", "GK 3"];
         
@@ -729,8 +711,17 @@
         }
         function closeLegal() { document.getElementById('legalModal').classList.add('hidden'); }
 
-        window.onload = () => { initStatsInputs(); renderFilters(); renderPlayers(); };
+        // Secret admin hotkey: Ctrl+Shift+A
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.code === 'KeyA') {
+                location.href = 'admin.html';
+            }
+        });
+
+        window.onload = () => { initStatsInputs(); loadPlayersFromJSON(); };
     </script>
 </body>
 
 </html>
+
+

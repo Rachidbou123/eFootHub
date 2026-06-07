@@ -1,0 +1,112 @@
+[
+  {
+    "id": "89133187865943",
+    "name": "Lionel Messi",
+    "team": "Argentina",
+    "position": "CF",
+    "overallRating": 87,
+    "playingStyle": "Deep-Lying Forward",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/89133187865943_l.png",
+    "playerType": 7,
+    "build": {}
+  },
+  {
+    "id": "89129698205015",
+    "name": "Lionel Messi",
+    "team": "Argentina",
+    "position": "CF",
+    "overallRating": 87,
+    "playingStyle": "Deep-Lying Forward",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/89129698205015_l.png",
+    "playerType": 7,
+    "build": {}
+  },
+  {
+    "id": "89129429769559",
+    "name": "Lionel Messi",
+    "team": "FC Barcelona",
+    "position": "RWF",
+    "overallRating": 87,
+    "playingStyle": "Creative Playmaker",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/89129429769559_l.png",
+    "playerType": 7,
+    "build": {}
+  },
+  {
+    "id": "89063394774510",
+    "name": "Zico",
+    "team": "Brazil",
+    "position": "AMF",
+    "overallRating": 87,
+    "playingStyle": "Classic No. 10",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/89063394774510_l.png",
+    "playerType": 7,
+    "build": {}
+  },
+  {
+    "id": "89061784067488",
+    "name": "Neymar Jr",
+    "team": "Brazil",
+    "position": "LWF",
+    "overallRating": 87,
+    "playingStyle": "Creative Playmaker",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/89061784067488_l.png",
+    "playerType": 7,
+    "build": {}
+  },
+  {
+    "id": "89061515600624",
+    "name": "Karim Benzema",
+    "team": "France",
+    "position": "CF",
+    "overallRating": 87,
+    "playingStyle": "Deep-Lying Forward",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/89061515600624_l.png",
+    "playerType": 7,
+    "build": {}
+  },
+  {
+    "id": "89060978855375",
+    "name": "Romario",
+    "team": "Brazil",
+    "position": "CF",
+    "overallRating": 87,
+    "playingStyle": "Fox In The Box",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/89060978855375_l.png",
+    "playerType": 7,
+    "build": {}
+  },
+  {
+    "id": "88044145348046",
+    "name": "Rivaldo",
+    "team": "Brazil",
+    "position": "AMF",
+    "overallRating": 87,
+    "playingStyle": "Hole Player",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/88044145348046_l.png",
+    "playerType": 5,
+    "build": {}
+  },
+  {
+    "id": "88044145348017",
+    "name": "David Beckham",
+    "team": "England",
+    "position": "RMF",
+    "overallRating": 87,
+    "playingStyle": "Cross Specialist",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/88044145348017_l.png",
+    "playerType": 5,
+    "build": {}
+  },
+  {
+    "id": "88041460993477",
+    "name": "Pavel Nedved",
+    "team": "Czechia",
+    "position": "LMF",
+    "overallRating": 87,
+    "playingStyle": "Creative Playmaker",
+    "imageUrl": "https://efimg.com/efootballhub22/images/player_cards/88041460993477_l.png",
+    "playerType": 5,
+    "build": {}
+  }
+]

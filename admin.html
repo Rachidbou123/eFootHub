@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Build Manager | eFootball Training Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #030508 0%, #0f172a 100%); 
+            color: #e2e8f0; 
+        }
+        .brand-font { font-family: 'Teko', sans-serif; }
+        .card-bg { 
+            background: linear-gradient(180deg, #0f141e 0%, #030508 100%); 
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            transition: all 0.3s ease;
+        }
+        .card-bg:hover { 
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-2px);
+        }
+        input, select, textarea {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            padding: 10px 12px;
+            border-radius: 8px;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #3b82f6 !important;
+            ring: 1px;
+            --tw-ring-color: rgba(59, 130, 246, 0.5);
+        }
+        .stat-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stat-input input {
+            width: 60px;
+            text-align: center;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+        .locked {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Authentication Lock -->
+    <div id="authLock" class="locked">
+        <div class="card-bg p-8 rounded-2xl max-w-sm text-center">
+            <div class="brand-font text-5xl font-bold text-white mb-2">EF</div>
+            <h1 class="brand-font text-2xl font-bold text-white mb-6">ADMIN ACCESS</h1>
+            <p class="text-slate-400 mb-6">Enter admin password</p>
+            <input type="password" id="adminPassword" placeholder="Password" class="mb-4 w-full">
+            <button onclick="checkPassword()" class="btn-save w-full">Unlock</button>
+            <p class="text-slate-500 text-xs mt-4 opacity-50">Password is case-sensitive</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" style="display: none;">
+        <!-- Navigation -->
+        <nav class="bg-black/95 border-b border-white/10 sticky top-0 z-40 backdrop-blur-xl">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16 sm:h-20">
+                    <a href="index.html" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-white brand-font text-2xl sm:text-3xl">EF</div>
+                        <div class="flex flex-col">
+                            <span class="text-lg sm:text-2xl font-bold brand-font tracking-widest text-white">HUB</span>
+                            <span class="text-[10px] text-red-500 font-bold tracking-widest uppercase">Admin</span>
+                        </div>
+                    </a>
+                    <button onclick="logout()" class="px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 font-bold text-sm hover:bg-red-500/30">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <div class="mb-8">
+                <h1 class="brand-font text-4xl font-bold text-white mb-2">Player Build Manager</h1>
+                <p class="text-slate-400">Create and edit player builds. Changes save automatically to players.json.</p>
+            </div>
+
+            <!-- New Player Form -->
+            <div class="card-bg p-8 rounded-2xl mb-12 border-2 border-blue-500/30">
+                <h2 class="brand-font text-2xl font-bold text-white mb-6">Add New Player</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="text-xs text-slate-400 font-bold uppercase mb-2 block">Player Name</label>
+                        <input type="text" id="newName" placeholder="e.g. Neymar">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-bold uppercase mb-2 block">Position</label>
+                        <input type="text" id="newPosition" placeholder="e.g. LWF">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-bold uppercase mb-2 block">Overall Rating</label>
+                        <input type="number" id="newRating" placeholder="e.g. 105" min="50" max="110">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-bold uppercase mb-2 block">Playing Style</label>
+                        <input type="text" id="newPlaystyle" placeholder="e.g. Hole Player">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-bold uppercase mb-2 block">Card Image URL</label>
+                        <input type="text" id="newImage" placeholder="https://...">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-bold uppercase mb-2 block">Team</label>
+                        <input type="text" id="newTeam" placeholder="e.g. PSG">
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold text-slate-300 mb-4 uppercase">RECOMMENDED BUILD</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+                        <div class="stat-input">
+                            <label class="text-xs text-slate-500">Shooting</label>
+                            <input type="number" id="newBuild_Shooting" value="0" min="0">
+                        </div>
+                        <div class="stat-input">
+                            <label class="text-xs text-slate-500">Passing</label>
+                            <input type="number" id="newBuild_Passing" value="0" min="0">
+                        </div>
+                        <div class="stat-input">
+                            <label class="text-xs text-slate-500">Dribbling</label>
+                            <input type="number" id="newBuild_Dribbling" value="0" min="0">
+                        </div>
+                        <div class="stat-input">
+                            <label class="text-xs text-slate-500">Dexterity</label>
+                            <input type="number" id="newBuild_Dexterity" value="0" min="0">
+                        </div>
+                        <div class="stat-input">
+                            <label class="text-xs text-slate-500">Lower Body</label>
+                            <input type="number" id="newBuild_LowerBody" value="0" min="0">
+                        </div>
+                        <div class="stat-input">
+                            <label class="text-xs text-slate-500">Defending</label>
+                            <input type="number" id="newBuild_Defending" value="0" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="addNewPlayer()" class="btn-save">+ Add Player</button>
+            </div>
+
+            <!-- Players List -->
+            <div>
+                <h2 class="brand-font text-2xl font-bold text-white mb-6">Edit Players</h2>
+                <div id="playersList" class="player-grid">
+                    <!-- Players will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = "admin123"; // Change this to your password!
+        let players = [];
+        let authenticated = false;
+
+        function checkPassword() {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === ADMIN_PASSWORD) {
+                authenticated = true;
+                document.getElementById('authLock').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                loadPlayers();
+            } else {
+                alert('Incorrect password!');
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        function logout() {
+            authenticated = false;
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('authLock').style.display = 'flex';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        async function loadPlayers() {
+            try {
+                const response = await fetch('players.json');
+                players = await response.json();
+                renderPlayersList();
+            } catch (e) {
+                console.error('Error loading players:', e);
+            }
+        }
+
+        function renderPlayersList() {
+            const list = document.getElementById('playersList');
+            list.innerHTML = '';
+
+            players.forEach(player => {
+                const playerCard = document.createElement('div');
+                playerCard.className = 'card-bg p-6 rounded-2xl';
+                playerCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="brand-font text-xl font-bold text-white">${player.name}</h3>
+                            <p class="text-sm text-slate-400">${player.position} • ${player.team || 'N/A'}</p>
+                        </div>
+                        <button onclick="deletePlayer('${player.id}')" class="btn-danger text-xs">Delete</button>
+                    </div>
+
+                    <div class="space-y-3 mb-4">
+                        <div>
+                            <label class="text-xs text-slate-500 font-bold">Position</label>
+                            <input type="text" value="${player.position}" onchange="updatePlayer('${player.id}', 'position', this.value)" class="w-full">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-500 font-bold">Rating</label>
+                            <input type="number" value="${player.overallRating}" onchange="updatePlayer('${player.id}', 'overallRating', this.value)" class="w-full" min="50" max="110">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-500 font-bold">Playing Style</label>
+                            <input type="text" value="${player.playingStyle}" onchange="updatePlayer('${player.id}', 'playingStyle', this.value)" class="w-full">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-500 font-bold">Team</label>
+                            <input type="text" value="${player.team || ''}" onchange="updatePlayer('${player.id}', 'team', this.value)" class="w-full">
+                        </div>
+                    </div>
+
+                    <div class="border-t border-white/10 pt-4">
+                        <h4 class="text-xs font-bold text-blue-400 uppercase mb-3">Recommended Build</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            ${['Shooting', 'Passing', 'Dribbling', 'Dexterity', 'Lower Body', 'Defending', 'Aerial', 'GK 1', 'GK 2', 'GK 3'].map(stat => `
+                                <div class="stat-input">
+                                    <label class="text-xs text-slate-500 w-16">${stat}</label>
+                                    <input type="number" value="${player.build && player.build[stat] ? player.build[stat] : 0}" 
+                                        onchange="updateBuild('${player.id}', '${stat}', this.value)" min="0" max="15">
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                list.appendChild(playerCard);
+            });
+        }
+
+        function updatePlayer(id, field, value) {
+            const player = players.find(p => p.id === id);
+            if (player) {
+                player[field] = isNaN(value) ? value : parseInt(value);
+                savePlayers();
+            }
+        }
+
+        function updateBuild(id, stat, value) {
+            const player = players.find(p => p.id === id);
+            if (player) {
+                if (!player.build) player.build = {};
+                const numVal = parseInt(value);
+                if (numVal > 0) {
+                    player.build[stat] = numVal;
+                } else {
+                    delete player.build[stat];
+                }
+                savePlayers();
+            }
+        }
+
+        function deletePlayer(id) {
+            if (confirm('Delete this player?')) {
+                players = players.filter(p => p.id !== id);
+                savePlayers();
+                renderPlayersList();
+            }
+        }
+
+        function addNewPlayer() {
+            const build = {};
+            ['Shooting', 'Passing', 'Dribbling', 'Dexterity', 'Lower Body', 'Defending'].forEach(stat => {
+                const val = parseInt(document.getElementById(`newBuild_${stat.replace(/\s/g, '')}`).value);
+                if (val > 0) build[stat] = val;
+            });
+
+            const newPlayer = {
+                id: Date.now().toString(),
+                name: document.getElementById('newName').value,
+                position: document.getElementById('newPosition').value,
+                overallRating: parseInt(document.getElementById('newRating').value),
+                playingStyle: document.getElementById('newPlaystyle').value,
+                imageUrl: document.getElementById('newImage').value,
+                team: document.getElementById('newTeam').value,
+                build: build
+            };
+
+            if (!newPlayer.name) {
+                alert('Please enter player name');
+                return;
+            }
+
+            players.push(newPlayer);
+            savePlayers();
+            
+            // Clear form
+            document.getElementById('newName').value = '';
+            document.getElementById('newPosition').value = '';
+            document.getElementById('newRating').value = '';
+            document.getElementById('newPlaystyle').value = '';
+            document.getElementById('newImage').value = '';
+            document.getElementById('newTeam').value = '';
+            ['Shooting', 'Passing', 'Dribbling', 'Dexterity', 'LowerBody', 'Defending'].forEach(s => {
+                const el = document.getElementById(`newBuild_${s}`);
+                if (el) el.value = 0;
+            });
+
+            renderPlayersList();
+            alert('Player added!');
+        }
+
+        function savePlayers() {
+            const dataStr = JSON.stringify(players, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'players.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            console.log('Players saved! Download the file and replace the old players.json');
+        }
+
+        // Allow Enter key to unlock
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkPassword();
+            });
+        });
+    </script>
+</body>
+</html>
