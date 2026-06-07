@@ -240,13 +240,19 @@
 
         async function loadPlayers() {
             try {
+                const response = await fetch('players.json');
+                const basePlayers = await response.json();
                 const savedPlayers = localStorage.getItem(STORAGE_KEY);
                 if (savedPlayers) {
-                    players = JSON.parse(savedPlayers);
+                    const savedById = new Map(JSON.parse(savedPlayers).map(player => [player.id, player]));
+                    players = basePlayers.map(player => savedById.get(player.id) || player);
+                    savedById.forEach((player, id) => {
+                        if (!basePlayers.some(basePlayer => basePlayer.id === id)) {
+                            players.push(player);
+                        }
+                    });
                 } else {
-                    const response = await fetch('players.json');
-                    players = await response.json();
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+                    players = basePlayers;
                 }
                 renderPlayersList();
                 setSaveStatus('Loaded');

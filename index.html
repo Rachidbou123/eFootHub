@@ -534,8 +534,20 @@
         // Load players from players.json
         async function loadPlayersFromJSON() {
             try {
+                const response = await fetch('players.json');
+                const basePlayers = await response.json();
                 const savedPlayers = localStorage.getItem(STORAGE_KEY);
-                PLAYERS_RAW = savedPlayers ? JSON.parse(savedPlayers) : await fetch('players.json').then(response => response.json());
+                if (savedPlayers) {
+                    const savedById = new Map(JSON.parse(savedPlayers).map(player => [player.id, player]));
+                    PLAYERS_RAW = basePlayers.map(player => savedById.get(player.id) || player);
+                    savedById.forEach((player, id) => {
+                        if (!basePlayers.some(basePlayer => basePlayer.id === id)) {
+                            PLAYERS_RAW.push(player);
+                        }
+                    });
+                } else {
+                    PLAYERS_RAW = basePlayers;
+                }
                 // Transform to display format
                 PLAYERS = PLAYERS_RAW.map(p => ({
                     id: p.id,

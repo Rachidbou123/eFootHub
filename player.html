@@ -96,8 +96,19 @@
                 const params = new URLSearchParams(window.location.search);
                 const id = params.get('id');
 
+                const response = await fetch('players.json');
+                const basePlayers = await response.json();
                 const savedPlayers = localStorage.getItem(STORAGE_KEY);
-                const players = savedPlayers ? JSON.parse(savedPlayers) : await fetch('players.json').then(response => response.json());
+                let players = basePlayers;
+                if (savedPlayers) {
+                    const savedById = new Map(JSON.parse(savedPlayers).map(player => [player.id, player]));
+                    players = basePlayers.map(player => savedById.get(player.id) || player);
+                    savedById.forEach((player, savedId) => {
+                        if (!basePlayers.some(basePlayer => basePlayer.id === savedId)) {
+                            players.push(player);
+                        }
+                    });
+                }
                 const player = players.find(p => p.id === id);
 
                 const container = document.getElementById('detailContent');
