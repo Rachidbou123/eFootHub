@@ -487,6 +487,7 @@
         let LAST_FILTERED_PLAYERS = [];
         let browseMode = true;
         let renderTimer = null;
+        const STORAGE_KEY = 'efh_players_data_v1';
 
         function getPlayerVersion(player) {
             const type = Number(player.playerType);
@@ -533,8 +534,8 @@
         // Load players from players.json
         async function loadPlayersFromJSON() {
             try {
-                const response = await fetch('players.json');
-                PLAYERS_RAW = await response.json();
+                const savedPlayers = localStorage.getItem(STORAGE_KEY);
+                PLAYERS_RAW = savedPlayers ? JSON.parse(savedPlayers) : await fetch('players.json').then(response => response.json());
                 // Transform to display format
                 PLAYERS = PLAYERS_RAW.map(p => ({
                     id: p.id,
@@ -798,6 +799,12 @@
         });
 
         window.onload = () => { initStatsInputs(); loadPlayersFromJSON(); };
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === STORAGE_KEY) {
+                loadPlayersFromJSON();
+            }
+        });
     </script>
 </body>
 

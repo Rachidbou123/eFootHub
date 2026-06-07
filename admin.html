@@ -84,6 +84,11 @@
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 16px;
         }
+        .status-pill {
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #bfdbfe;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -122,7 +127,12 @@
         <main class="max-w-7xl mx-auto px-4 py-8">
             <div class="mb-8">
                 <h1 class="brand-font text-4xl font-bold text-white mb-2">Player Build Manager</h1>
-                <p class="text-slate-400">Create and edit player builds. Changes save automatically to players.json.</p>
+                <p class="text-slate-400">Create and edit player builds. Changes save instantly in your browser and sync to the public site on refresh.</p>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <span class="status-pill rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em]">Instant save</span>
+                    <span class="status-pill rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em]">No download</span>
+                    <span class="status-pill rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em]">Local browser data</span>
+                </div>
             </div>
 
             <!-- New Player Form -->
@@ -185,7 +195,11 @@
                     </div>
                 </div>
 
-                <button onclick="addNewPlayer()" class="btn-save">+ Add Player</button>
+                <div class="flex flex-wrap gap-3 items-center">
+                    <button onclick="addNewPlayer()" class="btn-save">+ Add Player</button>
+                    <button onclick="exportPlayers()" class="px-4 py-2 rounded-lg border border-white/10 text-slate-300 font-bold text-sm hover:bg-white/5">Export JSON</button>
+                    <span id="saveStatus" class="text-xs text-slate-500">Ready</span>
+                </div>
             </div>
 
             <!-- Players List -->
@@ -200,6 +214,7 @@
 
     <script>
         const ADMIN_PASSWORD = "admin123"; // Change this to your password!
+        const STORAGE_KEY = "efh_players_data_v1";
         let players = [];
         let authenticated = false;
 
@@ -225,11 +240,19 @@
 
         async function loadPlayers() {
             try {
-                const response = await fetch('players.json');
-                players = await response.json();
+                const savedPlayers = localStorage.getItem(STORAGE_KEY);
+                if (savedPlayers) {
+                    players = JSON.parse(savedPlayers);
+                } else {
+                    const response = await fetch('players.json');
+                    players = await response.json();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+                }
                 renderPlayersList();
+                setSaveStatus('Loaded');
             } catch (e) {
                 console.error('Error loading players:', e);
+                setSaveStatus('Load failed');
             }
         }
 
@@ -354,10 +377,16 @@
             });
 
             renderPlayersList();
-            alert('Player added!');
+            setSaveStatus('Player added and saved');
         }
 
         function savePlayers() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+            setSaveStatus('Saved instantly');
+            renderPlayersList();
+        }
+
+        function exportPlayers() {
             const dataStr = JSON.stringify(players, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(dataBlob);
@@ -368,7 +397,12 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            console.log('Players saved! Download the file and replace the old players.json');
+            setSaveStatus('Exported JSON file');
+        }
+
+        function setSaveStatus(message) {
+            const status = document.getElementById('saveStatus');
+            if (status) status.textContent = message;
         }
 
         // Allow Enter key to unlock

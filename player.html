@@ -89,13 +89,15 @@
     </main>
 
     <script>
+        const STORAGE_KEY = 'efh_players_data_v1';
+
         async function loadPlayer() {
             try {
                 const params = new URLSearchParams(window.location.search);
                 const id = params.get('id');
 
-                const response = await fetch('players.json');
-                const players = await response.json();
+                const savedPlayers = localStorage.getItem(STORAGE_KEY);
+                const players = savedPlayers ? JSON.parse(savedPlayers) : await fetch('players.json').then(response => response.json());
                 const player = players.find(p => p.id === id);
 
                 const container = document.getElementById('detailContent');
@@ -188,6 +190,9 @@
         }
 
         window.addEventListener('load', loadPlayer);
+        window.addEventListener('storage', (event) => {
+            if (event.key === STORAGE_KEY) loadPlayer();
+        });
     </script>
 </body>
 </html>
