@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Build Manager | eFootball Training Hub</title>
+    <title>Admin Dashboard | eFootball Training Hub</title>
+    <meta name="robots" content="noindex, nofollow">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="supabase_config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-data.js"></script>
+    <script src="catalogs.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --brand-blue: #3b82f6;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
+        :root { --brand-blue: #3b82f6; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Inter', sans-serif;
             background:
@@ -23,40 +22,28 @@
                 linear-gradient(180deg, #050816 0%, #02040a 58%, #010205 100%);
             color: #e2e8f0;
         }
-
         body::before {
             content: "";
             position: fixed;
             inset: 0;
             background:
-                linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 28%),
-                linear-gradient(315deg, rgba(255, 255, 255, 0.015), transparent 22%);
+                linear-gradient(135deg, rgba(255,255,255,0.02), transparent 28%),
+                linear-gradient(315deg, rgba(255,255,255,0.015), transparent 22%);
             pointer-events: none;
             z-index: -1;
         }
-
-        h1, h2, h3, .brand-font {
-            font-family: 'Teko', sans-serif;
-        }
-
+        h1, h2, h3, .brand-font { font-family: 'Teko', sans-serif; }
         .panel {
             background: rgba(8, 12, 22, 0.78);
             border: 1px solid rgba(148, 163, 184, 0.1);
             box-shadow: 0 18px 64px rgba(0, 0, 0, 0.22);
             backdrop-filter: blur(18px);
         }
-
         .card-bg {
             background: linear-gradient(180deg, rgba(14, 20, 33, 0.96) 0%, rgba(4, 7, 13, 0.98) 100%);
             border: 1px solid rgba(148, 163, 184, 0.08);
             box-shadow: 0 14px 50px rgba(0, 0, 0, 0.2);
         }
-
-        .muted-chip {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
         .field {
             width: 100%;
             background: rgba(15, 23, 42, 0.8);
@@ -65,570 +52,1388 @@
             border-radius: 14px;
             padding: 0.85rem 1rem;
             outline: none;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
-
         .field:focus {
             border-color: rgba(59, 130, 246, 0.8);
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
-
         .btn-primary {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 14px 28px rgba(59, 130, 246, 0.25);
-        }
-
         .btn-soft {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: background 0.15s ease, border-color 0.15s ease;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
         }
-
-        .btn-soft:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(59, 130, 246, 0.35);
-        }
-
-        .danger-btn {
-            background: rgba(239, 68, 68, 0.16);
-            border: 1px solid rgba(239, 68, 68, 0.35);
+        .btn-danger {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
             color: #fecaca;
         }
-
-        .danger-btn:hover {
-            background: rgba(239, 68, 68, 0.24);
+        .chip {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
         }
-
-        .locked {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            background: rgba(0, 0, 0, 0.84);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
+        .sidebar-button.active {
+            background: rgba(59, 130, 246, 0.18);
+            color: #bfdbfe;
+            border-color: rgba(59, 130, 246, 0.35);
         }
-
-        .stat-input {
-            display: grid;
-            grid-template-columns: 1fr 72px;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .page-chip {
-            min-width: 2.5rem;
-            text-align: center;
-        }
+        .tab-panel.hidden { display: none; }
     </style>
 </head>
 <body class="min-h-screen">
-    <div id="authLock" class="locked">
-        <div class="panel w-full max-w-md rounded-[2rem] p-8 sm:p-10 text-center">
+    <div id="authOverlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-xl p-6">
+        <div class="panel w-full max-w-xl rounded-[2rem] p-8 text-center">
             <div class="brand-font text-6xl font-bold text-white mb-2">EF</div>
-            <h1 class="brand-font text-3xl font-bold text-white mb-2">ADMIN ACCESS</h1>
-            <p class="text-slate-400 mb-6">Enter the password to manage players.</p>
-            <input type="password" id="adminPassword" placeholder="Password" class="field mb-4">
-            <button onclick="checkPassword()" class="btn-primary w-full rounded-2xl px-5 py-3 font-black uppercase tracking-[0.18em] text-white">Unlock</button>
-            <p class="text-slate-500 text-xs mt-4 uppercase tracking-[0.2em]">Case sensitive</p>
+            <h1 class="brand-font text-4xl font-bold text-white uppercase leading-none">Admin Dashboard</h1>
+            <p id="authMessage" class="mt-3 text-slate-400">Loading access mode…</p>
+            <div class="mt-6 flex flex-wrap justify-center gap-3">
+                <button id="googleLoginBtn" class="btn-primary rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Sign in with Google</button>
+                <button id="demoLoginBtn" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Open Demo Mode</button>
+            </div>
+            <p class="mt-4 text-xs uppercase tracking-[0.25em] text-slate-500">Admins only • Google auth with Supabase</p>
         </div>
     </div>
 
-    <div id="mainContent" class="hidden">
+    <div id="appShell" class="hidden">
         <nav class="sticky top-0 z-40 border-b border-white/10 bg-black/90 backdrop-blur-xl">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between sm:h-20">
                     <a href="index.html" class="flex items-center gap-3">
                         <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 font-bold text-white brand-font text-2xl">EF</div>
                         <div class="flex flex-col text-left">
-                            <span class="brand-font text-2xl font-bold tracking-widest text-white leading-none">HUB</span>
+                            <span class="brand-font text-2xl font-bold tracking-widest text-white leading-none">TRAINING</span>
                             <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-400">Admin Manager</span>
                         </div>
                     </a>
                     <div class="flex items-center gap-2 sm:gap-3">
                         <a href="blog.html" class="btn-soft rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Blog</a>
                         <a href="index.html" class="btn-soft rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Home</a>
-                        <button onclick="logout()" class="danger-btn rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em]">Logout</button>
+                        <button onclick="logout()" class="btn-danger rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em]">Logout</button>
                     </div>
                 </div>
             </div>
         </nav>
 
-        <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-            <section class="panel mb-6 rounded-[2rem] p-5 sm:p-6 lg:p-8">
-                <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-                    <div class="space-y-3">
-                        <span class="inline-flex rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Instant save / browser sync</span>
-                        <div>
-                            <h1 class="brand-font text-4xl text-white uppercase leading-none sm:text-5xl">Player Build Manager</h1>
-                            <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">Search players fast, edit in-place, and only render five cards at a time so the page stays smooth.</p>
-                        </div>
+        <main class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+            <section class="panel mb-6 rounded-[2rem] p-5 sm:p-6">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <span class="chip inline-flex rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Fast search / instant save / 5 items per page</span>
+                        <h1 class="mt-4 text-5xl uppercase leading-none text-white sm:text-6xl">Professional Admin Dashboard</h1>
+                        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-300">Manage players, blogs, managers, boosters, predicted cards, and settings with clean forms and quick pagination.</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[26rem]">
-                        <div class="muted-chip rounded-2xl p-4">
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[34rem]">
+                        <div class="card-bg rounded-2xl p-4">
                             <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Players</div>
-                            <div id="totalPlayersStat" class="mt-2 brand-font text-4xl leading-none text-white">0</div>
+                            <div id="statPlayers" class="mt-2 brand-font text-4xl leading-none text-white">0</div>
                         </div>
-                        <div class="muted-chip rounded-2xl p-4">
-                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Shown</div>
-                            <div id="shownPlayersStat" class="mt-2 brand-font text-4xl leading-none text-white">0</div>
+                        <div class="card-bg rounded-2xl p-4">
+                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Blogs</div>
+                            <div id="statBlogs" class="mt-2 brand-font text-4xl leading-none text-white">0</div>
                         </div>
-                        <div class="muted-chip rounded-2xl p-4">
-                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Page</div>
-                            <div id="pageStat" class="mt-2 brand-font text-4xl leading-none text-white">1</div>
+                        <div class="card-bg rounded-2xl p-4">
+                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Managers</div>
+                            <div id="statManagers" class="mt-2 brand-font text-4xl leading-none text-white">0</div>
                         </div>
-                        <div class="muted-chip rounded-2xl p-4">
-                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Speed</div>
-                            <div class="mt-2 brand-font text-4xl leading-none text-white">5</div>
-                            <div class="mt-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-400">cards</div>
+                        <div class="card-bg rounded-2xl p-4">
+                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Predicted</div>
+                            <div id="statPredicted" class="mt-2 brand-font text-4xl leading-none text-white">0</div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-                <div class="panel rounded-[2rem] p-5 sm:p-6">
-                    <div class="mb-6 flex items-center justify-between gap-3">
-                        <div>
-                            <h2 class="brand-font text-3xl uppercase text-white leading-none">Add Player</h2>
-                            <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Create or update builds fast.</p>
-                        </div>
-                        <span id="saveStatus" class="muted-chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">Ready</span>
+            <section class="grid gap-6 lg:grid-cols-[280px_1fr]">
+                <aside class="panel rounded-[2rem] p-4 sm:p-5 self-start lg:sticky lg:top-24">
+                    <div class="mb-4">
+                        <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Navigation</p>
+                        <h2 class="brand-font text-3xl uppercase text-white leading-none">Sidebar</h2>
                     </div>
-
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Player Name</label>
-                            <input type="text" id="newName" class="field" placeholder="e.g. Neymar">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Position</label>
-                            <input type="text" id="newPosition" class="field" placeholder="e.g. LWF">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Overall Rating</label>
-                            <input type="number" id="newRating" class="field" placeholder="105" min="50" max="110">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Playing Style</label>
-                            <input type="text" id="newPlaystyle" class="field" placeholder="Hole Player">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Image URL</label>
-                            <input type="text" id="newImage" class="field" placeholder="https://...">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Team</label>
-                            <input type="text" id="newTeam" class="field" placeholder="PSG">
-                        </div>
+                    <div class="grid gap-2">
+                        <button class="sidebar-button active rounded-2xl border border-white/10 px-4 py-3 text-left text-sm font-bold text-white" data-tab="dashboard">Dashboard</button>
+                        <button class="sidebar-button rounded-2xl border border-white/10 px-4 py-3 text-left text-sm font-bold text-white" data-tab="players">Players</button>
+                        <button class="sidebar-button rounded-2xl border border-white/10 px-4 py-3 text-left text-sm font-bold text-white" data-tab="blogs">Blog Posts</button>
+                        <button class="sidebar-button rounded-2xl border border-white/10 px-4 py-3 text-left text-sm font-bold text-white" data-tab="predicted">Predicted Players</button>
+                        <button class="sidebar-button rounded-2xl border border-white/10 px-4 py-3 text-left text-sm font-bold text-white" data-tab="managers">Managers</button>
+                        <button class="sidebar-button rounded-2xl border border-white/10 px-4 py-3 text-left text-sm font-bold text-white" data-tab="boosters">Boosters</button>
+                        <button class="sidebar-button rounded-2xl border border-white/10 px-4 py-3 text-left text-sm font-bold text-white" data-tab="settings">Settings</button>
                     </div>
+                </aside>
 
-                    <div class="mt-6">
-                        <h3 class="mb-4 text-sm font-bold uppercase tracking-[0.2em] text-slate-300">Recommended Build</h3>
-                        <div class="grid gap-3 sm:grid-cols-2">
-                            <div class="stat-input"><label class="text-xs text-slate-500">Shooting</label><input type="number" id="newBuild_Shooting" value="0" min="0" class="field py-2 text-center"></div>
-                            <div class="stat-input"><label class="text-xs text-slate-500">Passing</label><input type="number" id="newBuild_Passing" value="0" min="0" class="field py-2 text-center"></div>
-                            <div class="stat-input"><label class="text-xs text-slate-500">Dribbling</label><input type="number" id="newBuild_Dribbling" value="0" min="0" class="field py-2 text-center"></div>
-                            <div class="stat-input"><label class="text-xs text-slate-500">Dexterity</label><input type="number" id="newBuild_Dexterity" value="0" min="0" class="field py-2 text-center"></div>
-                            <div class="stat-input"><label class="text-xs text-slate-500">Lower Body</label><input type="number" id="newBuild_LowerBody" value="0" min="0" class="field py-2 text-center"></div>
-                            <div class="stat-input"><label class="text-xs text-slate-500">Defending</label><input type="number" id="newBuild_Defending" value="0" min="0" class="field py-2 text-center"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-6 flex flex-wrap gap-3">
-                        <button onclick="addNewPlayer()" class="btn-primary rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Add Player</button>
-                        <button onclick="exportPlayers()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Export JSON</button>
-                        <button onclick="resetSearch()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Clear Search</button>
-                    </div>
-                </div>
-
-                <div class="panel rounded-[2rem] p-5 sm:p-6">
-                    <div class="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                        <div class="flex-1">
-                            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Search Players</label>
-                            <input type="text" id="adminSearch" class="field" placeholder="Search by name, team, position, style..." oninput="scheduleRender()">
-                        </div>
-                        <div class="flex flex-wrap items-center gap-3">
+                <div class="space-y-6">
+                    <section id="dashboardTab" class="tab-panel panel rounded-[2rem] p-5 sm:p-6">
+                        <div class="flex items-center justify-between gap-3">
                             <div>
-                                <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Sort</label>
-                                <select id="sortSelect" class="field min-w-[12rem]" onchange="scheduleRender()">
+                                <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Overview</p>
+                                <h2 class="brand-font text-4xl uppercase text-white leading-none">Dashboard</h2>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Instant save</span>
+                                <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Searchable</span>
+                                <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Paginated</span>
+                            </div>
+                        </div>
+                        <div class="mt-5 grid gap-4 lg:grid-cols-3">
+                            <div class="card-bg rounded-[1.5rem] p-4">
+                                <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Latest Player</div>
+                                <div id="latestPlayer" class="mt-2 text-sm text-slate-300">Loading…</div>
+                            </div>
+                            <div class="card-bg rounded-[1.5rem] p-4">
+                                <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Latest Blog</div>
+                                <div id="latestBlog" class="mt-2 text-sm text-slate-300">Loading…</div>
+                            </div>
+                            <div class="card-bg rounded-[1.5rem] p-4">
+                                <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Booster Catalog</div>
+                                <div id="latestBooster" class="mt-2 text-sm text-slate-300">Loading…</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="playersTab" class="tab-panel panel rounded-[2rem] p-5 sm:p-6 hidden">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Players</p>
+                                <h2 class="brand-font text-4xl uppercase text-white leading-none">Player Management</h2>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-2 lg:w-[38rem]">
+                                <input id="playerSearch" class="field" placeholder="Search players by name, team, position..." oninput="scheduleRender('players')">
+                                <select id="playerSort" class="field" onchange="scheduleRender('players')">
                                     <option value="newest">Newest</option>
+                                    <option value="rating">Highest Rating</option>
                                     <option value="name">Name</option>
-                                    <option value="rating">Rating</option>
                                 </select>
                             </div>
-                            <div class="pt-6">
-                                <span id="resultsCount" class="muted-chip inline-flex rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">0 players</span>
+                        </div>
+
+                        <div class="mt-5 grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <div class="mb-4 flex items-center justify-between">
+                                    <h3 class="brand-font text-3xl uppercase text-white leading-none" id="playerFormTitle">Add Player</h3>
+                                    <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Preview</span>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="grid gap-4 sm:grid-cols-2">
+                                        <input id="playerName" class="field" placeholder="Player name">
+                                        <input id="playerTeam" class="field" placeholder="Team">
+                                        <input id="playerPosition" class="field" placeholder="Position">
+                                        <input id="playerRating" type="number" min="50" max="110" class="field" placeholder="Overall rating">
+                                        <input id="playerPlaystyle" class="field" placeholder="Playstyle">
+                                        <input id="playerManager" class="field" placeholder="Manager">
+                                        <input id="playerImage" class="field" placeholder="Image URL">
+                                        <input id="playerCardType" class="field" placeholder="Card type">
+                                        <input id="playerVersionGroup" class="field" placeholder="Version group">
+                                        <input id="playerReleaseDate" type="date" class="field">
+                                    </div>
+                                    <div class="grid gap-3 sm:grid-cols-2">
+                                        <select id="playerBooster1" class="field"></select>
+                                        <select id="playerBooster2" class="field"></select>
+                                    </div>
+                                    <div class="grid gap-3 sm:grid-cols-2">
+                                        <select id="playerStatus" class="field">
+                                            <option value="official">Official</option>
+                                            <option value="predicted">Predicted</option>
+                                            <option value="draft">Draft</option>
+                                        </select>
+                                        <input id="playerSlug" class="field" placeholder="Slug (auto generated if blank)">
+                                    </div>
+                                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5" id="playerBuildInputs"></div>
+                                    <div class="flex flex-wrap gap-3">
+                                        <button onclick="savePlayer()" class="btn-primary rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Save Player</button>
+                                        <button onclick="resetPlayerForm()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Reset</button>
+                                        <button onclick="duplicateCurrentPlayer()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Duplicate</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="card-bg rounded-[1.5rem] p-4 sm:p-5">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div>
+                                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Image Preview</div>
+                                            <div class="brand-font text-3xl uppercase text-white leading-none">Live</div>
+                                        </div>
+                                        <span id="playerStatusLabel" class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Ready</span>
+                                    </div>
+                                    <div class="mt-4 overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/30">
+                                        <img id="playerPreviewImage" src="" alt="Player preview" class="h-72 w-full object-contain bg-black/40">
+                                    </div>
+                                    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                                        <div class="card-bg rounded-2xl p-4">
+                                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Name</div>
+                                            <div id="previewName" class="mt-1 text-2xl font-bold text-white">—</div>
+                                        </div>
+                                        <div class="card-bg rounded-2xl p-4">
+                                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Rating</div>
+                                            <div id="previewRating" class="mt-1 text-2xl font-bold text-white">0</div>
+                                        </div>
+                                        <div class="card-bg rounded-2xl p-4">
+                                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Team</div>
+                                            <div id="previewTeam" class="mt-1 text-lg font-bold text-white">—</div>
+                                        </div>
+                                        <div class="card-bg rounded-2xl p-4">
+                                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Position</div>
+                                            <div id="previewPosition" class="mt-1 text-lg font-bold text-white">—</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-bg rounded-[1.5rem] p-4">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div>
+                                            <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Players</div>
+                                            <div class="brand-font text-3xl uppercase text-white leading-none">List</div>
+                                        </div>
+                                        <span id="playersPageLabel" class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Page 1</span>
+                                    </div>
+                                    <div class="mt-4 flex items-center justify-between gap-3">
+                                        <button onclick="changePage('players', -1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Previous</button>
+                                        <button onclick="changePage('players', 1)" class="btn-primary rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Load More</button>
+                                    </div>
+                                    <div id="playersList" class="mt-4 space-y-4"></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="mb-4 flex items-center justify-between gap-3">
-                        <button onclick="changePage(-1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Previous</button>
-                        <div id="pageLabel" class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">Page 1</div>
-                        <button onclick="changePage(1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Load More</button>
-                    </div>
+                    <section id="blogsTab" class="tab-panel panel rounded-[2rem] p-5 sm:p-6 hidden">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Blog Posts</p>
+                                <h2 class="brand-font text-4xl uppercase text-white leading-none">Publishing</h2>
+                            </div>
+                            <input id="blogSearch" class="field lg:w-[28rem]" placeholder="Search blog posts..." oninput="scheduleRender('blogs')">
+                        </div>
+                        <div class="mt-5 grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <h3 class="brand-font text-3xl uppercase text-white leading-none" id="blogFormTitle">Add Blog Post</h3>
+                                <div class="mt-4 space-y-3">
+                                    <input id="blogTitle" class="field" placeholder="Blog title">
+                                    <input id="blogSlug" class="field" placeholder="Slug">
+                                    <input id="blogImage" class="field" placeholder="Image URL">
+                                    <select id="blogCategory" class="field">
+                                        <option>Download</option>
+                                        <option>Player Stats</option>
+                                        <option>Player Skills</option>
+                                        <option>Buttons & Controls</option>
+                                        <option>Player Guides</option>
+                                        <option>News</option>
+                                    </select>
+                                    <select id="blogStatus" class="field">
+                                        <option value="draft">Draft</option>
+                                        <option value="published">Published</option>
+                                    </select>
+                                    <textarea id="blogExcerpt" class="field" rows="3" placeholder="Excerpt"></textarea>
+                                    <textarea id="blogContent" class="field" rows="8" placeholder="Full post content"></textarea>
+                                    <div class="flex flex-wrap gap-3">
+                                        <button onclick="saveBlog()" class="btn-primary rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Save Post</button>
+                                        <button onclick="resetBlogForm()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h3 class="brand-font text-3xl uppercase text-white leading-none">Posts</h3>
+                                    <span id="blogsPageLabel" class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Page 1</span>
+                                </div>
+                                <div class="mt-4 flex items-center justify-between gap-3">
+                                    <button onclick="changePage('blogs', -1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Previous</button>
+                                    <button onclick="changePage('blogs', 1)" class="btn-primary rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Load More</button>
+                                </div>
+                                <div id="blogsList" class="mt-4 space-y-4"></div>
+                            </div>
+                        </div>
+                    </section>
 
-                    <div id="playersList" class="grid gap-4"></div>
+                    <section id="predictedTab" class="tab-panel panel rounded-[2rem] p-5 sm:p-6 hidden">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Predicted Players</p>
+                                <h2 class="brand-font text-4xl uppercase text-white leading-none">Forecasts</h2>
+                            </div>
+                            <input id="predictedSearch" class="field lg:w-[28rem]" placeholder="Search predicted cards..." oninput="scheduleRender('predicted')">
+                        </div>
+                        <div class="mt-5 grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <h3 class="brand-font text-3xl uppercase text-white leading-none" id="predictedFormTitle">Add Predicted Player</h3>
+                                <div class="mt-4 space-y-3">
+                                    <input id="predName" class="field" placeholder="Player name">
+                                    <input id="predTeam" class="field" placeholder="Team">
+                                    <input id="predPosition" class="field" placeholder="Position">
+                                    <input id="predRating" type="number" class="field" placeholder="Predicted rating">
+                                    <input id="predConfidence" type="number" min="0" max="100" class="field" placeholder="Confidence %">
+                                    <input id="predRelease" type="date" class="field">
+                                    <input id="predImage" class="field" placeholder="Image URL">
+                                    <textarea id="predStats" class="field" rows="4" placeholder='Predicted stats JSON'></textarea>
+                                    <textarea id="predBoosters" class="field" rows="3" placeholder='Predicted boosters JSON'></textarea>
+                                    <div class="flex flex-wrap gap-3">
+                                        <button onclick="savePredicted()" class="btn-primary rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Save</button>
+                                        <button onclick="resetPredictedForm()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h3 class="brand-font text-3xl uppercase text-white leading-none">Predictions</h3>
+                                    <span id="predictedPageLabel" class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Page 1</span>
+                                </div>
+                                <div class="mt-4 flex items-center justify-between gap-3">
+                                    <button onclick="changePage('predicted', -1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Previous</button>
+                                    <button onclick="changePage('predicted', 1)" class="btn-primary rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Load More</button>
+                                </div>
+                                <div id="predictedList" class="mt-4 space-y-4"></div>
+                            </div>
+                        </div>
+                    </section>
 
-                    <div class="mt-4 flex items-center justify-between gap-3">
-                        <button onclick="changePage(-1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Previous</button>
-                        <button onclick="changePage(1)" class="btn-primary rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Load More</button>
-                    </div>
+                    <section id="managersTab" class="tab-panel panel rounded-[2rem] p-5 sm:p-6 hidden">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Managers</p>
+                                <h2 class="brand-font text-4xl uppercase text-white leading-none">Manager Database</h2>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-2 lg:w-[38rem]">
+                                <input id="managerSearch" class="field" placeholder="Search managers..." oninput="scheduleRender('managers')">
+                                <select id="managerRatingFilter" class="field" onchange="scheduleRender('managers')">
+                                    <option value="All">All Ratings</option>
+                                    <option value="90">90</option>
+                                    <option value="89">89</option>
+                                    <option value="88">88</option>
+                                    <option value="87">87 and below</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-5 grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <h3 class="brand-font text-3xl uppercase text-white leading-none" id="managerFormTitle">Add Manager</h3>
+                                <div class="mt-4 space-y-3">
+                                    <input id="managerName" class="field" placeholder="Manager name">
+                                    <input id="managerRating" type="number" class="field" placeholder="Rating">
+                                    <input id="managerImage" class="field" placeholder="Image URL">
+                                    <textarea id="managerNotes" class="field" rows="4" placeholder="Notes"></textarea>
+                                    <div class="flex flex-wrap gap-3">
+                                        <button onclick="saveManager()" class="btn-primary rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Save Manager</button>
+                                        <button onclick="resetManagerForm()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h3 class="brand-font text-3xl uppercase text-white leading-none">Managers</h3>
+                                    <span id="managersPageLabel" class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Page 1</span>
+                                </div>
+                                <div class="mt-4 flex items-center justify-between gap-3">
+                                    <button onclick="changePage('managers', -1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Previous</button>
+                                    <button onclick="changePage('managers', 1)" class="btn-primary rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Load More</button>
+                                </div>
+                                <div id="managersList" class="mt-4 space-y-4"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="boostersTab" class="tab-panel panel rounded-[2rem] p-5 sm:p-6 hidden">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Boosters</p>
+                                <h2 class="brand-font text-4xl uppercase text-white leading-none">Booster Catalog</h2>
+                            </div>
+                            <input id="boosterSearch" class="field lg:w-[30rem]" placeholder="Search booster names or effects..." oninput="scheduleRender('boosters')">
+                        </div>
+                        <div class="mt-5 grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <h3 class="brand-font text-3xl uppercase text-white leading-none">Create Booster</h3>
+                                <div class="mt-4 space-y-3">
+                                    <input id="boosterName" class="field" placeholder="Booster name">
+                                    <input id="boosterCategory" class="field" placeholder="Category">
+                                    <input id="boosterLevel" type="number" class="field" placeholder="Level">
+                                    <textarea id="boosterEffects" class="field" rows="4" placeholder='Effects JSON'></textarea>
+                                    <div class="flex flex-wrap gap-3">
+                                        <button onclick="saveBooster()" class="btn-primary rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Save Booster</button>
+                                        <button onclick="resetBoosterForm()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h3 class="brand-font text-3xl uppercase text-white leading-none">Generated Booster Variants</h3>
+                                    <span id="boostersPageLabel" class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Page 1</span>
+                                </div>
+                                <div class="mt-4 flex items-center justify-between gap-3">
+                                    <button onclick="changePage('boosters', -1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Previous</button>
+                                    <button onclick="changePage('boosters', 1)" class="btn-primary rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Load More</button>
+                                </div>
+                                <div id="boostersList" class="mt-4 space-y-4"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="settingsTab" class="tab-panel panel rounded-[2rem] p-5 sm:p-6 hidden">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Settings</p>
+                                <h2 class="brand-font text-4xl uppercase text-white leading-none">Site Settings</h2>
+                            </div>
+                        </div>
+                        <div class="mt-5 grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <h3 class="brand-font text-3xl uppercase text-white leading-none">Add Setting</h3>
+                                <div class="mt-4 space-y-3">
+                                    <input id="settingKey" class="field" placeholder="Key">
+                                    <textarea id="settingValue" class="field" rows="4" placeholder='JSON value'></textarea>
+                                    <div class="flex flex-wrap gap-3">
+                                        <button onclick="saveSetting()" class="btn-primary rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Save</button>
+                                        <button onclick="resetSettingForm()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-bg rounded-[1.5rem] p-5">
+                                <h3 class="brand-font text-3xl uppercase text-white leading-none">Current Settings</h3>
+                                <div id="settingsList" class="mt-4 space-y-4"></div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </section>
         </main>
     </div>
 
     <script>
-        const ADMIN_PASSWORD = "admin123";
-        const STORAGE_KEY = "efh_players_data_v1";
-        const ADMIN_PAGE_SIZE = 5;
+        const PAGE_SIZE = 5;
+        const STORAGE_KEY = 'efh_players_data_v1';
 
-        let players = [];
-        let authenticated = false;
-        let currentPage = 1;
-        let renderTimer = null;
+        const state = {
+            authenticated: false,
+            demoMode: false,
+            currentTab: 'dashboard',
+            pages: { players: 1, blogs: 1, predicted: 1, managers: 1, boosters: 1 },
+            editing: {
+                playerId: null,
+                blogId: null,
+                predictedId: null,
+                managerId: null,
+                boosterId: null,
+                settingKey: null
+            },
+            collections: {
+                players: [],
+                blogs: [],
+                predicted: [],
+                managers: [],
+                boosters: [],
+                settings: []
+            }
+        };
 
-        function safeParsePlayers(value) {
-            if (!value) return [];
+        const statFields = ['Shooting', 'Passing', 'Dribbling', 'Dexterity', 'Lower Body', 'Aerial', 'Defending', 'GK 1', 'GK 2', 'GK 3'];
+
+        function uuid() {
+            return (crypto && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        }
+
+        function parseJson(value, fallback) {
+            try { return JSON.parse(value); } catch { return fallback; }
+        }
+
+        function safeString(value) {
+            return String(value ?? '').replace(/"/g, '&quot;');
+        }
+
+        function slugify(value) {
+            return (window.EFHubData?.slugify ? window.EFHubData.slugify(value) : String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''));
+        }
+
+        function setActiveTab(tab) {
+            state.currentTab = tab;
+            document.querySelectorAll('.sidebar-button').forEach(button => {
+                button.classList.toggle('active', button.dataset.tab === tab);
+            });
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.toggle('hidden', !panel.id.startsWith(tab));
+            });
+        }
+
+        function resetPlayerForm() {
+            state.editing.playerId = null;
+            document.getElementById('playerFormTitle').textContent = 'Add Player';
+            document.getElementById('playerStatusLabel').textContent = 'Ready';
+            ['playerName', 'playerTeam', 'playerPosition', 'playerRating', 'playerPlaystyle', 'playerManager', 'playerImage', 'playerCardType', 'playerVersionGroup', 'playerReleaseDate', 'playerSlug'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('playerBooster1').value = '';
+            document.getElementById('playerBooster2').value = '';
+            document.getElementById('playerStatus').value = 'official';
+            statFields.forEach(field => {
+                const el = document.getElementById(`build-${field}`);
+                if (el) el.value = 0;
+            });
+            updatePlayerPreview();
+        }
+
+        function resetBlogForm() {
+            state.editing.blogId = null;
+            document.getElementById('blogFormTitle').textContent = 'Add Blog Post';
+            ['blogTitle', 'blogSlug', 'blogImage', 'blogExcerpt', 'blogContent'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('blogCategory').value = 'Download';
+            document.getElementById('blogStatus').value = 'draft';
+        }
+
+        function resetPredictedForm() {
+            state.editing.predictedId = null;
+            document.getElementById('predictedFormTitle').textContent = 'Add Predicted Player';
+            ['predName', 'predTeam', 'predPosition', 'predRating', 'predConfidence', 'predRelease', 'predImage', 'predStats', 'predBoosters'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        function resetManagerForm() {
+            state.editing.managerId = null;
+            document.getElementById('managerFormTitle').textContent = 'Add Manager';
+            ['managerName', 'managerRating', 'managerImage', 'managerNotes'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        function resetBoosterForm() {
+            state.editing.boosterId = null;
+            ['boosterName', 'boosterCategory', 'boosterLevel', 'boosterEffects'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        function resetSettingForm() {
+            state.editing.settingKey = null;
+            ['settingKey', 'settingValue'].forEach(id => document.getElementById(id).value = '');
+        }
+
+        function buildStatInputs() {
+            const container = document.getElementById('playerBuildInputs');
+            container.innerHTML = statFields.map(stat => `
+                <div>
+                    <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">${stat}</label>
+                    <input id="build-${stat}" type="number" min="0" class="field py-2 text-center" value="0">
+                </div>
+            `).join('');
+        }
+
+        function updatePlayerPreview() {
+            const name = document.getElementById('playerName').value || 'Player Name';
+            const team = document.getElementById('playerTeam').value || 'Team';
+            const position = document.getElementById('playerPosition').value || 'Position';
+            const rating = document.getElementById('playerRating').value || '0';
+            const image = document.getElementById('playerImage').value || 'https://placehold.co/600x800/050816/ffffff?text=Player';
+            document.getElementById('playerPreviewImage').src = image;
+            document.getElementById('previewName').textContent = name;
+            document.getElementById('previewTeam').textContent = team;
+            document.getElementById('previewPosition').textContent = position;
+            document.getElementById('previewRating').textContent = rating;
+        }
+
+        function boosterOptions() {
+            return (window.EFHUB_CATALOGS?.boosters || []).map(booster => `<option value="${safeString(JSON.stringify(booster))}">${booster.label}</option>`).join('');
+        }
+
+        function renderBoosterSelects() {
+            const options = `<option value="">No Booster</option>${boosterOptions()}`;
+            document.getElementById('playerBooster1').innerHTML = options;
+            document.getElementById('playerBooster2').innerHTML = options;
+        }
+
+        function normalizePlayer(player) {
+            return {
+                id: String(player.id || uuid()),
+                slug: player.slug || slugify(player.name),
+                name: player.name || '',
+                team: player.team || '',
+                position: player.position || '',
+                overall_rating: Number(player.overall_rating ?? player.overallRating ?? player.rating ?? 0),
+                playstyle: player.playstyle || player.playingStyle || '',
+                manager: player.manager || '',
+                manager_id: player.manager_id || null,
+                booster_slot_1: player.booster_slot_1 || player.boosterSlot1 || '',
+                booster_slot_2: player.booster_slot_2 || player.boosterSlot2 || '',
+                image_url: player.image_url || player.imageUrl || player.image || '',
+                card_type: player.card_type || player.cardType || player.version || '',
+                version_group: player.version_group || player.versionGroup || '',
+                release_date: player.release_date || player.releaseDate || '',
+                created_at: player.created_at || player.createdAt || player.release_date || '',
+                status: player.status || 'official',
+                build: player.build || player.stats || {},
+                stats: player.stats || player.build || {}
+            };
+        }
+
+        function normalizeBlog(post) {
+            return {
+                id: String(post.id || uuid()),
+                slug: post.slug || slugify(post.title),
+                title: post.title || '',
+                excerpt: post.excerpt || '',
+                content: post.content || '',
+                image_url: post.image_url || post.imageUrl || '',
+                category: post.category || 'News',
+                status: post.status || 'draft',
+                published_at: post.published_at || post.publishedAt || null,
+                created_at: post.created_at || post.createdAt || post.published_at || ''
+            };
+        }
+
+        function normalizeManager(manager) {
+            return {
+                id: String(manager.id || uuid()),
+                name: manager.name || '',
+                rating: Number(manager.rating || 87),
+                image_url: manager.image_url || manager.imageUrl || '',
+                notes: manager.notes || '',
+                created_at: manager.created_at || manager.createdAt || ''
+            };
+        }
+
+        function normalizeBooster(booster) {
+            return {
+                id: String(booster.id || uuid()),
+                name: booster.name || '',
+                category: booster.category || '',
+                level: Number(booster.level || 0),
+                effects: booster.effects || [],
+                created_at: booster.created_at || booster.createdAt || ''
+            };
+        }
+
+        function normalizePredicted(player) {
+            return {
+                id: String(player.id || uuid()),
+                slug: player.slug || slugify(player.name),
+                name: player.name || '',
+                team: player.team || '',
+                position: player.position || '',
+                predicted_rating: Number(player.predicted_rating || 0),
+                predicted_stats: player.predicted_stats || {},
+                predicted_boosters: player.predicted_boosters || {},
+                confidence: Number(player.confidence || 0),
+                expected_release_date: player.expected_release_date || '',
+                votes_agree: Number(player.votes_agree || 0),
+                votes_disagree: Number(player.votes_disagree || 0),
+                image_url: player.image_url || '',
+                status: player.status || 'published',
+                created_at: player.created_at || player.createdAt || player.expected_release_date || ''
+            };
+        }
+
+        async function loadInitialData() {
+            const clientAvailable = window.EFHubData?.getClient?.();
+            const [playersData, blogsData, predictedData, managersData, boostersData, settingsData] = await Promise.all([
+                loadPlayers(),
+                window.EFHubData.loadCollection('blog_posts'),
+                window.EFHubData.loadCollection('predicted_players'),
+                window.EFHubData.loadCollection('managers'),
+                window.EFHubData.loadCollection('boosters'),
+                window.EFHubData.loadCollection('settings')
+            ]);
+
+            state.collections.players = playersData;
+            state.collections.blogs = (blogsData.length ? blogsData : defaultBlogs()).map(normalizeBlog);
+            state.collections.predicted = (predictedData.length ? predictedData : defaultPredicted()).map(normalizePredicted);
+            state.collections.managers = (managersData.length ? managersData : defaultManagers()).map(normalizeManager);
+            state.collections.boosters = (boostersData.length ? boostersData : defaultBoosters()).map(normalizeBooster);
+            state.collections.settings = Array.isArray(settingsData) ? settingsData : [];
+
+            if (!clientAvailable) {
+                state.demoMode = true;
+            }
+        }
+
+        async function loadPlayers() {
+            const saved = await window.EFHubData.loadCollection('players');
+            if (saved.length) return saved.map(normalizePlayer);
+
             try {
-                const parsed = JSON.parse(value);
-                return Array.isArray(parsed) ? parsed : [];
+                const response = await fetch('players.json');
+                const basePlayers = await response.json();
+                const legacy = parseJson(localStorage.getItem(STORAGE_KEY), []);
+                const savedById = new Map((Array.isArray(legacy) ? legacy : []).map(player => [String(player.id), player]));
+                const merged = basePlayers.map(player => {
+                    const legacyPlayer = savedById.get(String(player.id));
+                    return normalizePlayer(legacyPlayer || player);
+                });
+                savedById.forEach((player, id) => {
+                    if (!basePlayers.some(basePlayer => String(basePlayer.id) === id)) {
+                        merged.push(normalizePlayer(player));
+                    }
+                });
+                return merged;
             } catch {
                 return [];
             }
         }
 
-        function normalizePlayer(player) {
-            return {
-                ...player,
-                name: player?.name || '',
-                position: player?.position || '',
-                overallRating: Number(player?.overallRating || player?.rating || 0),
-                playingStyle: player?.playingStyle || '',
-                imageUrl: player?.imageUrl || player?.image || '',
-                team: player?.team || '',
-                build: player?.build || {}
-            };
+        function defaultBlogs() {
+            return [
+                { id: uuid(), title: 'eFootball 2025 Download', excerpt: 'Download guide, installation steps, and setup notes.', content: 'Use the admin dashboard to publish your full download guide.', category: 'Download', status: 'published', published_at: new Date().toISOString() },
+                { id: uuid(), title: 'eFootball 2026 Player Stats', excerpt: 'A guide for ratings and build decisions.', content: 'Explain the latest stats and builds for eFootball 2026.', category: 'Player Stats', status: 'published', published_at: new Date().toISOString() }
+            ];
         }
 
-        function getBuildValue(build, stat) {
-            if (!build) return 0;
-            return Number(build[stat] || 0);
+        function defaultPredicted() {
+            return [
+                { id: uuid(), name: 'Predicted Future Star', team: 'Any', position: 'AMF', predicted_rating: 103, predicted_stats: { Speed: 95, Dribbling: 97 }, predicted_boosters: { slot_1: 'Technique +3' }, confidence: 75, expected_release_date: '2026-12-01', votes_agree: 0, votes_disagree: 0, image_url: '', status: 'published' }
+            ];
         }
 
-        function setStatus(message) {
-            const status = document.getElementById('saveStatus');
-            if (status) status.textContent = message;
+        function defaultManagers() {
+            return (window.EFHUB_CATALOGS?.managers || []).map(manager => ({
+                id: uuid(),
+                name: manager.name,
+                rating: manager.rating,
+                image_url: '',
+                notes: manager.variant ? `Variant ${manager.variant}` : ''
+            }));
         }
 
-        function mergePlayers(basePlayers) {
-            const savedPlayers = safeParsePlayers(localStorage.getItem(STORAGE_KEY));
-            if (!savedPlayers.length) return basePlayers.map(normalizePlayer);
-
-            const savedById = new Map(savedPlayers.map(player => [String(player.id), normalizePlayer(player)]));
-            const merged = basePlayers.map(player => {
-                const key = String(player.id);
-                return savedById.get(key) || normalizePlayer(player);
-            });
-
-            savedById.forEach((player, key) => {
-                if (!basePlayers.some(basePlayer => String(basePlayer.id) === key)) {
-                    merged.push(player);
-                }
-            });
-
-            return merged;
+        function defaultBoosters() {
+            return (window.EFHUB_CATALOGS?.boosters || []).slice(0, 60).map(booster => ({
+                id: uuid(),
+                name: booster.name,
+                category: booster.category,
+                level: booster.level,
+                effects: booster.effects
+            }));
         }
 
-        function persistPlayers() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
-            setStatus('Saved instantly');
-            renderPlayersList();
+        function saveCollection(name, items) {
+            return window.EFHubData.saveCollection(name, items);
         }
 
-        function checkPassword() {
-            const pwd = document.getElementById('adminPassword').value;
-            if (pwd === ADMIN_PASSWORD) {
-                authenticated = true;
-                document.getElementById('authLock').style.display = 'none';
-                document.getElementById('mainContent').classList.remove('hidden');
-                loadPlayers();
-            } else {
-                alert('Incorrect password!');
-                document.getElementById('adminPassword').value = '';
-            }
+        function updateStats() {
+            document.getElementById('statPlayers').textContent = state.collections.players.length.toLocaleString();
+            document.getElementById('statBlogs').textContent = state.collections.blogs.length.toLocaleString();
+            document.getElementById('statManagers').textContent = state.collections.managers.length.toLocaleString();
+            document.getElementById('statPredicted').textContent = state.collections.predicted.length.toLocaleString();
         }
 
-        function logout() {
-            authenticated = false;
-            document.getElementById('mainContent').classList.add('hidden');
-            document.getElementById('authLock').style.display = 'flex';
-            document.getElementById('adminPassword').value = '';
+        function timeValue(item) {
+            const value = item?.created_at || item?.published_at || item?.release_date || '';
+            const timestamp = new Date(value).getTime();
+            return Number.isNaN(timestamp) ? 0 : timestamp;
         }
 
-        function scheduleRender() {
-            currentPage = 1;
-            window.clearTimeout(renderTimer);
-            renderTimer = window.setTimeout(renderPlayersList, 120);
-        }
-
-        function resetSearch() {
-            document.getElementById('adminSearch').value = '';
-            document.getElementById('sortSelect').value = 'newest';
-            scheduleRender();
-        }
-
-        async function loadPlayers() {
-            try {
-                const response = await fetch('players.json');
-                const basePlayers = await response.json();
-                players = mergePlayers(basePlayers);
-                renderPlayersList();
-                setStatus('Loaded');
-            } catch (error) {
-                console.error('Error loading players:', error);
-                players = mergePlayers([]);
-                renderPlayersList();
-                setStatus('Load failed');
-            }
+        function renderDashboard() {
+            const latestPlayer = state.collections.players.slice().sort((a, b) => timeValue(b) - timeValue(a))[0];
+            const latestBlog = state.collections.blogs.slice().sort((a, b) => timeValue(b) - timeValue(a))[0];
+            const latestBooster = state.collections.boosters[0];
+            document.getElementById('latestPlayer').innerHTML = latestPlayer ? `<div class="font-bold text-white">${latestPlayer.name}</div><div class="text-xs uppercase tracking-[0.2em] text-slate-500">${latestPlayer.position} • ${latestPlayer.team || 'Team'}</div>` : '<div class="text-slate-500">No players yet.</div>';
+            document.getElementById('latestBlog').innerHTML = latestBlog ? `<div class="font-bold text-white">${latestBlog.title}</div><div class="text-xs uppercase tracking-[0.2em] text-slate-500">${latestBlog.category} • ${latestBlog.status}</div>` : '<div class="text-slate-500">No blog posts yet.</div>';
+            document.getElementById('latestBooster').innerHTML = latestBooster ? `<div class="font-bold text-white">${latestBooster.name} +${latestBooster.level}</div><div class="text-xs uppercase tracking-[0.2em] text-slate-500">${latestBooster.category}</div>` : '<div class="text-slate-500">No boosters yet.</div>';
         }
 
         function getFilteredPlayers() {
-            const query = document.getElementById('adminSearch').value.toLowerCase().trim();
-            const sort = document.getElementById('sortSelect').value;
-
-            const filtered = players.filter(player => {
-                const searchText = [
-                    player.name,
-                    player.position,
-                    player.team,
-                    player.playingStyle,
-                    player.version,
-                    player.overallRating
-                ].join(' ').toLowerCase();
-                return !query || searchText.includes(query);
+            const query = (document.getElementById('playerSearch').value || '').toLowerCase().trim();
+            const sort = document.getElementById('playerSort').value;
+            let filtered = state.collections.players.filter(player => {
+                const text = `${player.name} ${player.team} ${player.position} ${player.playstyle} ${player.card_type} ${player.version_group}`.toLowerCase();
+                return !query || text.includes(query);
             });
-
-            if (sort === 'name') {
-                filtered.sort((a, b) => a.name.localeCompare(b.name));
-            } else if (sort === 'rating') {
-                filtered.sort((a, b) => Number(b.overallRating || 0) - Number(a.overallRating || 0));
-            } else {
-                filtered.sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
-            }
-
+            if (sort === 'rating') filtered.sort((a, b) => Number(b.overall_rating) - Number(a.overall_rating));
+            else if (sort === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
+            else filtered.sort((a, b) => timeValue(b) - timeValue(a));
             return filtered;
         }
 
-        function renderPagination(totalPages) {
-            const pageLabel = document.getElementById('pageLabel');
-            if (pageLabel) pageLabel.textContent = `Page ${currentPage} of ${totalPages}`;
+        function getFilteredBlogs() {
+            const query = (document.getElementById('blogSearch').value || '').toLowerCase().trim();
+            let filtered = state.collections.blogs.filter(blog => !query || `${blog.title} ${blog.category} ${blog.excerpt} ${blog.content}`.toLowerCase().includes(query));
+            filtered.sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
+            return filtered;
         }
 
-        function changePage(direction) {
-            const totalPages = Math.max(1, Math.ceil(getFilteredPlayers().length / ADMIN_PAGE_SIZE));
-            const nextPage = currentPage + direction;
-            if (nextPage < 1 || nextPage > totalPages) return;
-            currentPage = nextPage;
-            renderPlayersList();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        function getFilteredPredicted() {
+            const query = (document.getElementById('predictedSearch').value || '').toLowerCase().trim();
+            let filtered = state.collections.predicted.filter(item => !query || `${item.name} ${item.team} ${item.position}`.toLowerCase().includes(query));
+            filtered.sort((a, b) => Number(b.predicted_rating) - Number(a.predicted_rating));
+            return filtered;
         }
 
-        function renderPlayersList() {
-            const list = document.getElementById('playersList');
-            const totalPlayersStat = document.getElementById('totalPlayersStat');
-            const shownPlayersStat = document.getElementById('shownPlayersStat');
-            const pageStat = document.getElementById('pageStat');
-            const resultsCount = document.getElementById('resultsCount');
+        function getFilteredManagers() {
+            const query = (document.getElementById('managerSearch').value || '').toLowerCase().trim();
+            const filter = document.getElementById('managerRatingFilter').value;
+            return state.collections.managers.filter(manager => {
+                const text = `${manager.name} ${manager.rating}`.toLowerCase();
+                const matchesSearch = !query || text.includes(query);
+                const matchesRating = filter === 'All' || (filter === '87' ? Number(manager.rating) <= 87 : Number(manager.rating) === Number(filter));
+                return matchesSearch && matchesRating;
+            }).sort((a, b) => Number(b.rating) - Number(a.rating));
+        }
 
+        function getFilteredBoosters() {
+            const query = (document.getElementById('boosterSearch').value || '').toLowerCase().trim();
+            return state.collections.boosters.filter(booster => {
+                const text = `${booster.name} ${booster.category} ${booster.level} ${(booster.effects || []).map(effect => effect.stat).join(' ')}`.toLowerCase();
+                return !query || text.includes(query);
+            }).sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        function paginate(items, page) {
+            const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+            const clamped = Math.min(Math.max(1, page), totalPages);
+            return {
+                page: clamped,
+                totalPages,
+                items: items.slice((clamped - 1) * PAGE_SIZE, clamped * PAGE_SIZE)
+            };
+        }
+
+        function changePage(section, direction) {
+            const key = section === 'players' ? 'players' : section;
+            state.pages[key] = Math.max(1, state.pages[key] + direction);
+            renderSection(section);
+        }
+
+        function scheduleRender(section) {
+            state.pages[section] = 1;
+            window.clearTimeout(state.renderTimer);
+            state.renderTimer = window.setTimeout(() => renderSection(section), 100);
+        }
+
+        function updatePageLabel(section, page, totalPages) {
+            const label = document.getElementById(`${section}PageLabel`);
+            if (label) label.textContent = `Page ${page} of ${totalPages}`;
+        }
+
+        function renderPlayers() {
             const filtered = getFilteredPlayers();
-            const totalPages = Math.max(1, Math.ceil(filtered.length / ADMIN_PAGE_SIZE));
-            currentPage = Math.min(currentPage, totalPages);
+            const { page, totalPages, items } = paginate(filtered, state.pages.players);
+            state.pages.players = page;
+            updatePageLabel('players', page, totalPages);
+            document.getElementById('playersList').innerHTML = items.length ? items.map(renderPlayerCard).join('') : '<div class="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-slate-400">No players found.</div>';
+        }
 
-            const startIndex = (currentPage - 1) * ADMIN_PAGE_SIZE;
-            const pagePlayers = filtered.slice(startIndex, startIndex + ADMIN_PAGE_SIZE);
-
-            if (totalPlayersStat) totalPlayersStat.textContent = players.length.toLocaleString();
-            if (shownPlayersStat) shownPlayersStat.textContent = filtered.length.toLocaleString();
-            if (pageStat) pageStat.textContent = currentPage.toString();
-            if (resultsCount) resultsCount.textContent = `${filtered.length.toLocaleString()} player${filtered.length === 1 ? '' : 's'}`;
-
-            renderPagination(totalPages);
-
-            if (!pagePlayers.length) {
-                list.innerHTML = `
-                    <div class="rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.03] p-10 text-center text-slate-400">
-                        No players match your search.
+        function renderPlayerCard(player) {
+            const image = player.image_url || 'https://placehold.co/400x520/050816/ffffff?text=Player';
+            return `
+                <article class="card-bg rounded-[1.5rem] p-4">
+                    <div class="flex flex-col gap-4 lg:flex-row">
+                        <img src="${image}" alt="${safeString(player.name)}" class="h-36 w-full rounded-2xl object-cover lg:w-28">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">${safeString(player.status)}</span>
+                                <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">${safeString(player.position || 'Unknown')}</span>
+                            </div>
+                            <h4 class="mt-2 truncate text-3xl font-bold text-white">${safeString(player.name)}</h4>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500">${safeString(player.team || 'No team')} • OVR ${player.overall_rating}</p>
+                            <p class="mt-2 text-sm text-slate-300">${safeString(player.playstyle || 'No playstyle')} • ${safeString(player.card_type || 'Card')}</p>
+                            <p class="mt-1 text-sm text-slate-400">Manager: ${safeString(player.manager || 'None')} | Booster 1: ${safeString(player.booster_slot_1 || 'None')} | Booster 2: ${safeString(player.booster_slot_2 || 'None')}</p>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <button class="btn-soft rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white" onclick="editPlayer('${player.id}')">Edit</button>
+                                <button class="btn-soft rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white" onclick="duplicatePlayer('${player.id}')">Duplicate</button>
+                                <button class="btn-danger rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em]" onclick="deleteRecord('players', '${player.id}')">Delete</button>
+                            </div>
+                        </div>
                     </div>
-                `;
+                </article>
+            `;
+        }
+
+        function renderBlogs() {
+            const filtered = getFilteredBlogs();
+            const { page, totalPages, items } = paginate(filtered, state.pages.blogs);
+            state.pages.blogs = page;
+            updatePageLabel('blogs', page, totalPages);
+            document.getElementById('blogsList').innerHTML = items.length ? items.map(renderBlogCard).join('') : '<div class="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-slate-400">No blog posts found.</div>';
+        }
+
+        function renderBlogCard(blog) {
+            return `
+                <article class="card-bg rounded-[1.5rem] p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <div class="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">${safeString(blog.category)}</div>
+                            <h4 class="mt-1 text-3xl font-bold text-white">${safeString(blog.title)}</h4>
+                        </div>
+                        <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">${safeString(blog.status)}</span>
+                    </div>
+                    <p class="mt-2 text-sm text-slate-300">${safeString(blog.excerpt)}</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button class="btn-soft rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white" onclick="editBlog('${blog.id}')">Edit</button>
+                        <button class="btn-soft rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white" onclick="toggleBlogStatus('${blog.id}')">Publish Toggle</button>
+                        <button class="btn-danger rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em]" onclick="deleteRecord('blog_posts', '${blog.id}')">Delete</button>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderPredicted() {
+            const filtered = getFilteredPredicted();
+            const { page, totalPages, items } = paginate(filtered, state.pages.predicted);
+            state.pages.predicted = page;
+            updatePageLabel('predicted', page, totalPages);
+            document.getElementById('predictedList').innerHTML = items.length ? items.map(renderPredictedCard).join('') : '<div class="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-slate-400">No predicted players found.</div>';
+        }
+
+        function renderPredictedCard(player) {
+            return `
+                <article class="card-bg rounded-[1.5rem] p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <h4 class="text-3xl font-bold text-white">${safeString(player.name)}</h4>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500">${safeString(player.team || 'No team')} • ${safeString(player.position || 'Unknown')}</p>
+                        </div>
+                        <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">${player.predicted_rating} OVR</span>
+                    </div>
+                    <p class="mt-2 text-sm text-slate-300">Confidence: ${player.confidence}% | Release: ${player.expected_release_date || 'TBD'}</p>
+                    <p class="mt-1 text-sm text-slate-400">Agree ${player.votes_agree} / Disagree ${player.votes_disagree}</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button class="btn-soft rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white" onclick="votePrediction('${player.id}', 'agree')">Agree</button>
+                        <button class="btn-soft rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white" onclick="votePrediction('${player.id}', 'disagree')">Disagree</button>
+                        <button class="btn-soft rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white" onclick="editPredicted('${player.id}')">Edit</button>
+                        <button class="btn-danger rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em]" onclick="deleteRecord('predicted_players', '${player.id}')">Delete</button>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderManagers() {
+            const filtered = getFilteredManagers();
+            const { page, totalPages, items } = paginate(filtered, state.pages.managers);
+            state.pages.managers = page;
+            updatePageLabel('managers', page, totalPages);
+            document.getElementById('managersList').innerHTML = items.length ? items.map(renderManagerCard).join('') : '<div class="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-slate-400">No managers found.</div>';
+        }
+
+        function renderManagerCard(manager) {
+            return `
+                <article class="card-bg rounded-[1.5rem] p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <h4 class="text-3xl font-bold text-white">${safeString(manager.name)}</h4>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500">Rating ${manager.rating}</p>
+                        </div>
+                        <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">${manager.rating}</span>
+                    </div>
+                    <p class="mt-2 text-sm text-slate-300">${safeString(manager.notes || '')}</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button class="btn-soft rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white" onclick="editManager('${manager.id}')">Edit</button>
+                        <button class="btn-danger rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em]" onclick="deleteRecord('managers', '${manager.id}')">Delete</button>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderBoosters() {
+            const filtered = getFilteredBoosters();
+            const { page, totalPages, items } = paginate(filtered, state.pages.boosters);
+            state.pages.boosters = page;
+            updatePageLabel('boosters', page, totalPages);
+            document.getElementById('boostersList').innerHTML = items.length ? items.map(renderBoosterCard).join('') : '<div class="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-slate-400">No boosters found.</div>';
+        }
+
+        function renderBoosterCard(booster) {
+            const effects = Array.isArray(booster.effects) ? booster.effects : [];
+            return `
+                <article class="card-bg rounded-[1.5rem] p-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <h4 class="text-3xl font-bold text-white">${safeString(booster.label || `${booster.name} +${booster.level}`)}</h4>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500">${safeString(booster.category || '')}</p>
+                        </div>
+                        <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">Lv ${booster.level}</span>
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        ${effects.length ? effects.map(effect => `<span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">${safeString(effect.stat)} +${effect.value}</span>`).join('') : '<span class="text-slate-500">No effects</span>'}
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button class="btn-soft rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white" onclick="editBooster('${booster.id}')">Edit</button>
+                        <button class="btn-danger rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em]" onclick="deleteRecord('boosters', '${booster.id}')">Delete</button>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderSettings() {
+            const list = document.getElementById('settingsList');
+            if (!state.collections.settings.length) {
+                list.innerHTML = '<div class="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-slate-400">No settings saved yet.</div>';
                 return;
             }
-
-            list.innerHTML = pagePlayers.map(player => `
-                <article class="card-bg rounded-[1.5rem] p-5">
-                    <div class="mb-4 flex items-start justify-between gap-3">
+            list.innerHTML = state.collections.settings.map(setting => `
+                <article class="card-bg rounded-[1.5rem] p-4">
+                    <div class="flex items-center justify-between gap-3">
                         <div>
-                            <h3 class="brand-font text-3xl leading-none text-white">${player.name || 'Unnamed Player'}</h3>
-                            <p class="mt-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">${player.position || 'Unknown'} • ${player.team || 'No team'}</p>
+                            <h4 class="text-2xl font-bold text-white">${safeString(setting.key)}</h4>
+                            <pre class="mt-2 whitespace-pre-wrap text-sm text-slate-300">${safeString(JSON.stringify(setting.value, null, 2))}</pre>
                         </div>
-                        <button onclick="deletePlayer('${String(player.id)}')" class="danger-btn rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em]">Delete</button>
-                    </div>
-
-                    <div class="grid gap-3 sm:grid-cols-2">
-                        <div>
-                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Name</label>
-                            <input type="text" class="field py-3" value="${player.name || ''}" onchange="updatePlayer('${String(player.id)}', 'name', this.value)">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Position</label>
-                            <input type="text" class="field py-3" value="${player.position || ''}" onchange="updatePlayer('${String(player.id)}', 'position', this.value)">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Overall Rating</label>
-                            <input type="number" min="50" max="110" class="field py-3" value="${Number(player.overallRating || 0)}" onchange="updatePlayer('${String(player.id)}', 'overallRating', this.value)">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Team</label>
-                            <input type="text" class="field py-3" value="${player.team || ''}" onchange="updatePlayer('${String(player.id)}', 'team', this.value)">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Playing Style</label>
-                            <input type="text" class="field py-3" value="${player.playingStyle || ''}" onchange="updatePlayer('${String(player.id)}', 'playingStyle', this.value)">
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Image URL</label>
-                            <input type="text" class="field py-3" value="${player.imageUrl || ''}" onchange="updatePlayer('${String(player.id)}', 'imageUrl', this.value)">
-                        </div>
-                    </div>
-
-                    <div class="mt-5 rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
-                        <div class="mb-3 flex items-center justify-between gap-3">
-                            <h4 class="text-xs font-bold uppercase tracking-[0.25em] text-blue-300">Recommended Build</h4>
-                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Auto-save</span>
-                        </div>
-                        <div class="grid gap-3 sm:grid-cols-2">
-                            ${['Shooting', 'Passing', 'Dribbling', 'Dexterity', 'Lower Body', 'Aerial', 'Defending', 'GK 1', 'GK 2', 'GK 3'].map(stat => `
-                                <div class="stat-input">
-                                    <label class="text-xs text-slate-500">${stat}</label>
-                                    <input type="number" min="0" max="15" class="field py-2 text-center" value="${getBuildValue(player.build, stat)}" onchange="updateBuild('${String(player.id)}', '${stat}', this.value)">
-                                </div>
-                            `).join('')}
-                        </div>
+                        <button class="btn-danger rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-[0.2em]" onclick="removeSetting('${safeString(setting.key)}')">Delete</button>
                     </div>
                 </article>
             `).join('');
         }
 
-        function updatePlayer(id, field, value) {
-            const player = players.find(item => String(item.id) === String(id));
-            if (!player) return;
-
-            if (field === 'overallRating') {
-                player[field] = Number(value || 0);
-            } else {
-                player[field] = value;
-            }
-
-            persistPlayers();
+        function renderSection(section) {
+            if (section === 'players') renderPlayers();
+            if (section === 'blogs') renderBlogs();
+            if (section === 'predicted') renderPredicted();
+            if (section === 'managers') renderManagers();
+            if (section === 'boosters') renderBoosters();
+            if (section === 'settings') renderSettings();
+            if (section === 'dashboard') renderDashboard();
         }
 
-        function updateBuild(id, stat, value) {
-            const player = players.find(item => String(item.id) === String(id));
-            if (!player) return;
+        async function savePlayer() {
+            const player = normalizePlayer({
+                id: state.editing.playerId || uuid(),
+                slug: document.getElementById('playerSlug').value || '',
+                name: document.getElementById('playerName').value.trim(),
+                team: document.getElementById('playerTeam').value.trim(),
+                position: document.getElementById('playerPosition').value.trim(),
+                overall_rating: Number(document.getElementById('playerRating').value || 0),
+                playstyle: document.getElementById('playerPlaystyle').value.trim(),
+                manager: document.getElementById('playerManager').value.trim(),
+                booster_slot_1: document.getElementById('playerBooster1').value,
+                booster_slot_2: document.getElementById('playerBooster2').value,
+                image_url: document.getElementById('playerImage').value.trim(),
+                card_type: document.getElementById('playerCardType').value.trim(),
+                version_group: document.getElementById('playerVersionGroup').value.trim(),
+                release_date: document.getElementById('playerReleaseDate').value,
+                status: document.getElementById('playerStatus').value,
+                build: Object.fromEntries(statFields.map(field => [field, Number(document.getElementById(`build-${field}`).value || 0)]).filter(([, value]) => value > 0))
+            });
 
-            if (!player.build) player.build = {};
-            const numVal = Number(value || 0);
-            if (numVal > 0) {
-                player.build[stat] = numVal;
-            } else {
-                delete player.build[stat];
-            }
-
-            persistPlayers();
-        }
-
-        function deletePlayer(id) {
-            if (!confirm('Delete this player?')) return;
-            players = players.filter(player => String(player.id) !== String(id));
-            persistPlayers();
-            setStatus('Player deleted');
-        }
-
-        function addNewPlayer() {
-            const name = document.getElementById('newName').value.trim();
-            if (!name) {
-                alert('Please enter player name');
+            if (!player.name) {
+                alert('Please enter a player name.');
                 return;
             }
 
-            const build = {};
-            ['Shooting', 'Passing', 'Dribbling', 'Dexterity', 'Lower Body', 'Defending'].forEach(stat => {
-                const input = document.getElementById(`newBuild_${stat.replace(/\s/g, '')}`);
-                const val = Number(input?.value || 0);
-                if (val > 0) build[stat] = val;
-            });
-
-            const newPlayer = normalizePlayer({
-                id: Date.now().toString(),
-                name,
-                position: document.getElementById('newPosition').value.trim(),
-                overallRating: Number(document.getElementById('newRating').value || 0),
-                playingStyle: document.getElementById('newPlaystyle').value.trim(),
-                imageUrl: document.getElementById('newImage').value.trim(),
-                team: document.getElementById('newTeam').value.trim(),
-                build
-            });
-
-            players.unshift(newPlayer);
-            persistPlayers();
-
-            ['newName', 'newPosition', 'newRating', 'newPlaystyle', 'newImage', 'newTeam'].forEach(id => {
-                const input = document.getElementById(id);
-                if (input) input.value = '';
-            });
-
-            ['Shooting', 'Passing', 'Dribbling', 'Dexterity', 'LowerBody', 'Defending'].forEach(stat => {
-                const input = document.getElementById(`newBuild_${stat}`);
-                if (input) input.value = 0;
-            });
-
-            currentPage = 1;
-            renderPlayersList();
-            setStatus('Player added');
+            const existingIndex = state.collections.players.findIndex(item => String(item.id) === String(player.id));
+            if (existingIndex >= 0) state.collections.players[existingIndex] = player;
+            else state.collections.players.unshift(player);
+            await saveCollection('players', state.collections.players);
+            setStatus('Player saved');
+            resetPlayerForm();
+            renderSection('players');
+            updateStats();
+            renderDashboard();
         }
 
-        function exportPlayers() {
-            const blob = new Blob([JSON.stringify(players, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'players.json';
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            URL.revokeObjectURL(url);
-            setStatus('Exported JSON');
+        function editPlayer(id) {
+            const player = state.collections.players.find(item => String(item.id) === String(id));
+            if (!player) return;
+            state.editing.playerId = player.id;
+            document.getElementById('playerFormTitle').textContent = 'Edit Player';
+            document.getElementById('playerStatusLabel').textContent = 'Editing';
+            document.getElementById('playerName').value = player.name || '';
+            document.getElementById('playerTeam').value = player.team || '';
+            document.getElementById('playerPosition').value = player.position || '';
+            document.getElementById('playerRating').value = player.overall_rating || '';
+            document.getElementById('playerPlaystyle').value = player.playstyle || '';
+            document.getElementById('playerManager').value = player.manager || '';
+            document.getElementById('playerImage').value = player.image_url || '';
+            document.getElementById('playerCardType').value = player.card_type || '';
+            document.getElementById('playerVersionGroup').value = player.version_group || '';
+            document.getElementById('playerReleaseDate').value = player.release_date || '';
+            document.getElementById('playerSlug').value = player.slug || '';
+            document.getElementById('playerStatus').value = player.status || 'official';
+            document.getElementById('playerBooster1').value = player.booster_slot_1 || '';
+            document.getElementById('playerBooster2').value = player.booster_slot_2 || '';
+            statFields.forEach(field => document.getElementById(`build-${field}`).value = player.build?.[field] || 0);
+            updatePlayerPreview();
+            setActiveTab('players');
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('adminPassword').addEventListener('keypress', (event) => {
-                if (event.key === 'Enter') checkPassword();
+        function duplicatePlayer(id) {
+            const player = state.collections.players.find(item => String(item.id) === String(id));
+            if (!player) return;
+            const copy = { ...player, id: uuid(), name: `${player.name} Copy`, slug: slugify(`${player.name} copy`) };
+            state.collections.players.unshift(copy);
+            saveCollection('players', state.collections.players).then(() => renderSection('players'));
+        }
+
+        async function saveBlog() {
+            const blog = normalizeBlog({
+                id: state.editing.blogId || uuid(),
+                title: document.getElementById('blogTitle').value.trim(),
+                slug: document.getElementById('blogSlug').value.trim(),
+                image_url: document.getElementById('blogImage').value.trim(),
+                category: document.getElementById('blogCategory').value,
+                status: document.getElementById('blogStatus').value,
+                excerpt: document.getElementById('blogExcerpt').value.trim(),
+                content: document.getElementById('blogContent').value.trim(),
+                published_at: document.getElementById('blogStatus').value === 'published' ? new Date().toISOString() : null
             });
-        });
+            if (!blog.title || !blog.content) {
+                alert('Please enter a title and content.');
+                return;
+            }
+            const index = state.collections.blogs.findIndex(item => String(item.id) === String(blog.id));
+            if (index >= 0) state.collections.blogs[index] = blog;
+            else state.collections.blogs.unshift(blog);
+            await saveCollection('blog_posts', state.collections.blogs);
+            resetBlogForm();
+            renderSection('blogs');
+            updateStats();
+            renderDashboard();
+        }
+
+        function editBlog(id) {
+            const blog = state.collections.blogs.find(item => String(item.id) === String(id));
+            if (!blog) return;
+            state.editing.blogId = blog.id;
+            document.getElementById('blogFormTitle').textContent = 'Edit Blog Post';
+            document.getElementById('blogTitle').value = blog.title || '';
+            document.getElementById('blogSlug').value = blog.slug || '';
+            document.getElementById('blogImage').value = blog.image_url || '';
+            document.getElementById('blogCategory').value = blog.category || 'News';
+            document.getElementById('blogStatus').value = blog.status || 'draft';
+            document.getElementById('blogExcerpt').value = blog.excerpt || '';
+            document.getElementById('blogContent').value = blog.content || '';
+            setActiveTab('blogs');
+        }
+
+        function toggleBlogStatus(id) {
+            const blog = state.collections.blogs.find(item => String(item.id) === String(id));
+            if (!blog) return;
+            blog.status = blog.status === 'published' ? 'draft' : 'published';
+            blog.published_at = blog.status === 'published' ? new Date().toISOString() : null;
+            saveCollection('blog_posts', state.collections.blogs).then(() => renderSection('blogs'));
+        }
+
+        async function savePredicted() {
+            const predicted = normalizePredicted({
+                id: state.editing.predictedId || uuid(),
+                name: document.getElementById('predName').value.trim(),
+                team: document.getElementById('predTeam').value.trim(),
+                position: document.getElementById('predPosition').value.trim(),
+                predicted_rating: Number(document.getElementById('predRating').value || 0),
+                confidence: Number(document.getElementById('predConfidence').value || 0),
+                expected_release_date: document.getElementById('predRelease').value,
+                image_url: document.getElementById('predImage').value.trim(),
+                predicted_stats: parseJson(document.getElementById('predStats').value || '{}', {}),
+                predicted_boosters: parseJson(document.getElementById('predBoosters').value || '{}', {}),
+                status: 'published'
+            });
+            if (!predicted.name) {
+                alert('Please enter a player name.');
+                return;
+            }
+            const index = state.collections.predicted.findIndex(item => String(item.id) === String(predicted.id));
+            if (index >= 0) state.collections.predicted[index] = predicted;
+            else state.collections.predicted.unshift(predicted);
+            await saveCollection('predicted_players', state.collections.predicted);
+            resetPredictedForm();
+            renderSection('predicted');
+            updateStats();
+        }
+
+        function editPredicted(id) {
+            const item = state.collections.predicted.find(entry => String(entry.id) === String(id));
+            if (!item) return;
+            state.editing.predictedId = item.id;
+            document.getElementById('predictedFormTitle').textContent = 'Edit Predicted Player';
+            document.getElementById('predName').value = item.name || '';
+            document.getElementById('predTeam').value = item.team || '';
+            document.getElementById('predPosition').value = item.position || '';
+            document.getElementById('predRating').value = item.predicted_rating || '';
+            document.getElementById('predConfidence').value = item.confidence || '';
+            document.getElementById('predRelease').value = item.expected_release_date || '';
+            document.getElementById('predImage').value = item.image_url || '';
+            document.getElementById('predStats').value = JSON.stringify(item.predicted_stats || {}, null, 2);
+            document.getElementById('predBoosters').value = JSON.stringify(item.predicted_boosters || {}, null, 2);
+            setActiveTab('predicted');
+        }
+
+        function votePrediction(id, vote) {
+            const item = state.collections.predicted.find(entry => String(entry.id) === String(id));
+            if (!item) return;
+            if (vote === 'agree') item.votes_agree = Number(item.votes_agree || 0) + 1;
+            else item.votes_disagree = Number(item.votes_disagree || 0) + 1;
+            saveCollection('predicted_players', state.collections.predicted).then(() => renderSection('predicted'));
+        }
+
+        async function saveManager() {
+            const manager = normalizeManager({
+                id: state.editing.managerId || uuid(),
+                name: document.getElementById('managerName').value.trim(),
+                rating: Number(document.getElementById('managerRating').value || 87),
+                image_url: document.getElementById('managerImage').value.trim(),
+                notes: document.getElementById('managerNotes').value.trim()
+            });
+            if (!manager.name) {
+                alert('Please enter a manager name.');
+                return;
+            }
+            const index = state.collections.managers.findIndex(item => String(item.id) === String(manager.id));
+            if (index >= 0) state.collections.managers[index] = manager;
+            else state.collections.managers.unshift(manager);
+            await saveCollection('managers', state.collections.managers);
+            resetManagerForm();
+            renderSection('managers');
+            updateStats();
+        }
+
+        function editManager(id) {
+            const manager = state.collections.managers.find(item => String(item.id) === String(id));
+            if (!manager) return;
+            state.editing.managerId = manager.id;
+            document.getElementById('managerFormTitle').textContent = 'Edit Manager';
+            document.getElementById('managerName').value = manager.name || '';
+            document.getElementById('managerRating').value = manager.rating || '';
+            document.getElementById('managerImage').value = manager.image_url || '';
+            document.getElementById('managerNotes').value = manager.notes || '';
+            setActiveTab('managers');
+        }
+
+        async function saveBooster() {
+            const booster = normalizeBooster({
+                id: state.editing.boosterId || uuid(),
+                name: document.getElementById('boosterName').value.trim(),
+                category: document.getElementById('boosterCategory').value.trim(),
+                level: Number(document.getElementById('boosterLevel').value || 0),
+                effects: parseJson(document.getElementById('boosterEffects').value || '[]', [])
+            });
+            if (!booster.name) {
+                alert('Please enter a booster name.');
+                return;
+            }
+            const index = state.collections.boosters.findIndex(item => String(item.id) === String(booster.id));
+            if (index >= 0) state.collections.boosters[index] = booster;
+            else state.collections.boosters.unshift(booster);
+            await saveCollection('boosters', state.collections.boosters);
+            resetBoosterForm();
+            renderSection('boosters');
+            updateStats();
+        }
+
+        function editBooster(id) {
+            const booster = state.collections.boosters.find(item => String(item.id) === String(id));
+            if (!booster) return;
+            state.editing.boosterId = booster.id;
+            document.getElementById('boosterName').value = booster.name || '';
+            document.getElementById('boosterCategory').value = booster.category || '';
+            document.getElementById('boosterLevel').value = booster.level || '';
+            document.getElementById('boosterEffects').value = JSON.stringify(booster.effects || [], null, 2);
+            setActiveTab('boosters');
+        }
+
+        async function saveSetting() {
+            const key = document.getElementById('settingKey').value.trim();
+            const value = parseJson(document.getElementById('settingValue').value || '{}', {});
+            if (!key) {
+                alert('Please enter a setting key.');
+                return;
+            }
+            const index = state.collections.settings.findIndex(item => item.key === key);
+            const setting = { key, value };
+            if (index >= 0) state.collections.settings[index] = setting;
+            else state.collections.settings.unshift(setting);
+            await saveCollection('settings', state.collections.settings);
+            resetSettingForm();
+            renderSection('settings');
+        }
+
+        function removeSetting(key) {
+            state.collections.settings = state.collections.settings.filter(item => item.key !== key);
+            saveCollection('settings', state.collections.settings).then(() => renderSection('settings'));
+        }
+
+        async function deleteRecord(collection, id) {
+            state.collections[collection === 'blog_posts' ? 'blogs' : collection === 'predicted_players' ? 'predicted' : collection] =
+                state.collections[collection === 'blog_posts' ? 'blogs' : collection === 'predicted_players' ? 'predicted' : collection].filter(item => String(item.id) !== String(id));
+            await window.EFHubData.deleteRecord(collection, id);
+            updateStats();
+            renderSection(state.currentTab);
+        }
+
+        function renderBoostersSelects() {
+            const options = ['<option value="">No Booster</option>'].concat((window.EFHUB_CATALOGS?.boosters || []).map(booster => `<option value="${safeString(booster.label)}">${safeString(booster.label)}</option>`)).join('');
+            document.getElementById('playerBooster1').innerHTML = options;
+            document.getElementById('playerBooster2').innerHTML = options;
+        }
+
+        async function bootstrapAuth() {
+            const hasSupabase = !!window.EFHubData.getClient();
+            document.getElementById('authMessage').textContent = hasSupabase
+                ? 'Sign in with Google to access the admin dashboard.'
+                : 'Supabase is not configured yet. Demo mode is available locally.';
+
+            document.getElementById('googleLoginBtn').onclick = async () => {
+                if (!hasSupabase) {
+                    alert('Add your Supabase URL and anon key in `supabase_config.js` first.');
+                    return;
+                }
+                try {
+                    await window.EFHubData.signInWithGoogle(window.location.href);
+                } catch (error) {
+                    alert(error.message || 'Sign-in failed.');
+                }
+            };
+
+            document.getElementById('demoLoginBtn').onclick = async () => {
+                state.demoMode = true;
+                document.getElementById('authOverlay').classList.add('hidden');
+                document.getElementById('appShell').classList.remove('hidden');
+                await initializeDashboard();
+            };
+
+            if (hasSupabase) {
+                const session = await window.EFHubData.getSession();
+                if (session) {
+                    const admin = await window.EFHubData.isAdmin();
+                    if (!admin) {
+                        document.getElementById('authMessage').textContent = 'Your account is signed in, but it is not marked as admin.';
+                        return;
+                    }
+                    state.authenticated = true;
+                    document.getElementById('authOverlay').classList.add('hidden');
+                    document.getElementById('appShell').classList.remove('hidden');
+                    await initializeDashboard();
+                }
+            }
+        }
+
+        async function initializeDashboard() {
+            buildStatInputs();
+            renderBoostersSelects();
+            await loadInitialData();
+            updateStats();
+            renderDashboard();
+            setActiveTab('dashboard');
+            renderSection('players');
+            renderSection('blogs');
+            renderSection('predicted');
+            renderSection('managers');
+            renderSection('boosters');
+            renderSection('settings');
+            resetPlayerForm();
+            resetBlogForm();
+            resetPredictedForm();
+            resetManagerForm();
+            resetBoosterForm();
+            resetSettingForm();
+            updatePlayerPreview();
+        }
+
+        async function logout() {
+            if (window.EFHubData.getClient()) {
+                await window.EFHubData.signOut();
+            }
+            document.getElementById('appShell').classList.add('hidden');
+            document.getElementById('authOverlay').classList.remove('hidden');
+        }
+
+        function initBindings() {
+            document.querySelectorAll('.sidebar-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.dataset.tab;
+                    setActiveTab(tab);
+                    renderSection(tab);
+                });
+            });
+
+            ['playerName', 'playerTeam', 'playerPosition', 'playerRating', 'playerPlaystyle', 'playerImage'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updatePlayerPreview);
+            });
+        }
 
         window.addEventListener('storage', event => {
-            if (event.key === STORAGE_KEY && authenticated) {
-                loadPlayers();
+            if (event.key === STORAGE_KEY) {
+                loadInitialData().then(() => {
+                    updateStats();
+                    renderDashboard();
+                    renderSection(state.currentTab);
+                });
             }
+        });
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            initBindings();
+            await bootstrapAuth();
         });
     </script>
 </body>

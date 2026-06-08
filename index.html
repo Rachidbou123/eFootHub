@@ -46,6 +46,9 @@
     
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="supabase_config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-data.js"></script>
 
     
 
@@ -330,6 +333,62 @@
 
         <!-- This container will now hold the dynamic sections -->
 
+        <section class="mb-8 grid gap-4 lg:grid-cols-3">
+            <article class="panel rounded-[1.75rem] p-5">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Featured Player</div>
+                        <h3 class="brand-font text-3xl uppercase text-white leading-none">Top Rated</h3>
+                    </div>
+                    <span class="muted-chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Hot</span>
+                </div>
+                <div id="featuredPlayerSpotlight" class="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">Loading...</div>
+            </article>
+            <article class="panel rounded-[1.75rem] p-5">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Latest Blog Posts</div>
+                        <h3 class="brand-font text-3xl uppercase text-white leading-none">Fresh Reads</h3>
+                    </div>
+                    <span class="muted-chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Blog</span>
+                </div>
+                <div id="latestBlogsSpotlight" class="space-y-3 text-sm text-slate-300">Loading...</div>
+            </article>
+            <article class="panel rounded-[1.75rem] p-5">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Recently Added</div>
+                        <h3 class="brand-font text-3xl uppercase text-white leading-none">New Players</h3>
+                    </div>
+                    <span class="muted-chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">New</span>
+                </div>
+                <div id="recentPlayersSpotlight" class="space-y-3 text-sm text-slate-300">Loading...</div>
+            </article>
+        </section>
+
+        <section class="mb-8 grid gap-4 lg:grid-cols-2">
+            <article class="panel rounded-[1.75rem] p-5">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Predicted Players</div>
+                        <h3 class="brand-font text-3xl uppercase text-white leading-none">Forecast Cards</h3>
+                    </div>
+                    <span class="muted-chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Future</span>
+                </div>
+                <div id="predictedPlayersSpotlight" class="space-y-3 text-sm text-slate-300">Loading...</div>
+            </article>
+            <article class="panel rounded-[1.75rem] p-5">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Trending Players</div>
+                        <h3 class="brand-font text-3xl uppercase text-white leading-none">Top Rated</h3>
+                    </div>
+                    <span class="muted-chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Hot</span>
+                </div>
+                <div id="trendingPlayersSpotlight" class="space-y-3 text-sm text-slate-300">Loading...</div>
+            </article>
+        </section>
+
         <div id="contentArea"></div>
 
         <!-- Pagination Controls -->
@@ -498,6 +557,8 @@
             if (type === 7) return 'Epic Booster';
             if (type === 8) return 'ShowTime';
             if (type === 5) return 'Big Time';
+            if (player.version_group) return player.version_group;
+            if (player.card_type) return player.card_type;
             return player.version || 'Highlight';
         }
 
@@ -535,40 +596,163 @@
             if (totalTypeEl) totalTypeEl.textContent = totalTypes.toString();
         }
 
+        function loadLocalBlogsFallback() {
+            const saved = localStorage.getItem('efh_blog_posts_v1');
+            if (!saved) {
+                return [
+                    { id: 'fallback-1', title: 'eFootball 2026 Player Stats', category: 'Player Stats', excerpt: 'Read the latest breakdown of ratings and play styles.', status: 'published', published_at: new Date().toISOString() },
+                    { id: 'fallback-2', title: 'eFootball 2026 Player Skills', category: 'Player Skills', excerpt: 'See which skills matter most for each role.', status: 'published', published_at: new Date().toISOString() },
+                    { id: 'fallback-3', title: 'eFootball 2026 Buttons & Controls', category: 'Buttons & Controls', excerpt: 'Clean controls guide for console and mobile players.', status: 'published', published_at: new Date().toISOString() }
+                ];
+            }
+
+            try {
+                const parsed = JSON.parse(saved);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch {
+                return [];
+            }
+        }
+
+        async function loadHomepageHighlights() {
+            const featuredPlayerEl = document.getElementById('featuredPlayerSpotlight');
+            const latestBlogsEl = document.getElementById('latestBlogsSpotlight');
+            const recentPlayersEl = document.getElementById('recentPlayersSpotlight');
+            const predictedPlayersEl = document.getElementById('predictedPlayersSpotlight');
+            const trendingPlayersEl = document.getElementById('trendingPlayersSpotlight');
+
+            const featuredPlayer = [...PLAYERS].sort((a, b) => b.ratingValue - a.ratingValue)[0];
+            if (featuredPlayerEl) {
+                featuredPlayerEl.innerHTML = featuredPlayer ? `
+                    <a href="player.html?id=${featuredPlayer.id}" class="block group">
+                        <div class="flex items-start gap-4">
+                            <img src="${featuredPlayer.image}" alt="${featuredPlayer.name}" loading="lazy" class="h-20 w-16 rounded-xl object-cover border border-white/10 bg-black/30">
+                            <div class="min-w-0">
+                                <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">${featuredPlayer.version}</div>
+                                <h4 class="mt-1 truncate text-2xl font-bold text-white">${featuredPlayer.name}</h4>
+                                <p class="truncate text-xs uppercase tracking-[0.2em] text-slate-500">${featuredPlayer.team}</p>
+                                <p class="mt-2 text-sm text-slate-300">${featuredPlayer.position} • OVR ${featuredPlayer.rating}</p>
+                            </div>
+                        </div>
+                    </a>
+                ` : '<div class="text-slate-500">No featured player found.</div>';
+            }
+
+            const recentPlayers = [...PLAYERS_RAW].sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 5);
+            if (recentPlayersEl) {
+                recentPlayersEl.innerHTML = recentPlayers.length ? recentPlayers.map(player => `
+                    <a href="player.html?id=${player.id}" class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 transition hover:border-blue-500/40 hover:bg-white/[0.05]">
+                        <img src="${player.imageUrl || player.image || ''}" alt="${player.name}" loading="lazy" class="h-12 w-12 rounded-xl object-cover bg-black/30 border border-white/10">
+                        <div class="min-w-0">
+                            <div class="truncate font-bold text-white">${player.name}</div>
+                            <div class="truncate text-[10px] uppercase tracking-[0.2em] text-slate-500">${player.position || 'Unknown'} • OVR ${player.overallRating || player.rating || '0'}</div>
+                        </div>
+                    </a>
+                `).join('') : '<div class="text-slate-500">No recent players yet.</div>';
+            }
+
+            let predictedPlayers = [];
+            if (window.EFHubData && typeof window.EFHubData.loadCollection === 'function') {
+                predictedPlayers = await window.EFHubData.loadCollection('predicted_players', {
+                    filter: { column: 'status', value: 'published' },
+                    order: { column: 'created_at', ascending: false }
+                });
+            }
+            if (!predictedPlayers.length) {
+                predictedPlayers = [
+                    { name: 'Future Star', team: 'Unknown', position: 'AMF', predicted_rating: 103, confidence: 78, expected_release_date: '2026-12-01' }
+                ];
+            }
+            if (predictedPlayersEl) {
+                predictedPlayersEl.innerHTML = predictedPlayers.slice(0, 3).map(player => `
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="truncate font-bold text-white">${player.name}</div>
+                                <div class="truncate text-[10px] uppercase tracking-[0.2em] text-slate-500">${player.position || 'Unknown'} • ${player.team || 'Team'}</div>
+                            </div>
+                            <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">${player.predicted_rating || 0} OVR</span>
+                        </div>
+                        <div class="mt-2 text-xs text-slate-400">Confidence ${player.confidence || 0}% • Release ${player.expected_release_date || 'TBD'}</div>
+                    </div>
+                `).join('');
+            }
+
+            const trendingPlayers = [...PLAYERS].sort((a, b) => b.ratingValue - a.ratingValue).slice(0, 5);
+            if (trendingPlayersEl) {
+                trendingPlayersEl.innerHTML = trendingPlayers.map(player => `
+                    <a href="player.html?id=${player.id}" class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3 transition hover:border-blue-500/40 hover:bg-white/[0.05]">
+                        <img src="${player.image}" alt="${player.name}" loading="lazy" class="h-12 w-12 rounded-xl object-cover bg-black/30 border border-white/10">
+                        <div class="min-w-0">
+                            <div class="truncate font-bold text-white">${player.name}</div>
+                            <div class="truncate text-[10px] uppercase tracking-[0.2em] text-slate-500">${player.position} • OVR ${player.rating}</div>
+                        </div>
+                    </a>
+                `).join('');
+            }
+
+            let latestBlogs = [];
+            if (window.EFHubData && typeof window.EFHubData.loadCollection === 'function') {
+                latestBlogs = await window.EFHubData.loadCollection('blog_posts', {
+                    order: { column: 'published_at', ascending: false }
+                });
+                latestBlogs = (Array.isArray(latestBlogs) ? latestBlogs : []).filter(post => (post.status || 'published') === 'published').slice(0, 3);
+            }
+            if (!latestBlogs.length) latestBlogs = loadLocalBlogsFallback().slice(0, 3);
+            if (latestBlogsEl) {
+                latestBlogsEl.innerHTML = latestBlogs.length ? latestBlogs.map(post => `
+                    <a href="blog.html" class="block rounded-2xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-blue-500/40 hover:bg-white/[0.05]">
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">${post.category || 'News'}</div>
+                        <div class="mt-1 font-bold text-white">${post.title}</div>
+                        <p class="mt-1 text-xs leading-relaxed text-slate-400">${post.excerpt || ''}</p>
+                    </a>
+                `).join('') : '<div class="text-slate-500">No blog posts yet.</div>';
+            }
+        }
+
         // Load players from players.json
         async function loadPlayersFromJSON() {
             try {
-                const response = await fetch('players.json');
-                const basePlayers = await response.json();
-                const savedPlayers = localStorage.getItem(STORAGE_KEY);
-                if (savedPlayers) {
-                    const savedById = new Map(JSON.parse(savedPlayers).map(player => [player.id, player]));
-                    PLAYERS_RAW = basePlayers.map(player => savedById.get(player.id) || player);
-                    savedById.forEach((player, id) => {
-                        if (!basePlayers.some(basePlayer => basePlayer.id === id)) {
-                            PLAYERS_RAW.push(player);
-                        }
+                let basePlayers = [];
+                if (window.EFHubData && typeof window.EFHubData.loadCollection === 'function') {
+                    const livePlayers = await window.EFHubData.loadCollection('players', {
+                        order: { column: 'created_at', ascending: false }
                     });
-                } else {
-                    PLAYERS_RAW = basePlayers;
+                    if (Array.isArray(livePlayers) && livePlayers.length) {
+                        basePlayers = livePlayers;
+                    }
                 }
+                if (!basePlayers.length) {
+                    const response = await fetch('players.json');
+                    basePlayers = await response.json();
+                }
+                PLAYERS_RAW = basePlayers;
                 // Transform to display format
-                PLAYERS = PLAYERS_RAW.map(p => ({
-                    id: p.id,
-                    sortId: Number(p.id) || 0,
-                    name: p.name,
-                    version: getPlayerVersion(p),
-                    position: p.position,
-                    rating: p.overallRating.toString(),
-                    ratingValue: Number(p.overallRating) || 0,
-                    image: p.imageUrl,
-                    playstyle: p.playingStyle,
-                    team: p.team || 'International',
-                    build: p.build || {},
-                    searchKey: `${p.name} ${p.position} ${getPlayerVersion(p)} ${p.team || ''} ${p.playingStyle || ''}`.toLowerCase()
-                }));
+                PLAYERS = PLAYERS_RAW.map(p => {
+                    const ratingValue = Number(p.overallRating ?? p.overall_rating ?? p.rating ?? 0) || 0;
+                    const image = p.imageUrl || p.image_url || p.image || '';
+                    const playstyle = p.playingStyle || p.playstyle || '';
+                    const team = p.team || 'International';
+                    const version = getPlayerVersion(p);
+                    const build = p.build || p.stats || {};
+                    return {
+                        id: p.id,
+                        sortId: Number(p.id) || 0,
+                        name: p.name,
+                        version,
+                        position: p.position,
+                        rating: ratingValue.toString(),
+                        ratingValue,
+                        image,
+                        playstyle,
+                        team,
+                        build,
+                        searchKey: `${p.name} ${p.position} ${version} ${team || ''} ${playstyle || ''}`.toLowerCase()
+                    };
+                });
                 renderFilters();
                 updateHeroStats();
+                loadHomepageHighlights();
                 renderPlayers();
             } catch (e) {
                 console.error('Error loading players.json:', e);

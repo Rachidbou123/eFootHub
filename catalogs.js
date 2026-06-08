@@ -1,0 +1,136 @@
+(function () {
+    const BOOSTER_DEFINITIONS = [
+        { name: 'Accuracy', category: 'Accuracy', levels: [2, 3, 4], effects: ['Low Pass', 'Lofted Pass', 'Finishing', 'Kicking Power'] },
+        { name: 'Passing', category: 'Passing', levels: [2, 3], effects: ['Low Pass', 'Lofted Pass', 'Curl', 'Kicking Power'] },
+        { name: 'Shooting', category: 'Shooting', levels: [2, 3, 5], effects: ['Ball Control', 'Finishing', 'Kicking Power', 'Physical'] },
+        { name: 'Ball Control', category: 'Ball Control', levels: [2, 3, 4, 5], effects: ['Ball Control', 'Dribbling', 'Tight Possession', 'Low Pass'] },
+        { name: 'Agility', category: 'Agility', levels: [2, 3], effects: ['Speed', 'Acceleration', 'Balance', 'Stamina'] },
+        { name: 'Speed', category: 'Speed', levels: [2, 3], effects: ['Speed', 'Acceleration', 'Balance', 'Stamina'] },
+        { name: 'Power', category: 'Power', levels: [2, 3, 4], effects: ['Kicking Power', 'Physical', 'Jump', 'Balance'] },
+        { name: 'Physical', category: 'Physical', levels: [2, 3, 4], effects: ['Jump', 'Physical', 'Balance', 'Stamina'] },
+        { name: 'Aerial', category: 'Aerial', levels: [2, 3], effects: ['Finishing', 'Heading', 'Jump', 'Physical'] },
+        { name: 'Aerial Block', category: 'Aerial Block', levels: [2, 3], effects: ['Heading', 'Jump', 'Physical', 'Defensive Awareness'] },
+        { name: 'Defending', category: 'Defending', levels: [2, 3], effects: ['Acceleration', 'Jump', 'Defensive Awareness', 'Tackling'] },
+        { name: 'Duelling', category: 'Duelling', levels: [2, 3], effects: ['Speed', 'Stamina', 'Defensive Awareness', 'Tackling'] },
+        { name: 'Tactical', category: 'Tactical', levels: [2, 3], effects: ['Low Pass', 'Defensive Awareness', 'Defensive Engagement', 'Aggression'] },
+        { name: 'Technique', category: 'Technique', levels: [2, 3, 4, 5], effects: ['Ball Control', 'Dribbling', 'Tight Possession', 'Low Pass'] },
+        { name: 'Goalkeeping', category: 'Goalkeeping', levels: [2, 3], effects: ['Goalkeeping', 'GK Catching', 'GK Parrying', 'GK Reflexes'] },
+        { name: 'Saving', category: 'Saving', levels: [2, 3], effects: ['Goalkeeping', 'GK Parrying', 'GK Reflexes', 'GK Reach'] },
+        { name: 'Breaker', category: 'Special', levels: [2, 3, 4], effects: ['Dribbling', 'Speed', 'Kicking Power', 'Physical'], label: 'Breakthrough' },
+        { name: 'Counter', category: 'Special', levels: [2, 3], effects: ['Low Pass', 'Physical', 'Tackling', 'Defensive Engagement'] },
+        { name: 'Crossing', category: 'Special', levels: [2, 3, 4], effects: ['Lofted Pass', 'Curl', 'Speed', 'Stamina'] },
+        { name: 'Free-kick Taking', category: 'Special', levels: [2, 3], effects: ['Finishing', 'Place Kicking', 'Curl', 'Kicking Power'] },
+        { name: 'Hard Worker', category: 'Special', levels: [2, 3], effects: ['Acceleration', 'Physical', 'Stamina', 'Aggression'] },
+        { name: 'Off the ball', category: 'Special', levels: [2, 3], effects: ['Offensive Awareness', 'Speed', 'Acceleration', 'Stamina'] },
+        { name: 'Offence creator', category: 'Special', levels: [2, 3], effects: ['Offensive Awareness', 'Ball Control', 'Low Pass', 'Kicking Power'] },
+        { name: 'Rebuilding', category: 'Special', levels: [2, 3], effects: ['Low Pass', 'Defensive Awareness', 'Defensive Engagement', 'Aggression'] },
+        { name: 'Regista', category: 'Special', levels: [2, 3], effects: ['Tight Possession', 'Low Pass', 'Defensive Awareness', 'Tackling'] },
+        { name: 'Shutdown', category: 'Special', levels: [2, 3], effects: ['Speed', 'Defensive Awareness', 'Tackling', 'Defensive Engagement'] },
+        { name: 'Stealing', category: 'Special', levels: [2, 3, 4], effects: ['Acceleration', 'Physical', 'Tackling', 'Aggression'] },
+        { name: 'Strength', category: 'Special', levels: [2, 3, 4], effects: ['Speed', 'Kicking Power', 'Jump', 'Physical'] },
+        { name: "Striker's Instinct", category: 'Special', levels: [2, 3, 4], effects: ['Offensive Awareness', 'Ball Control', 'Finishing', 'Acceleration'] },
+        { name: 'Striking', category: 'Special', levels: [4], effects: ['Offensive Awareness', 'Acceleration', 'Kicking Power', 'Physical'] },
+        { name: 'The Undisputed', category: 'Special', levels: [3], effects: ['Offensive Awareness', 'Ball Control', 'Dribbling', 'Physical'] },
+        { name: 'Bearer of Fate', category: 'Special', levels: [4], effects: ['Finishing', 'Heading', 'Speed', 'Acceleration'] },
+        { name: 'Blue Lock Agility', category: 'Blue Lock', levels: [3], effects: ['Speed', 'Acceleration', 'Balance', 'Stamina'] },
+        { name: 'Blue Lock Ball-carrying', category: 'Blue Lock', levels: [3], effects: ['Dribbling', 'Tight Possession', 'Speed', 'Balance'] },
+        { name: 'Blue Lock Fantasista', category: 'Blue Lock', levels: [3], effects: ['Ball Control', 'Dribbling', 'Finishing', 'Balance'] },
+        { name: 'Blue Lock Hard Worker', category: 'Blue Lock', levels: [3], effects: ['Acceleration', 'Physical', 'Stamina', 'Aggression'] },
+        { name: 'Blue Lock Passing', category: 'Blue Lock', levels: [3], effects: ['Low Pass', 'Lofted Pass', 'Curl', 'Kicking Power'] },
+        { name: 'Blue Lock Physicality', category: 'Blue Lock', levels: [3], effects: ['Finishing', 'Heading', 'Jump', 'Physical'] },
+        { name: 'Blue Lock Shooting', category: 'Blue Lock', levels: [3], effects: ['Ball Control', 'Finishing', 'Kicking Power', 'Physical'] },
+        { name: "Blue Lock Striker's Instinct", category: 'Blue Lock', levels: [3], effects: ['Offensive Awareness', 'Ball Control', 'Finishing', 'Acceleration'] },
+        { name: 'Blue Lock Technique', category: 'Blue Lock', levels: [3], effects: ['Ball Control', 'Dribbling', 'Tight Possession', 'Low Pass'] },
+        { name: 'King of Football', category: 'Special', levels: [4], effects: ['Dribbling', 'Tight Possession', 'Physical', 'Balance'] },
+        { name: 'Le Petit Prince', category: 'Special', levels: [3], effects: ['Offensive Awareness', 'Low Pass', 'Finishing', 'Kicking Power'] },
+        { name: 'Magical', category: 'Special', levels: [4], effects: ['Offensive Awareness', 'Dribbling', 'Tight Possession', 'Acceleration'] },
+        { name: 'Natural Born', category: 'Special', levels: [4], effects: ['Offensive Awareness', 'Ball Control', 'Dribbling', 'Finishing'] },
+        { name: 'Son of God', category: 'Special', levels: [4], effects: ['Dribbling', 'Low Pass', 'Finishing', 'Kicking Power'] },
+        { name: 'Total Package', category: 'Special', levels: [1, 2, 3], effects: ['Offensive Awareness', 'Ball Control', 'Dribbling', 'Tight Possession', 'Low Pass', 'Lofted Pass', 'Finishing', 'Heading', 'Place Kicking', 'Curl', 'Speed', 'Acceleration', 'Kicking Power', 'Jump', 'Physical', 'Balance', 'Stamina', 'Defensive Awareness', 'Tackling', 'Defensive Engagement', 'Aggression', 'Goalkeeping', 'GK Catching', 'GK Parrying', 'GK Reflexes', 'GK Reach'] },
+        { name: 'No Booster', category: 'None', levels: [0], effects: [] }
+    ];
+
+    const MANAGER_CATALOG = [
+        { name: 'R. Martinez', rating: 90 },
+        { name: 'Thomas Tuchel', rating: 90, variant: 'A' },
+        { name: 'Thomas Tuchel', rating: 90, variant: 'B' },
+        { name: 'Cesc Fabregas', rating: 89 },
+        { name: 'Cristian Chivu', rating: 89 },
+        { name: 'D. Deschamps', rating: 89 },
+        { name: 'Frank Rijkaard', rating: 89, variant: 'A' },
+        { name: 'Frank Rijkaard', rating: 89, variant: 'B' },
+        { name: 'Fabio Capello', rating: 89 },
+        { name: 'Gennaro Gattuso', rating: 89 },
+        { name: 'Guardiola', rating: 89 },
+        { name: 'Hansi Flick', rating: 89 },
+        { name: 'Johan Cruyff', rating: 89, variant: 'A' },
+        { name: 'Johan Cruyff', rating: 89, variant: 'B' },
+        { name: 'Jose Mourinho', rating: 89 },
+        { name: 'Jurgen Klopp', rating: 89 },
+        { name: 'L. Spalletti', rating: 89 },
+        { name: 'M. Allegri', rating: 89 },
+        { name: 'Mikel Arteta', rating: 89 },
+        { name: 'Niko Kovac', rating: 89 },
+        { name: 'Okan Buruk', rating: 89 },
+        { name: 'P. Kluivert', rating: 89 },
+        { name: 'Ronald Koeman', rating: 89 },
+        { name: 'Ruben Amorim', rating: 89 },
+        { name: 'Rudi Garcia', rating: 89 },
+        { name: 'Stale Solbakken', rating: 89 },
+        { name: 'Xabi Alonso', rating: 89, variant: 'A' },
+        { name: 'Xabi Alonso', rating: 89, variant: 'B' },
+        { name: 'D. Stojkovic', rating: 88 },
+        { name: 'Frank Lampard', rating: 88, variant: 'A' },
+        { name: 'Frank Lampard', rating: 88, variant: 'B' },
+        { name: 'G. Southgate', rating: 88 },
+        { name: 'Guardiola', rating: 88 },
+        { name: 'Hansi Flick', rating: 88 },
+        { name: 'Jose Mourinho', rating: 88 },
+        { name: 'L. de la Fuente', rating: 88 },
+        { name: 'Patrick Vieira', rating: 88 },
+        { name: 'Paulo Fonseca', rating: 88 },
+        { name: 'R. Martinez', rating: 88, variant: 'A' },
+        { name: 'R. Martinez', rating: 88, variant: 'B' },
+        { name: 'Ruben Amorim', rating: 88 },
+        { name: 'Simone Inzaghi', rating: 88 },
+        { name: 'V. Montella', rating: 88 },
+        { name: 'Vincent Kompany', rating: 88 },
+        { name: 'Xabi Alonso', rating: 88, variant: 'A' },
+        { name: 'Xabi Alonso', rating: 88, variant: 'B' },
+        { name: 'L. Scaloni', rating: 87 },
+        { name: 'O. Henriques', rating: 87 },
+        { name: 'Erik ten Hag', rating: 85 },
+        { name: 'Mikel Arteta', rating: 85 },
+        { name: 'Simone Inzaghi', rating: 85 },
+        { name: 'Stefano Pioli', rating: 85 },
+        { name: 'Thomas Tuchel', rating: 85 },
+        { name: 'Xavi', rating: 85 },
+        { name: 'Zico', rating: 83 },
+        { name: 'No Manager', rating: 70 }
+    ];
+
+    function expandBoosters() {
+        const items = [];
+        BOOSTER_DEFINITIONS.forEach(definition => {
+            definition.levels.forEach(level => {
+                const label = definition.name === 'No Booster' ? 'No Booster' : `${definition.name} +${level}`;
+                items.push({
+                    id: `${definition.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${level}`,
+                    name: definition.name,
+                    label,
+                    category: definition.category,
+                    level,
+                    effects: definition.effects.map(stat => ({ stat, value: level })),
+                    searchText: `${definition.name} ${definition.category} ${level} ${definition.effects.join(' ')}`.toLowerCase()
+                });
+            });
+        });
+        return items;
+    }
+
+    window.EFHUB_CATALOGS = {
+        boostered: expandBoosters(),
+        boosters: expandBoosters(),
+        managers: MANAGER_CATALOG
+    };
+})();

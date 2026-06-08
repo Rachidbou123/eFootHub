@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog | eFootball Training Hub</title>
-    <meta name="description" content="Read and create eFootball guides, player stats, skills, downloads, and controls articles.">
+    <meta name="description" content="Read eFootball guides, player stats, skills, downloads, and controls articles.">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="eFootball Blog | eFootball Training Hub">
+    <meta property="og:description" content="Read the latest eFootball guides, player stats, skills, and controls posts.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="supabase_config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-data.js"></script>
     <style>
         html { scroll-behavior: smooth; }
         body {
@@ -52,9 +60,6 @@
             border-color: rgba(59, 130, 246, 0.8);
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
         .btn-soft {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -88,14 +93,12 @@
         <section class="panel mb-6 rounded-[2rem] p-6 sm:p-8">
             <div class="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
                 <div>
-                    <span class="chip inline-flex rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">Fast blog editor / clean reading</span>
+                    <span class="chip inline-flex rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-300">Read-only / fast / SEO-friendly</span>
                     <h1 class="mt-4 text-5xl uppercase leading-none text-white sm:text-6xl">eFootball Blog</h1>
-                    <p class="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300">Add guides, player updates, stats breakdowns, skills, downloads, and button/control posts without slowing the site down.</p>
+                    <p class="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300">Guides, player stats, skills, controls, and downloads — now clean and public for visitors.</p>
                     <div class="mt-5 flex flex-wrap gap-3">
-                        <span class="chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">eFootball 2025 Download</span>
-                        <span class="chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Player Stats</span>
-                        <span class="chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Skills</span>
-                        <span class="chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Buttons & Controls</span>
+                        <a href="#latest" class="chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Latest Posts</a>
+                        <a href="#categories" class="chip rounded-full px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Categories</a>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -108,217 +111,110 @@
                         <div id="categoryCount" class="mt-2 brand-font text-4xl text-white">0</div>
                     </div>
                     <div class="card-bg rounded-[1.5rem] p-4 col-span-2">
-                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Saved in</div>
-                        <div class="mt-2 text-sm font-bold text-white">Browser storage + export ready</div>
+                        <div class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Content source</div>
+                        <div class="mt-2 text-sm font-bold text-white">Supabase published posts + local fallback</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-            <div class="panel rounded-[2rem] p-5 sm:p-6">
-                <div class="mb-5">
-                    <h2 class="brand-font text-3xl uppercase text-white leading-none">Add Blog Post</h2>
-                    <p class="text-xs uppercase tracking-[0.25em] text-slate-500">Fast draft editor for new posts.</p>
+        <section id="categories" class="panel rounded-[2rem] p-5 sm:p-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div class="space-y-1">
+                    <h2 class="brand-font text-3xl uppercase text-white leading-none">Browse Posts</h2>
+                    <p class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Search the archive and filter by category.</p>
                 </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Title</label>
-                        <input id="postTitle" class="field" placeholder="eFootball 2026 Player Stats">
-                    </div>
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Category</label>
-                            <select id="postCategory" class="field">
-                                <option>Download</option>
-                                <option>Player Stats</option>
-                                <option>Player Skills</option>
-                                <option>Buttons & Controls</option>
-                                <option>Player Guides</option>
-                                <option>News</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Cover Image URL</label>
-                            <input id="postImage" class="field" placeholder="https://...">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Excerpt</label>
-                        <textarea id="postExcerpt" rows="4" class="field" placeholder="Short summary for the card..."></textarea>
-                    </div>
-                    <div>
-                        <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Content</label>
-                        <textarea id="postContent" rows="10" class="field" placeholder="Write your full blog post here..."></textarea>
-                    </div>
-                    <div class="flex flex-wrap gap-3">
-                        <button onclick="savePost()" class="btn-primary rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Save Post</button>
-                        <button onclick="clearEditor()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Clear</button>
-                        <button onclick="exportPosts()" class="btn-soft rounded-2xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Export JSON</button>
-                    </div>
-                    <div id="blogStatus" class="text-xs uppercase tracking-[0.25em] text-slate-500">Ready</div>
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <input id="searchInput" class="field" placeholder="Search posts..." oninput="scheduleRender()">
+                    <select id="categoryFilter" class="field" onchange="scheduleRender()">
+                        <option value="All">All</option>
+                        <option value="Download">Download</option>
+                        <option value="Player Stats">Player Stats</option>
+                        <option value="Player Skills">Player Skills</option>
+                        <option value="Buttons & Controls">Buttons & Controls</option>
+                        <option value="Player Guides">Player Guides</option>
+                        <option value="News">News</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="panel rounded-[2rem] p-5 sm:p-6">
-                <div class="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div class="flex-1">
-                        <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Search</label>
-                        <input id="searchInput" class="field" placeholder="Search blogs..." oninput="scheduleRender()">
-                    </div>
-                    <div class="sm:w-56">
-                        <label class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Filter</label>
-                        <select id="categoryFilter" class="field" onchange="scheduleRender()">
-                            <option value="All">All</option>
-                            <option value="Download">Download</option>
-                            <option value="Player Stats">Player Stats</option>
-                            <option value="Player Skills">Player Skills</option>
-                            <option value="Buttons & Controls">Buttons & Controls</option>
-                            <option value="Player Guides">Player Guides</option>
-                            <option value="News">News</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-4 flex items-center justify-between gap-3">
-                    <button onclick="changePage(-1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Previous</button>
-                    <div id="pageLabel" class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">Page 1</div>
-                    <button onclick="changePage(1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Load More</button>
-                </div>
-
-                <div id="blogList" class="grid gap-4"></div>
+            <div class="mt-5 flex items-center justify-between gap-3">
+                <button onclick="changePage(-1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Previous</button>
+                <div id="pageLabel" class="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">Page 1</div>
+                <button onclick="changePage(1)" class="btn-soft rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Load More</button>
             </div>
+
+            <div id="latest" class="mt-5 grid gap-4"></div>
         </section>
     </main>
 
     <script>
-        const STORAGE_KEY = 'efh_blog_posts_v1';
         const PAGE_SIZE = 6;
         let posts = [];
         let currentPage = 1;
         let renderTimer = null;
 
-        const seedPosts = [
+        const fallbackPosts = [
             {
-                id: 'seed-1',
+                id: 'guide-1',
                 title: 'eFootball 2025 Download Guide',
                 category: 'Download',
-                excerpt: 'A quick guide for players who want the latest install and setup steps.',
-                content: 'Use this space for your complete download guide. You can add links, device steps, and setup notes for your audience.',
-                imageUrl: '',
-                createdAt: '2026-06-01T12:00:00.000Z'
+                excerpt: 'How to install, update, and start playing smoothly.',
+                content: 'Use this post to explain download steps, supported devices, and setup tips.',
+                image_url: '',
+                status: 'published',
+                published_at: '2026-06-01T12:00:00.000Z'
             },
             {
-                id: 'seed-2',
-                title: 'eFootball 2026 Player Stats Explained',
+                id: 'guide-2',
+                title: 'eFootball 2026 Player Stats',
                 category: 'Player Stats',
-                excerpt: 'Show how to read ratings, positions, and build strengths.',
-                content: 'Explain player stats, OVR, card type, and what each number means for gameplay.',
-                imageUrl: '',
-                createdAt: '2026-06-02T12:00:00.000Z'
+                excerpt: 'A quick breakdown of ratings, roles, and build ideas.',
+                content: 'Add your in-depth player stats guide here.',
+                image_url: '',
+                status: 'published',
+                published_at: '2026-06-02T12:00:00.000Z'
             },
             {
-                id: 'seed-3',
-                title: 'eFootball 2026 Player Skills Guide',
+                id: 'guide-3',
+                title: 'eFootball 2026 Player Skills',
                 category: 'Player Skills',
-                excerpt: 'Break down special skills and which roles benefit most from them.',
-                content: 'Add your full guide for player skills here. Include examples, recommendations, and best use cases.',
-                imageUrl: '',
-                createdAt: '2026-06-03T12:00:00.000Z'
+                excerpt: 'Learn which skills matter most for each position.',
+                content: 'Explain the best player skills for your readers.',
+                image_url: '',
+                status: 'published',
+                published_at: '2026-06-03T12:00:00.000Z'
             },
             {
-                id: 'seed-4',
+                id: 'guide-4',
                 title: 'eFootball 2026 Buttons & Controls',
                 category: 'Buttons & Controls',
-                excerpt: 'A clean post for controller settings, button layouts, and mobile tips.',
-                content: 'Write your controls guide here. You can add buttons, layout images, and custom settings advice.',
-                imageUrl: '',
-                createdAt: '2026-06-04T12:00:00.000Z'
+                excerpt: 'Controller layouts, mobile settings, and gameplay tips.',
+                content: 'Explain the controls for console and mobile players.',
+                image_url: '',
+                status: 'published',
+                published_at: '2026-06-04T12:00:00.000Z'
             }
         ];
-
-        function safeLoadPosts() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                const parsed = saved ? JSON.parse(saved) : [];
-                return Array.isArray(parsed) ? parsed : [];
-            } catch {
-                localStorage.removeItem(STORAGE_KEY);
-                return [];
-            }
-        }
-
-        function savePosts() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
-            setStatus('Saved');
-        }
-
-        function setStatus(message) {
-            document.getElementById('blogStatus').textContent = message;
-        }
-
-        function clearEditor() {
-            ['postTitle', 'postCategory', 'postImage', 'postExcerpt', 'postContent'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = id === 'postCategory' ? 'Download' : '';
-            });
-            setStatus('Ready');
-        }
-
-        function savePost() {
-            const title = document.getElementById('postTitle').value.trim();
-            const category = document.getElementById('postCategory').value;
-            const excerpt = document.getElementById('postExcerpt').value.trim();
-            const content = document.getElementById('postContent').value.trim();
-            const imageUrl = document.getElementById('postImage').value.trim();
-
-            if (!title || !excerpt || !content) {
-                alert('Please fill the title, excerpt, and content.');
-                return;
-            }
-
-            const post = {
-                id: Date.now().toString(),
-                title,
-                category,
-                excerpt,
-                content,
-                imageUrl,
-                createdAt: new Date().toISOString()
-            };
-
-            posts.unshift(post);
-            savePosts();
-            clearEditor();
-            currentPage = 1;
-            renderPosts();
-            setStatus('Post added');
-        }
-
-        function exportPosts() {
-            const blob = new Blob([JSON.stringify(posts, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'blog-posts.json';
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            URL.revokeObjectURL(url);
-            setStatus('Exported JSON');
-        }
-
-        function loadPosts() {
-            const savedPosts = safeLoadPosts();
-            posts = [...savedPosts, ...seedPosts.filter(seed => !savedPosts.some(post => post.id === seed.id))];
-            renderPosts();
-        }
 
         function scheduleRender() {
             currentPage = 1;
             window.clearTimeout(renderTimer);
             renderTimer = window.setTimeout(renderPosts, 120);
+        }
+
+        function getFilteredPosts() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const category = document.getElementById('categoryFilter').value;
+
+            return posts
+                .filter(post => {
+                    const text = `${post.title || ''} ${post.category || ''} ${post.excerpt || ''} ${post.content || ''}`.toLowerCase();
+                    const matchesSearch = !query || text.includes(query);
+                    const matchesCategory = category === 'All' || post.category === category;
+                    return matchesSearch && matchesCategory;
+                })
+                .sort((a, b) => new Date(b.published_at || b.created_at || 0) - new Date(a.published_at || a.created_at || 0));
         }
 
         function changePage(direction) {
@@ -328,21 +224,6 @@
             currentPage = nextPage;
             renderPosts();
             window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function getFilteredPosts() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            const category = document.getElementById('categoryFilter').value;
-
-            const filtered = posts.filter(post => {
-                const text = `${post.title} ${post.category} ${post.excerpt} ${post.content}`.toLowerCase();
-                const matchesSearch = !query || text.includes(query);
-                const matchesCategory = category === 'All' || post.category === category;
-                return matchesSearch && matchesCategory;
-            });
-
-            filtered.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-            return filtered;
         }
 
         function renderPosts() {
@@ -355,9 +236,9 @@
             document.getElementById('categoryCount').textContent = new Set(posts.map(post => post.category)).size.toString();
             document.getElementById('pageLabel').textContent = `Page ${currentPage} of ${totalPages}`;
 
-            const list = document.getElementById('blogList');
+            const container = document.getElementById('latest');
             if (!pagePosts.length) {
-                list.innerHTML = `
+                container.innerHTML = `
                     <div class="rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.03] p-10 text-center text-slate-400">
                         No posts found.
                     </div>
@@ -365,30 +246,38 @@
                 return;
             }
 
-            list.innerHTML = pagePosts.map(post => `
+            container.innerHTML = pagePosts.map(post => `
                 <article class="card-bg overflow-hidden rounded-[1.5rem]">
-                    ${post.imageUrl ? `<img src="${post.imageUrl}" alt="${post.title}" class="h-48 w-full object-cover">` : ''}
-                    <div class="p-5">
+                    ${post.image_url ? `<img src="${post.image_url}" alt="${post.title}" loading="lazy" class="h-56 w-full object-cover">` : ''}
+                    <div class="p-5 sm:p-6">
                         <div class="mb-3 flex flex-wrap items-center gap-2">
-                            <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">${post.category}</span>
-                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">${new Date(post.createdAt).toLocaleDateString()}</span>
+                            <span class="chip rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-blue-300">${post.category || 'News'}</span>
+                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">${formatDate(post.published_at || post.created_at)}</span>
                         </div>
                         <h3 class="brand-font text-3xl leading-none text-white">${post.title}</h3>
-                        <p class="mt-3 text-sm leading-relaxed text-slate-300">${post.excerpt}</p>
+                        <p class="mt-3 text-sm leading-relaxed text-slate-300">${post.excerpt || ''}</p>
                         <details class="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                             <summary class="cursor-pointer text-[10px] font-black uppercase tracking-[0.25em] text-blue-300">Read more</summary>
-                            <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-300">${post.content}</p>
+                            <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-300">${post.content || ''}</p>
                         </details>
                     </div>
                 </article>
             `).join('');
         }
 
-        window.addEventListener('storage', event => {
-            if (event.key === STORAGE_KEY) {
-                loadPosts();
+        async function loadPosts() {
+            const clientReady = window.EFHubData && typeof window.EFHubData.loadCollection === 'function';
+            if (clientReady) {
+                const data = await window.EFHubData.loadCollection('blog_posts', {
+                    order: { column: 'published_at', ascending: false }
+                });
+                const published = Array.isArray(data) ? data.filter(post => (post.status || 'published') === 'published') : [];
+                posts = published.length ? published : fallbackPosts;
+            } else {
+                posts = fallbackPosts;
             }
-        });
+            renderPosts();
+        }
 
         loadPosts();
     </script>

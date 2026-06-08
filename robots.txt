@@ -1,0 +1,4 @@
+﻿User-agent: *
+Allow: /
+
+Sitemap: https://rachidbou123.github.io/eFootHub/sitemap.xml

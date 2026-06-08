@@ -1,0 +1,1095 @@
+Upgrade my project "eFootHub" into a professional eFootball platform.
+
+Core Requirements:
+
+1. Database & Backend
+
+- Replace all localStorage usage with Supabase.
+- Store players, blogs, managers, boosters, predicted players, and settings in Supabase.
+- All changes must be visible to every visitor instantly.
+- Create proper database tables and relationships.
+
+2. Authentication
+
+- Add Google Login (Sign in with Google using Supabase Auth).
+- Only authenticated admins can access the Admin page.
+- Non-admin users must be redirected away from Admin.
+- Add logout functionality.
+
+3. Blog System
+
+- Remove blog creation tools from blog.html.
+- Blog page becomes read-only for visitors.
+- Move blog creation, editing, deleting, and publishing to Admin.
+- Add blog image upload support.
+- Add draft and published states.
+- Add blog categories.
+- Show latest blog posts on homepage.
+
+4. Admin Dashboard Redesign
+
+- Create a modern admin dashboard.
+- Add sidebar navigation:
+  - Dashboard
+  - Players
+  - Blog Posts
+  - Predicted Players
+  - Managers
+  - Boosters
+  - Settings
+- Add search and filtering.
+- Add statistics cards:
+  - Total Players
+  - Total Blogs
+  - Total Managers
+  - Predicted Players
+- Make all forms cleaner and easier to use.
+
+5. Player Management Improvements
+
+- Add image preview before saving.
+- Add large player card preview.
+- Display:
+  - Player Image
+  - Name
+  - Team
+  - Position
+  - Overall Rating
+  - Playstyle
+  - Manager
+  - Booster Slots
+- Allow editing existing players easily.
+- Add duplicate player support because multiple versions of the same player can exist with different ratings and stats.
+
+6. Booster System
+
+- Add support for:
+  - 0 Boosters
+  - 1 Booster (Accuracy +2
+
+Low Pass +2
+Lofted Pass +2
+Finishing +2
+Kicking Power +2
+
+Accuracy +3
+
+Low Pass +3
+Lofted Pass +3
+Finishing +3
+Kicking Power +3
+
+Accuracy +4
+
+Low Pass +4
+Lofted Pass +4
+Finishing +4
+Kicking Power +4
+
+Aerial +2
+
+Finishing +2
+Heading +2
+Jump +2
+Physical +2
+
+Aerial +3
+
+Finishing +3
+Heading +3
+Jump +3
+Physical +3
+
+Aerial Block +2
+
+Heading +2
+Jump +2
+Physical +2
+Defensive Awareness +2
+
+Aerial Block +3
+
+Heading +3
+Jump +3
+Physical +3
+Defensive Awareness +3
+
+Agility +2
+
+Speed +2
+Acceleration +2
+Balance +2
+Stamina +2
+
+Agility +3
+
+Speed +3
+Acceleration +3
+Balance +3
+Stamina +3
+
+Balancer +2
+
+Offensive Awareness +2
+Acceleration +2
+Stamina +2
+Defensive Awareness +2
+
+Balancer +3
+
+Offensive Awareness +3
+Acceleration +3
+Stamina +3
+Defensive Awareness +3
+
+Ball Protection +2
+
+Ball Control +2
+Tight Possession +2
+Physical +2
+Balance +2
+
+Ball Protection +3
+
+Ball Control +3
+Tight Possession +3
+Physical +3
+Balance +3
+
+Ball-carrying +2
+
+Dribbling +2
+Tight Possession +2
+Speed +2
+Balance +2
+
+Ball-carrying +3
+
+Dribbling +3
+Tight Possession +3
+Speed +3
+Balance +3
+
+Ball-carrying +5
+
+Dribbling +5
+Tight Possession +5
+Speed +5
+Balance +5
+
+Bearer of Fate +4
+
+Finishing +4
+Heading +4
+Speed +4
+Acceleration +4
+
+BLUE LOCK Agility +3
+
+Speed +3
+Acceleration +3
+Balance +3
+Stamina +3
+
+BLUE LOCK Ball-carrying +3
+
+Dribbling +3
+Tight Possession +3
+Speed +3
+Balance +3
+
+BLUE LOCK Fantasista +3
+
+Ball Control +3
+Dribbling +3
+Finishing +3
+Balance +3
+
+BLUE LOCK Hard Worker +3
+
+Acceleration +3
+Physical +3
+Stamina +3
+Aggression +3
+
+BLUE LOCK Passing +3
+
+Low Pass +3
+Lofted Pass +3
+Curl +3
+Kicking Power +3
+
+BLUE LOCK Physicality +3
+
+Finishing +3
+Heading +3
+Jump +3
+Physical +3
+
+BLUE LOCK Physicality +3
+
+Jump +3
+Physical +3
+Balance +3
+Stamina +3
+
+BLUE LOCK Shooting +3
+
+Ball Control +3
+Finishing +3
+Kicking Power +3
+Physical +3
+
+BLUE LOCK Striker's Instinct +3
+
+Offensive Awareness +3
+Ball Control +3
+Finishing +3
+Acceleration +3
+
+BLUE LOCK Technique +3
+
+Ball Control +3
+Dribbling +3
+Tight Possession +3
+Low Pass +3
+
+Breakthrough +2
+
+Dribbling +2
+Speed +2
+Kicking Power +2
+Physical +2
+
+Breakthrough +3
+
+Dribbling +3
+Speed +3
+Kicking Power +3
+Physical +3
+
+Breakthrough +4
+
+Dribbling +4
+Speed +4
+Kicking Power +4
+Physical +4
+
+Counter +2
+
+Low Pass +2
+Physical +2
+Tackling +2
+Defensive Engagement +2
+
+Counter +3
+
+Low Pass +3
+Physical +3
+Tackling +3
+Defensive Engagement +3
+
+Crossing +2
+
+Lofted Pass +2
+Curl +2
+Speed +2
+Stamina +2
+
+Crossing +3
+
+Lofted Pass +3
+Curl +3
+Speed +3
+Stamina +3
+
+Crossing +4
+
+Lofted Pass +4
+Curl +4
+Speed +4
+Stamina +4
+
+Defending +2
+
+Acceleration +2
+Jump +2
+Defensive Awareness +2
+Tackling +2
+
+Defending +3
+
+Acceleration +3
+Jump +3
+Defensive Awareness +3
+Tackling +3
+
+Duelling +2
+
+Speed +2
+Stamina +2
+Defensive Awareness +2
+Tackling +2
+
+Duelling +3
+
+Speed +3
+Stamina +3
+Defensive Awareness +3
+Tackling +3
+
+Fantasista +2
+
+Ball Control +2
+Dribbling +2
+Finishing +2
+Balance +2
+
+Fantasista +3
+
+Ball Control +3
+Dribbling +3
+Finishing +3
+Balance +3
+
+Fantasista +4
+
+Ball Control +4
+Dribbling +4
+Finishing +4
+Balance +4
+
+Free-kick Taking +2
+
+Finishing +2
+Place Kicking +2
+Curl +2
+Kicking Power +2
+
+Free-kick Taking +3
+
+Finishing +3
+Place Kicking +3
+Curl +3
+Kicking Power +3
+
+Goalkeeping +2
+
+Goalkeeping +2
+Gk Catching +2
+GK Parrying +2
+GK Reflexes +2
+
+Goalkeeping +3
+
+Goalkeeping +3
+Gk Catching +3
+GK Parrying +3
+GK Reflexes +3
+
+Hard Worker +2
+
+Acceleration +2
+Physical +2
+Stamina +2
+Aggression +2
+
+Hard Worker +3
+
+Acceleration +3
+Physical +3
+Stamina +3
+Aggression +3
+
+King of Football +4
+
+Dribbling +4
+Tight Possession +4
+Physical +4
+Balance +4
+
+Le Petit Prince +3
+
+Offensive Awareness +3
+Low Pass +3
+Finishing +3
+Kicking Power +3
+
+Magical +4
+
+Offensive Awareness +4
+Dribbling +4
+Tight Possession +4
+Acceleration +4
+
+Natural Born +4
+
+Offensive Awareness +4
+Ball Control +4
+Dribbling +4
+Finishing +4
+
+No Booster
+
+Off the ball +2
+
+Offensive Awareness +2
+Speed +2
+Acceleration +2
+Stamina +2
+
+Off the ball +3
+
+Offensive Awareness +3
+Speed +3
+Acceleration +3
+Stamina +3
+
+Offence creator +2
+
+Offensive Awareness +2
+Ball Control +2
+Low Pass +2
+Kicking Power +2
+
+Offence creator +3
+
+Offensive Awareness +3
+Ball Control +3
+Low Pass +3
+Kicking Power +3
+
+Passing +2
+
+Low Pass +2
+Lofted Pass +2
+Curl +2
+Kicking Power +2
+
+Passing +3
+
+Low Pass +3
+Lofted Pass +3
+Curl +3
+Kicking Power +3
+
+Physicality +2
+
+Jump +2
+Physical +2
+Balance +2
+Stamina +2
+
+Physicality +3
+
+Jump +3
+Physical +3
+Balance +3
+Stamina +3
+
+Rebuilding +2
+
+Low Pass +2
+Defensive Awareness +2
+Defensive Engagement +2
+Aggression +2
+
+Rebuilding +3
+
+Low Pass +3
+Defensive Awareness +3
+Defensive Engagement +3
+Aggression +3
+
+Regista +2
+
+Tight Possession +2
+Low Pass +2
+Defensive Awareness +2
+Tackling +2
+
+Regista +3
+
+Tight Possession +3
+Low Pass +3
+Defensive Awareness +3
+Tackling +3
+
+Saving +2
+
+Goalkeeping +2
+GK Parrying +2
+GK Reflexes +2
+GK Reach +2
+
+Saving +3
+
+Goalkeeping +3
+GK Parrying +3
+GK Reflexes +3
+GK Reach +3
+
+Shooting +2
+
+Ball Control +2
+Finishing +2
+Kicking Power +2
+Physical +2
+
+Shooting +3
+
+Ball Control +3
+Finishing +3
+Kicking Power +3
+Physical +3
+
+Shooting +5
+
+Ball Control +5
+Finishing +5
+Kicking Power +5
+Physical +5
+
+Shutdown +2
+
+Speed +2
+Defensive Awareness +2
+Tackling +2
+Defensive Engagement +2
+
+Shutdown +3
+
+Speed +3
+Defensive Awareness +3
+Tackling +3
+Defensive Engagement +3
+
+Son of God +4
+
+Dribbling +4
+Low Pass +4
+Finishing +4
+Kicking Power +4
+
+Stealing +2
+
+Acceleration +2
+Physical +2
+Tackling +2
+Aggression +2
+
+Stealing +3
+
+Acceleration +3
+Physical +3
+Tackling +3
+Aggression +3
+
+Stealing +4
+
+Acceleration +4
+Physical +4
+Tackling +4
+Aggression +4
+
+Strength +2
+
+Speed +2
+Kicking Power +2
+Jump +2
+Physical +2
+
+Strength +3
+
+Speed +3
+Kicking Power +3
+Jump +3
+Physical +3
+
+Strength +4
+
+Speed +4
+Kicking Power +4
+Jump +4
+Physical +4
+
+Striker's Instinct +2
+
+Offensive Awareness +2
+Ball Control +2
+Finishing +2
+Acceleration +2
+
+Striker's Instinct +3
+
+Offensive Awareness +3
+Ball Control +3
+Finishing +3
+Acceleration +3
+
+Striker's Instinct +4
+
+Offensive Awareness +4
+Ball Control +4
+Finishing +4
+Acceleration +4
+
+Striking +4
+
+Offensive Awareness +4
+Acceleration +4
+Kicking Power +4
+Physical +4
+
+Technique +2
+
+Ball Control +2
+Dribbling +2
+Tight Possession +2
+Low Pass +2
+
+Technique +3
+
+Ball Control +3
+Dribbling +3
+Tight Possession +3
+Low Pass +3
+
+Technique +4
+
+Ball Control +4
+Dribbling +4
+Tight Possession +4
+Low Pass +4
+
+Technique +5
+
+Ball Control +5
+Dribbling +5
+Tight Possession +5
+Low Pass +5
+
+The Undisputed +3
+
+Offensive Awareness +3
+Ball Control +3
+Dribbling +3
+Physical +3
+
+Total Package +1
+
+Offensive Awareness +1
+Ball Control +1
+Dribbling +1
+Tight Possession +1
+Low Pass +1
+Lofted Pass +1
+Finishing +1
+Heading +1
+Place Kicking +1
+Curl +1
+Speed +1
+Acceleration +1
+Kicking Power +1
+Jump +1
+Physical +1
+Balance +1
+Stamina +1
+Defensive Awareness +1
+Tackling +1
+Defensive Engagement +1
+Aggression +1
+Goalkeeping +1
+Gk Catching +1
+GK Parrying +1
+GK Reflexes +1
+GK Reach +1
+
+Total Package +2
+
+Offensive Awareness +2
+Ball Control +2
+Dribbling +2
+Tight Possession +2
+Low Pass +2
+Lofted Pass +2
+Finishing +2
+Heading +2
+Place Kicking +2
+Curl +2
+Speed +2
+Acceleration +2
+Kicking Power +2
+Jump +2
+Physical +2
+Balance +2
+Stamina +2
+Defensive Awareness +2
+Tackling +2
+Defensive Engagement +2
+Aggression +2
+Goalkeeping +2
+Gk Catching +2
+GK Parrying +2
+GK Reflexes +2
+GK Reach +2
+
+Total Package +3
+
+Offensive Awareness +3
+Ball Control +3
+Dribbling +3
+Tight Possession +3
+Low Pass +3
+Lofted Pass +3
+Finishing +3
+Heading +3
+Place Kicking +3
+Curl +3
+Speed +3
+Acceleration +3
+Kicking Power +3
+Jump +3
+Physical +3
+Balance +3
+Stamina +3
+Defensive Awareness +3
+Tackling +3
+Defensive Engagement +3
+Aggression +3
+Goalkeeping +3
+Gk Catching +3
+GK Parrying +3
+GK Reflexes +3
+GK Reach +3)
+  - 2 Boosters ((Accuracy
+Passing
+Shooting
+Ball Control
+Agility
+Speed
+Power
+Physical
+Aerial
+Defending
+Duelling
+Aerial Block
+GK Protecting
+GK Saving
+GK Clear-out
+Tactical
+Technique)
+- Admin can choose booster slots independently.
+- Add searchable booster selector.
+- Store booster data in database.
+- Display booster effects automatically.
+
+Booster Categories:
+Accuracy
+Passing
+Shooting
+Ball Control
+Agility
+Speed
+Power
+Physical
+Aerial
+Defending
+Duelling
+Aerial Block
+GK Protecting
+GK Saving
+GK Clear-out
+Tactical
+Technique
+
+Include all booster variations and levels (+1, +2, +3, +4, +5) provided in my booster list.
+
+7. Managers System
+   Create a Managers database and selector.
+
+Allow assigning managers to players.
+
+Include manager ratings:
+
+- 90 Managers
+- 89 Managers
+- 88 Managers
+- 87 and below
+
+(90R. Martinez: 90Thomas Tuchel: 90 (two versions)Managers (89 Rating)Cesc Fabregas: 89Cristian Chivu: 89D. Deschamps: 89Frank Rijkaard: 89 (two versions)Fabio Capello: 89Gennaro Gattuso: 89Guardiola: 89Hansi Flick: 89Johan Cruyff: 89 (two versions)Jose Mourinho: 89Jurgen Klopp: 89L. Spalletti: 89M. Allegri: 89Mikel Arteta: 89Niko Kovac: 89Okan Buruk: 89P. Kluivert: 89Ronald Koeman: 89Ruben Amorim: 89Rudi Garcia: 89Stale Solbakken: 89Xabi Alonso: 89 (two versions)Managers (88 Rating)D. Stojkovic: 88Frank Lampard: 88 (two versions)G. Southgate: 88Guardiola: 88Hansi Flick: 88Jose Mourinho: 88L. de la Fuente: 88Patrick Vieira: 88Paulo Fonseca: 88R. Martinez: 88 (two versions)Ruben Amorim: 88Simone Inzaghi: 88V. Montella: 88Vincent Kompany: 88Xabi Alonso: 88 (two versions)Managers (87 Rating and Below)L. Scaloni: 87O. Henriques: 87Erik ten Hag: 85Mikel Arteta: 85Simone Inzaghi: 85Stefano Pioli: 85Thomas Tuchel: 85Xavi: 85Zico: 83No Manager: 70)
+
+Include every manager provided in my manager list.
+
+Allow:
+
+- Search managers
+- Filter by rating
+- Edit manager
+- Add manager image
+
+8. Predicted Players Section
+   Create a new section called "Predicted Players".
+
+Features:
+
+- Add predicted future cards.
+- Predicted overall rating.
+- Predicted stats.
+- Predicted boosters.
+- Prediction confidence level.
+- Expected release date.
+- Voting system:
+  - Agree
+  - Disagree
+
+Display predicted cards separately from official players.
+
+9. Homepage Improvements
+   Add:
+
+- Featured Player
+- Trending Players
+- Latest Blog Posts
+- Predicted Players
+- Recently Added Players
+
+10. Player Comparison
+    Create compare page.
+
+Compare:
+
+- Rating
+- Stats
+- Boosters
+- Manager
+- Playstyle
+
+Side-by-side comparison.
+
+11. Search & Filters
+    Global search.
+
+Filters:
+
+- Position
+- Team
+- Playstyle
+- Rating
+- Manager
+- Booster
+- Predicted/Official
+
+12. Clean URLs
+    Convert:
+
+- /index.html
+- /blog.html
+- /admin.html
+
+Into:
+
+- /
+- /blog
+- /admin
+- /player/[id]
+
+Use clean routing.
+
+13. SEO
+    Add:
+
+- Sitemap
+- robots.txt
+- Open Graph tags
+- Twitter cards
+- Dynamic page titles
+- Meta descriptions
+
+14. Design
+    Keep current eFootHub identity.
+
+Improve:
+
+- Mobile responsiveness
+- Loading states
+- Animations
+- Accessibility
+
+Create a modern football/gaming aesthetic using dark colors and blue accents.
+
+15. Performance
+
+- Lazy load images.
+- Optimize database queries.
+- Add pagination.
+- Cache frequently used content.
+
+16. AI Build Generator
+
+Create an AI-powered Build Generator.
+
+Features:
+
+- User selects:
+  - Player
+  - Position
+  - Playstyle
+  - Manager
+- AI recommends:
+  - Best build
+  - Best manager
+  - Best booster combination
+  - Best progression points
+- Generate explanations for why the build is recommended.
+- Include multiple build styles:
+  - Meta Build
+  - Balanced Build
+  - Offensive Build
+  - Defensive Build
+  - Fun Build
+
+17. Build Battles
+
+Create a community voting system.
+
+Features:
+
+- Compare two player builds.
+- Users vote:
+  - Build A
+  - Build B
+- Show:
+  - Total votes
+  - Win percentage
+  - Popularity score
+- Display daily and weekly top builds.
+- Allow admins to create featured battles.
+
+18. Player Evolution History
+
+Create a player evolution timeline.
+
+Features:
+
+- Show every version of a player.
+- Display:
+  - Release date
+  - Overall rating
+  - Playstyle
+  - Booster changes
+  - Stat changes
+- Visual timeline showing player progression.
+- Compare old vs new versions.
+- Show rating growth history.
+
+Example:
+2024 → 95
+2025 → 99
+2026 → 102
+
+19. Booster Simulator
+
+Create an interactive Booster Simulator.
+
+Features:
+
+- Select player.
+- Select manager.
+- Select Booster Slot 1.
+- Select Booster Slot 2.
+- Instantly calculate:
+  - New overall rating
+  - Updated stats
+  - Boosted attributes
+- Show before and after comparison.
+- Support:
+  - No Booster
+  - Single Booster
+  - Double Booster
+- Fully integrate with the booster database.
+
+20. Community Rating System
+
+Allow users to rate players.
+
+Features:
+
+- Rate from 1–5 stars.
+- Display:
+  - Community Rating
+  - Number of votes
+  - Most loved players
+  - Highest rated players
+- Prevent duplicate voting abuse.
+- Show rating rankings globally.
+
+21. Squad Builder
+
+Create a professional Squad Builder.
+
+Features:
+
+- Drag and drop players into positions.
+- Support multiple formations:
+  - 4-3-3
+  - 4-2-1-3
+  - 4-1-2-3
+  - 3-4-3
+  - 3-2-3-2
+  - 5-3-2
+  - and more
+- Calculate:
+  - Team overall rating
+  - Team strengths
+  - Team weaknesses
+- Apply manager bonuses.
+- Apply booster effects.
+- Save squads to user account.
+- Share squads using unique links.
+- Public squad showcase.
+- Community voting on squads.
+- Favorite squads.
+- Clone existing squads.
+
+22. Advanced Homepage Features
+
+Add:
+
+- Featured Squad of the Week
+- Highest Rated Community Player
+- Most Used Booster
+- Most Popular Manager
+- Top Rated Squad
+- Latest Build Battle Winner
+- Trending Predicted Players
+
+23. User Accounts & Profiles
+
+Create user profiles.
+
+Features:
+
+- Google Login
+- Username
+- Profile Picture
+- Saved Squads
+- Favorite Players
+- Favorite Builds
+- Voting History
+- Community Ranking
+
+24. Notifications
+
+Add notifications for:
+
+- New player releases
+- New blog posts
+- Predicted player updates
+- Build battle results
+- Booster database updates
+
+Goal:
+Transform eFootHub into the ultimate eFootball platform combining player database, community tools, AI-powered recommendations, squad building, booster simulation, rankings, voting systems, and professional football analytics.
+
+

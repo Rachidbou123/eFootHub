@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Players | eFootball Training Hub</title>
+    <meta name="description" content="Compare two eFootball players side by side by rating, stats, boosters, manager, and playstyle.">
+    <meta name="robots" content="index, follow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="supabase_config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-data.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 32%),
+                radial-gradient(circle at top right, rgba(14, 165, 233, 0.09), transparent 26%),
+                linear-gradient(180deg, #050816 0%, #02040a 58%, #010205 100%);
+            color: #e2e8f0;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(135deg, rgba(255,255,255,0.02), transparent 28%),
+                linear-gradient(315deg, rgba(255,255,255,0.015), transparent 22%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        h1, h2, h3, .brand-font { font-family: 'Teko', sans-serif; }
+        .panel {
+            background: rgba(8, 12, 22, 0.78);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 18px 64px rgba(0, 0, 0, 0.22);
+            backdrop-filter: blur(18px);
+        }
+        .field {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <nav class="sticky top-0 z-40 border-b border-white/10 bg-black/90 backdrop-blur-xl">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between sm:h-20">
+                <a href="index.html" class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 font-bold text-white brand-font text-2xl">EF</div>
+                    <div class="flex flex-col text-left">
+                        <span class="brand-font text-2xl font-bold tracking-widest text-white leading-none">TRAINING</span>
+                        <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-400">Compare</span>
+                    </div>
+                </a>
+                <div class="flex items-center gap-2">
+                    <a href="index.html" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Home</a>
+                    <a href="blog.html" class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-white">Blog</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        <section class="panel rounded-[2rem] p-5 sm:p-6">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                    <span class="inline-flex rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300">Side-by-side comparison</span>
+                    <h1 class="mt-4 text-5xl uppercase leading-none text-white sm:text-6xl">Compare Players</h1>
+                    <p class="mt-3 text-sm leading-relaxed text-slate-300">Choose two players and compare ratings, stats, boosters, manager, and playstyle.</p>
+                </div>
+                <div class="grid gap-3 lg:grid-cols-2 lg:min-w-[34rem]">
+                    <select id="playerA" class="field"></select>
+                    <select id="playerB" class="field"></select>
+                </div>
+            </div>
+
+            <div class="mt-5 flex justify-end">
+                <button onclick="renderComparison()" class="rounded-2xl bg-blue-600 px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white">Compare</button>
+            </div>
+
+            <div id="compareResult" class="mt-6"></div>
+        </section>
+    </main>
+
+    <script>
+        function normalizePlayer(player) {
+            return {
+                id: String(player.id),
+                name: player.name || '',
+                team: player.team || '',
+                position: player.position || '',
+                rating: Number(player.overall_rating || player.overallRating || player.rating || 0),
+                playstyle: player.playstyle || player.playingStyle || '',
+                manager: player.manager || '',
+                booster1: player.booster_slot_1 || '',
+                booster2: player.booster_slot_2 || '',
+                image: player.image_url || player.imageUrl || player.image || '',
+                build: player.build || player.stats || {}
+            };
+        }
+
+        async function loadPlayers() {
+            let players = [];
+            if (window.EFHubData && typeof window.EFHubData.loadCollection === 'function') {
+                players = await window.EFHubData.loadCollection('players', {
+                    order: { column: 'created_at', ascending: false }
+                });
+            }
+            if (!Array.isArray(players) || !players.length) {
+                const response = await fetch('players.json');
+                players = await response.json();
+            }
+            return players.map(normalizePlayer);
+        }
+
+        function statValue(player, stat) {
+            return Number(player.build?.[stat] || 0);
+        }
+
+        function buildRow(label, a, b) {
+            const winner = Number(a) > Number(b) ? 'A' : Number(b) > Number(a) ? 'B' : 'Tie';
+            return `
+                <div class="grid gap-3 lg:grid-cols-[160px_1fr_1fr] items-center rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div class="text-xs font-bold uppercase tracking-[0.25em] text-slate-500">${label}</div>
+                    <div class="${winner === 'A' ? 'text-blue-300' : 'text-white'} text-sm">${a}</div>
+                    <div class="${winner === 'B' ? 'text-blue-300' : 'text-white'} text-sm">${b}</div>
+                </div>
+            `;
+        }
+
+        async function init() {
+            const players = await loadPlayers();
+            const selectA = document.getElementById('playerA');
+            const selectB = document.getElementById('playerB');
+            const options = players.map(player => `<option value="${player.id}">${player.name} • ${player.position} • OVR ${player.rating}</option>`).join('');
+            selectA.innerHTML = options;
+            selectB.innerHTML = options;
+            if (players.length >= 2) {
+                selectA.value = players[0].id;
+                selectB.value = players[1].id;
+            }
+            window.__comparePlayers = players;
+            renderComparison();
+        }
+
+        function renderComparison() {
+            const players = window.__comparePlayers || [];
+            const a = normalizePlayer(players.find(player => player.id === document.getElementById('playerA').value) || players[0] || {});
+            const b = normalizePlayer(players.find(player => player.id === document.getElementById('playerB').value) || players[1] || {});
+            const result = document.getElementById('compareResult');
+            if (!a.id || !b.id) {
+                result.innerHTML = '<div class="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-8 text-center text-slate-400">No players found.</div>';
+                return;
+            }
+
+            const stats = ['Shooting', 'Passing', 'Dribbling', 'Dexterity', 'Lower Body', 'Aerial', 'Defending', 'GK 1', 'GK 2', 'GK 3'];
+
+            result.innerHTML = `
+                <div class="grid gap-5 lg:grid-cols-2">
+                    ${[a, b].map((player, index) => `
+                        <article class="panel rounded-[2rem] p-5">
+                            <div class="flex items-center gap-4">
+                                <img src="${player.image || 'https://placehold.co/240x320/050816/ffffff?text=Player'}" alt="${player.name}" class="h-28 w-20 rounded-2xl object-cover border border-white/10">
+                                <div>
+                                    <h2 class="brand-font text-4xl uppercase text-white leading-none">${player.name}</h2>
+                                    <p class="text-[10px] uppercase tracking-[0.25em] text-slate-500">${player.team || 'Team'} • ${player.position || 'Position'}</p>
+                                    <div class="mt-2 text-3xl font-bold text-blue-300">${player.rating}</div>
+                                </div>
+                            </div>
+                            <div class="mt-5 grid gap-3">
+                                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">Playstyle: <span class="text-white font-bold">${player.playstyle || '—'}</span></div>
+                                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">Manager: <span class="text-white font-bold">${player.manager || '—'}</span></div>
+                                <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">Boosters: <span class="text-white font-bold">${player.booster1 || 'None'} / ${player.booster2 || 'None'}</span></div>
+                            </div>
+                        </article>
+                    `).join('')}
+                </div>
+                <div class="mt-6 grid gap-3">
+                    ${buildRow('Overall Rating', a.rating, b.rating)}
+                    ${stats.map(stat => buildRow(stat, statValue(a, stat), statValue(b, stat))).join('')}
+                </div>
+            `;
+        }
+
+        init();
+    </script>
+</body>
+</html>

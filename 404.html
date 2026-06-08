@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting…</title>
+    <meta http-equiv="refresh" content="0; url=/eFootHub/">
+    <script>
+        (function () {
+            const path = window.location.pathname.replace(/\/+$/, '');
+            const last = path.split('/').filter(Boolean).pop() || '';
+            if (path.includes('/player/')) {
+                const id = path.split('/').filter(Boolean).pop();
+                window.location.replace('/eFootHub/player.html?id=' + encodeURIComponent(id));
+                return;
+            }
+            if (path.endsWith('/blog') || last === 'blog') {
+                window.location.replace('/eFootHub/blog.html');
+                return;
+            }
+            if (path.endsWith('/admin') || last === 'admin') {
+                window.location.replace('/eFootHub/admin.html');
+                return;
+            }
+            if (path.endsWith('/compare') || last === 'compare') {
+                window.location.replace('/eFootHub/compare.html');
+                return;
+            }
+            window.location.replace('/eFootHub/');
+        })();
+    </script>
+</head>
+<body style="background:#02040a;color:#fff;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;">
+    Redirecting...
+</body>
+</html>
